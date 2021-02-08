@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Settlement.ThirdPartyBroadcastApi", "Settlement.ThirdPartyBroadcastApi\Settlement.ThirdPartyBroadcastApi.csproj", "{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B9452C8-F9F3-4544-A591-F598AE8D54EE}
+	EndGlobalSection
+EndGlobal

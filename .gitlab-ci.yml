@@ -1,0 +1,5 @@
+include:
+  - project: "ci/repos-ci/olympus_nap_settlement_broadcastapi"
+    ref: master
+    file: "gitlab-ci.yml"
+
