@@ -1,5 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Functions>
-  <Function Name="InfoSite">
+  <Function Name="Happy 5">
+    <Function Name="NAP_Set_MatchOtherSportsSel">
+      <Setting Key="NAP_Admin_Settlement_s164_DBTXN" SpName="NAP_Admin_Settlement_s164" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="NAP_Admin_Settlement_s164_DBSID01" SpName="NAP_Admin_Settlement_s164" DbName="DBSID01.bodb02.bodbAdminNet" />
+    </Function>
+  </Function>
+
+  <Function Name="Number Game">
+    <Function Name="NAP_Admin_Settlement_s161">
+      <Setting Key="NAP_Admin_Settlement_s161_DBTXN" SpName="NAP_Admin_Settlement_s161" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="NAP_Admin_Settlement_s161_DBSID01" SpName="NAP_Admin_Settlement_s161" DbName="DBSID01.bodb02.bodbAdminNet" />
+    </Function>
   </Function>
 </Functions>

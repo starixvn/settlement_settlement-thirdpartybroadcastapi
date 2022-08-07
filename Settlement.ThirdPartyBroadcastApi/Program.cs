@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using ThirdPartyBroadcast.Models;
 
 namespace BroadcastApi
 {
@@ -18,6 +21,12 @@ namespace BroadcastApi
                     webBuilder.ConfigureKestrel(serverOptions =>
                     {
                     }).UseStartup<Startup>();
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services
+                        .Configure<AppSettingsKey>(hostContext.Configuration)
+                        .AddSingleton(sp => sp.GetRequiredService<IOptions<AppSettingsKey>>().Value);
                 });
     }
 }
