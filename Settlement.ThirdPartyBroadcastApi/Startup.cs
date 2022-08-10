@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using Fanex.Data;
+using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
@@ -11,6 +12,7 @@ using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
+using Kaden.XmlConverter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,8 @@ using Microsoft.Extensions.Hosting;
 using Sentry;
 using ThirdPartyBroadcast.Controllers;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using ThirdPartyBroadcast.Services;
 
 namespace BroadcastApi
 {
@@ -45,7 +49,7 @@ namespace BroadcastApi
             services.AddControllers();
         }
 
-        private void ConfigureCORS(IServiceCollection services)
+        private static void ConfigureCORS(IServiceCollection services)
         {
             services.AddCors(options =>
             {
@@ -63,6 +67,18 @@ namespace BroadcastApi
         private static void ConfigInternalServices(IServiceCollection services)
         {
             services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
+            services.AddTransient<IDynamicRepository, DynamicRepository>();
+            services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<HappyFiveService, HappyFiveServiceImp>();
+            services.AddTransient<NumberGameService, NumberGameServiceImp>();
+            services.AddTransient<FastMarketService, FastMarketServiceImp>();
+            services.AddTransient<BetBuilderService, BetBuilderServiceImp>();
+            services.AddTransient<VirtualBetRadarService, VirtualBetRadarServiceImp>();
+            services.AddTransient<VirtualSoccerService, VirtualSoccerServiceImp>();
+            services.AddTransient<PinGoalService, PinGoalServiceImp>();
+            services.AddTransient<BitCoinService, BitCoinServiceImp>();
+            services.AddTransient<OutrightService, OutrightServiceImp>();
         }
 
         private static void ConfigureAutoMapper(IServiceCollection services)
@@ -99,7 +115,7 @@ namespace BroadcastApi
                 {
                     new SentryLogging(new SentryEngineOptions
                     {
-                        Dsn = new Dsn(Configuration.GetSection("SentryEngineOptions:Dsn").Value)
+                        Dsn = new Dsn(Configuration.GetSection("SentryToken").Value)
                     })
                 });
 
