@@ -24,6 +24,8 @@ namespace BroadcastApi
 {
     public class Startup
     {
+        private const string allowOrigin = "AllowOrigin";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -34,12 +36,28 @@ namespace BroadcastApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureCORS(services);
             ConfigureFanex();
             ConfigureAutoMapper(services);
             ConfigInternalServices(services);
             services.AddMediatR(typeof(ThirdPartyBroadcastController).GetTypeInfo().Assembly);
 
             services.AddControllers();
+        }
+
+        private void ConfigureCORS(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(allowOrigin,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
+                    });
+            });
         }
 
         private static void ConfigInternalServices(IServiceCollection services)
