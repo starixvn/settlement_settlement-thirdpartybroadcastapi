@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    internal class OutrightRequest
+    public class OutrightRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
+
+        public int AdminId { get; set; }
 
         public string Action { get; set; }
 

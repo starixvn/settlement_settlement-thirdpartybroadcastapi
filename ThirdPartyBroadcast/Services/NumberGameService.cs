@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Fanex.Data.Repository;
-using Kaden.XmlConverter;
 using Microsoft.Extensions.Options;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
@@ -20,20 +19,16 @@ namespace ThirdPartyBroadcast.Services
     {
         private readonly IDynamicRepository repository;
 
-        private readonly XmlConvertService xmlConvertService;
-
         private readonly AppSettingsKey appSettingsKey;
 
         private readonly IMapper mapper;
 
         public NumberGameServiceImp(
             IDynamicRepository repository,
-            XmlConvertService xmlConvertService,
             IOptions<AppSettingsKey> appSettingsKey,
             IMapper mapper)
         {
             this.repository = repository;
-            this.xmlConvertService = xmlConvertService;
             this.appSettingsKey = appSettingsKey.Value;
             this.mapper = mapper;
         }

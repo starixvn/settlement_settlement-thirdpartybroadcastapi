@@ -7,10 +7,17 @@ namespace ThirdPartyBroadcast.Requests
     {
         public int MatchId { get; set; }
 
-        public string Resources { get; set; }
+        public int AdminId { get; set; }
 
         public string Action { get; set; }
 
+        public bool Ip { get; set; }
+
         public bool IsAuto { get; set; }
+
+        public int VendorId { get; set; }
+
+        public string Resources { get; set; }
+
     }
 }

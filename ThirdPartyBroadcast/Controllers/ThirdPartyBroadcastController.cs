@@ -21,5 +21,26 @@ namespace ThirdPartyBroadcast.Controllers
 
         [Route("number-game"), HttpPost]
         public async Task<IActionResult> NumberGameSettle(NumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("bit-coin"), HttpPost]
+        public async Task<IActionResult> BitCoinSettle(BitCoinRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("pin-goal"), HttpPost]
+        public async Task<IActionResult> PinGoalSettle(PinGoalRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("virtual-bet-radar"), HttpPost]
+        public async Task<IActionResult> VirtualBetRadarSettle(VirtualBetRadarRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("virtual-soccer"), HttpPost]
+        public async Task<IActionResult> VirtualSoccerSettle(VirtualSoccerRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("fast-market"), HttpPost]
+        public async Task<IActionResult> FastMarketSettle(FastMarketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("bet-builder"), HttpPost]
+        public async Task<IActionResult> BetBuilderSettle(BetBuilderRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+        [Route("outright"), HttpPost]
+        public async Task<IActionResult> OutrightSettle(OutrightRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
     }
 }
