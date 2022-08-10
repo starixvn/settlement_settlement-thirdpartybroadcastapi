@@ -120,6 +120,8 @@ namespace BroadcastApi
 
             app.UseRouting();
 
+            app.UseCors(allowOrigin);
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
