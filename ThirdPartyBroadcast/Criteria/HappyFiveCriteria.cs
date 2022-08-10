@@ -7,15 +7,15 @@ namespace ThirdPartyBroadcast.Criteria
     {
         public int MatchId { get; set; }
 
-        public string Action { get; set;}
-
         public int AdminId { get; set; }
+
+        public string Action { get; set; }
+
+        public bool Ip { get; set; }
 
         public bool IsAuto { get; set; }
 
         public string Resources { get; set; }
-
-        public string Ip { get; set; }
 
         public int ErrCode { get; set; }
 

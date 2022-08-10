@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using AutoMapper;
 using Fanex.Data;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
@@ -7,12 +9,16 @@ using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
+using Fanex.Settlement.ScaleOut;
+using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sentry;
+using ThirdPartyBroadcast.Controllers;
+using MediatR;
 
 namespace BroadcastApi
 {
@@ -29,8 +35,27 @@ namespace BroadcastApi
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureFanex();
+            ConfigureAutoMapper(services);
+            ConfigInternalServices(services);
+            services.AddMediatR(typeof(ThirdPartyBroadcastController).GetTypeInfo().Assembly);
 
             services.AddControllers();
+        }
+
+        private static void ConfigInternalServices(IServiceCollection services)
+        {
+            services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
+        }
+
+        private static void ConfigureAutoMapper(IServiceCollection services)
+        {
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(typeof(ScaleOutMappingProfile));
+            });
+
+            var mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         private void ConfigureFanex()
