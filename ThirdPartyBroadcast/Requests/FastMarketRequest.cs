@@ -17,6 +17,10 @@ namespace ThirdPartyBroadcast.Requests
 
         public bool IsReSettledTickets { get; set; }
 
+        public bool IsSettleDetermined { get; set; }
+
+        public string Results { get; set; }
+
         public string EventCounters { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 <Functions>
   <Function Name="ThirdParty Broadcast">
     <Setting Key="NAP_Admin_Settlement_3rdValidation_Event" SpName="NAP_Admin_Settlement_3rdValidation_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
-   
+    <Setting Key="NAP_Admin_Settlement_Validation_Event" SpName="NAP_Admin_Settlement_Validation_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">
@@ -24,5 +24,18 @@
         <Setting Key="NAP_Admin_Settlement_s161_DBSID01" SpName="NAP_Admin_Settlement_s161" DbName="DBSID01.bodb02.bodbAdminNet" />
       </Function>
     </Function>
+
+    <Function Name="Fast Market">
+      <Function Name="NAP_Admin_Settlement_Fast_Market_Auto_1s_Push">
+        <Setting Key="NAP_Admin_Settlement_Fast_Market_Auto_1s_Push_DBTXN" SpName="NAP_Admin_Settlement_Fast_Market_Auto_1s_Push" DbName="DBTXN.bodb02.bodbAdminNet" />
+        <Setting Key="NAP_Admin_Settlement_Fast_Market_Auto_1s_Push_DBSID01" SpName="NAP_Admin_Settlement_Fast_Market_Auto_1s_Push" DbName="DBSID01.bodb02.bodbAdminNet" />
+      </Function>
+    </Function>
+
+    <Function Name="NAP_Admin_Settlement_Validation_Ticket">
+      <Setting Key="NAP_Admin_Settlement_Validation_Ticket_DBTXN" SpName="NAP_Admin_Settlement_Validation_Ticket_UAT1" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="NAP_Admin_Settlement_Validation_Ticket_DBSID01" SpName="NAP_Admin_Settlement_Validation_Ticket_UAT1" DbName="DBSID01.bodb02.bodbAdminNet" />
+    </Function>
+
   </Function>
 </Functions>

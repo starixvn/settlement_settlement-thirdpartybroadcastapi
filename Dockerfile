@@ -1,9 +1,10 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
-WORKDIR /src
+
 
 COPY ./Settlement.ThirdPartyBroadcastApi/Settlement.ThirdPartyBroadcastApi.csproj ./Settlement.ThirdPartyBroadcastApi/Settlement.ThirdPartyBroadcastApi.csproj
+COPY ./ThirdPartyBroadcast ./ThirdPartyBroadcast
 
-WORKDIR /src/Settlement.ThirdPartyBroadcastApi
+WORKDIR ./Settlement.ThirdPartyBroadcastApi
 RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n
 

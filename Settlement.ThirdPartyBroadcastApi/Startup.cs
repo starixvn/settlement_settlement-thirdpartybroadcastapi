@@ -58,8 +58,7 @@ namespace BroadcastApi
                     {
                         builder.AllowAnyOrigin()
                               .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials();
+                              .AllowAnyHeader();
                     });
             });
         }
@@ -79,6 +78,7 @@ namespace BroadcastApi
             services.AddTransient<PinGoalService, PinGoalServiceImp>();
             services.AddTransient<BitCoinService, BitCoinServiceImp>();
             services.AddTransient<OutrightService, OutrightServiceImp>();
+            services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         }
 
         private static void ConfigureAutoMapper(IServiceCollection services)

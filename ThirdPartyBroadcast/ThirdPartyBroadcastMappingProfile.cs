@@ -9,6 +9,8 @@ namespace ThirdPartyBroadcast
         public ThirdPartyBroadcastMappingProfile()
         {
             CreateMap<NumberGameRequest, NumberGameCriteria>();
+            CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
+            CreateMap<FastMarketRequest, FastMarketCriteria>();
         }
     }
 }
