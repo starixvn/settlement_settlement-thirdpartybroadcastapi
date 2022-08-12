@@ -11,7 +11,7 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Action { get; set; }
 
-        public bool Ip { get; set; }
+        public string Ip { get; set; }
 
         public bool IsAuto { get; set; }
 

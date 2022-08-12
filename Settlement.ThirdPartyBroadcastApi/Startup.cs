@@ -22,6 +22,7 @@ using Sentry;
 using ThirdPartyBroadcast.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.Services;
 
 namespace BroadcastApi
@@ -86,6 +87,7 @@ namespace BroadcastApi
             var mapperConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(typeof(ScaleOutMappingProfile));
+                mc.AddProfile(typeof(ThirdPartyBroadcastMappingProfile));
             });
 
             var mapper = mapperConfig.CreateMapper();

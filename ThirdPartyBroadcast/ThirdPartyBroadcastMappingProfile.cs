@@ -11,6 +11,8 @@ namespace ThirdPartyBroadcast
             CreateMap<NumberGameRequest, NumberGameCriteria>();
             CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
             CreateMap<FastMarketRequest, FastMarketCriteria>();
+            CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
+            CreateMap<HappyFiveRequest, HappyFiveCriteria>();
         }
     }
 }
