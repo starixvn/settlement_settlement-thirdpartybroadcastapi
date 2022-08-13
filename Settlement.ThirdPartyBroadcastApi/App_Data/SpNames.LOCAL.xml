@@ -5,6 +5,7 @@
     <Setting Key="NAP_Admin_Match_s164_Upd" SpName="NAP_Admin_Match_s164_Upd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_3rdValidation_Event" SpName="NAP_Admin_Settlement_3rdValidation_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_Validation_Event" SpName="NAP_Admin_Settlement_Validation_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key="NAP_Admin_MatchInfoUpd" SpName="NAP_Admin_MatchInfoUpd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">

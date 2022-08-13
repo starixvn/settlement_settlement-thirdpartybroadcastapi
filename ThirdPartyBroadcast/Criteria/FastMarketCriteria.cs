@@ -17,8 +17,6 @@ namespace ThirdPartyBroadcast.Criteria
 
         public string Results { get; set; }
 
-        public string EventCounters { get; set; }
-
         public bool IsSettleDetermined { get; set; }
 
         public bool IsReSettledTickets { get; set; }

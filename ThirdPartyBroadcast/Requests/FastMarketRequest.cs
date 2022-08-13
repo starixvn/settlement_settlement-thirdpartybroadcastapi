@@ -20,7 +20,5 @@ namespace ThirdPartyBroadcast.Requests
         public bool IsSettleDetermined { get; set; }
 
         public string Results { get; set; }
-
-        public string EventCounters { get; set; }
     }
 }

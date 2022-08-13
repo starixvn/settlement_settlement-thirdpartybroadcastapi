@@ -99,7 +99,6 @@ namespace ThirdPartyBroadcast.Services
                 Action = criteria.Action,
                 AdminId = criteria.AdminId,
                 Results = criteria.Results,
-                EventCounters = criteria.EventCounters,
                 Mode = fastMarketMode,
                 IsSettleDetermined = criteria.IsSettleDetermined,
                 IsAuto = true
