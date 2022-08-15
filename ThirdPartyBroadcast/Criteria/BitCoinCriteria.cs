@@ -26,7 +26,7 @@ namespace ThirdPartyBroadcast.Criteria
         [SpParam(Ignored = true)]
         public string DbServer { get; set; }
 
-        public override string GetSettingKey() => $"_{DbServer}";
+        public override string GetSettingKey() => $"NAP_Admin_Settlement_s175_{DbServer}";
 
         public override bool IsValid() => MatchId > 0;
     }

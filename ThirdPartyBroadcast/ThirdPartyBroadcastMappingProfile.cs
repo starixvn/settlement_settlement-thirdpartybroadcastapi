@@ -13,6 +13,8 @@ namespace ThirdPartyBroadcast
             CreateMap<FastMarketRequest, FastMarketCriteria>();
             CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
             CreateMap<HappyFiveRequest, HappyFiveCriteria>();
+            CreateMap<BitCoinRequest, BitCoinUpdateMatchCriteria>();
+            CreateMap<BitCoinRequest, BitCoinCriteria>();
         }
     }
 }
