@@ -3,7 +3,6 @@ using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
@@ -42,15 +41,15 @@ namespace ThirdPartyBroadcast.Services
         public async Task<Result> Settle(FastMarketRequest request)
         {
             var criteria = mapper.Map<FastMarketRequest, FastMarketCriteria>(request);
-
-            var validationResult = await ValidateBeforePush(criteria);
+            var requestValidation = mapper.Map<FastMarketCriteria, EventTicketFastMarketRequest>(criteria);
+            var validationResult = await scaleOutSettleService.ValidateEventAndTicketFastMarket(requestValidation);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(criteria);
                 return await ExecuteCalculate(criteria);
             }
 
-            return validationResult;
+            return new Result();
         }
 
         private async Task<Result> ExecuteCalculate(FastMarketCriteria criteria)
@@ -59,7 +58,7 @@ namespace ThirdPartyBroadcast.Services
             {
                 criteria.DbServer = server;
                 await repository.ExecuteAsync(criteria);
-                if(criteria.ErrCode > 0)
+                if (criteria.ErrCode > 0)
                 {
                     return new Result { ErrorCode = criteria.ErrCode, ErrorMessage = criteria.ErrMsg };
                 }
@@ -67,29 +66,6 @@ namespace ThirdPartyBroadcast.Services
 
             return new Result();
         }
-
-        private async Task<Result> ValidateBeforePush(FastMarketCriteria criteria )
-        {
-            var validationRequest = new EventTicketRequest
-            {
-                MatchId = criteria.MatchId,
-                Action = criteria.Action,
-                SpName = "NAP_Admin_Settlement_Fast_Market_Auto_1s_Push",
-                Mode = fastMarketMode,
-                SelectedResources = criteria.Results,
-                IsAuto = true
-            };
-
-            var validationResult = await scaleOutSettleService.ValidateEventAndTicket(validationRequest);
-  
-                return new Result
-                {
-                    ErrorCode = validationResult.ErrorCode,
-                    ErrorMessage = validationResult.ErrorMessage
-                };
-          
-        }
-
 
         private async Task UpdateMatchInfo(FastMarketCriteria criteria)
         {
@@ -106,6 +82,5 @@ namespace ThirdPartyBroadcast.Services
 
             await scaleOutSettleService.UpdateMatchInfo(requestUpdateInfo);
         }
-
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fanex.Settlement.ScaleOut.Request;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Requests;
 
@@ -15,6 +16,7 @@ namespace ThirdPartyBroadcast
             CreateMap<HappyFiveRequest, HappyFiveCriteria>();
             CreateMap<BitCoinRequest, BitCoinUpdateMatchCriteria>();
             CreateMap<BitCoinRequest, BitCoinCriteria>();
+            CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>().ForMember(dest => dest.SelectedResources, opt => opt.MapFrom(src => src.Results));
         }
     }
 }
