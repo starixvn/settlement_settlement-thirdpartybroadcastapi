@@ -80,6 +80,7 @@ namespace BroadcastApi
             services.AddTransient<BitCoinService, BitCoinServiceImp>();
             services.AddTransient<OutrightService, OutrightServiceImp>();
             services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
+            services.AddTransient<CalculateService, CalculateServiceImp>();
         }
 
         private static void ConfigureAutoMapper(IServiceCollection services)

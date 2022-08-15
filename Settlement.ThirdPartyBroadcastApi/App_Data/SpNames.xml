@@ -7,6 +7,7 @@
     <Setting Key="NAP_Admin_Settlement_Validation_Event" SpName="NAP_Admin_Settlement_Validation_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_MatchInfoUpd" SpName="NAP_Admin_MatchInfoUpd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_ValidationFM_Event" SpName="NAP_Admin_Settlement_ValidationFM_Event_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key="NAP_Admin_Outright_Update " SpName="NAP_Admin_Outright_Update_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">
@@ -43,6 +44,13 @@
     <Function Name="NAP_Admin_Settlement_Validation_Ticket">
       <Setting Key="NAP_Admin_Settlement_Validation_Ticket_DBTXN" SpName="NAP_Admin_Settlement_Validation_Ticket_UAT1" DbName="DBTXN.bodb02.bodbAdminNet" />
       <Setting Key="NAP_Admin_Settlement_Validation_Ticket_DBSID01" SpName="NAP_Admin_Settlement_Validation_Ticket_UAT1" DbName="DBSID01.bodb02.bodbAdminNet" />
+    </Function>
+  </Function>
+
+  <Function Name="OutRight">
+    <Function Name="NAP_Admin_Settlement_Outright">
+      <Setting Key="NAP_Admin_Settlement_Outright_DBTXN" SpName="NAP_Admin_Settlement_Outright_UAT1" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="NAP_Admin_Settlement_Outright_DBSID01" SpName="NAP_Admin_Settlement_Outright_UAT1" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
   </Function>
 </Functions>

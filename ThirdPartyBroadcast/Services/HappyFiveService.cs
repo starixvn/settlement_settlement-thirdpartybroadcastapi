@@ -92,7 +92,7 @@ namespace ThirdPartyBroadcast.Services
                 var result = new Result
                 {
                     ErrorCode = criteria.ErrCode,
-                    ErrorMessage =$"{server}: {criteria.ErrMsg}" 
+                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
                 };
 
                 if (result.ErrorCode > 0)

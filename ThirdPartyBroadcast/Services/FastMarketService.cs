@@ -3,6 +3,8 @@ using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
@@ -25,17 +27,21 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly AppSettingsKey appSettingsKey;
 
+        private readonly CalculateService calculateService;
+
         private readonly string fastMarketMode = "FM";
 
         public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
             IMapper mapper,
              IDynamicRepository repository,
-             IOptions<AppSettingsKey> appSettingsKey)
+             IOptions<AppSettingsKey> appSettingsKey,
+             CalculateService calculateService)
         {
             this.scaleOutSettleService = scaleOutSettleService;
             this.mapper = mapper;
             this.repository = repository;
             this.appSettingsKey = appSettingsKey.Value;
+            this.calculateService = calculateService;
         }
 
         public async Task<Result> Settle(FastMarketRequest request)
@@ -46,22 +52,7 @@ namespace ThirdPartyBroadcast.Services
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(criteria);
-                return await ExecuteCalculate(criteria);
-            }
-
-            return new Result();
-        }
-
-        private async Task<Result> ExecuteCalculate(FastMarketCriteria criteria)
-        {
-            foreach (var server in appSettingsKey.SiteDbServer)
-            {
-                criteria.DbServer = server;
-                await repository.ExecuteAsync(criteria);
-                if (criteria.ErrCode > 0)
-                {
-                    return new Result { ErrorCode = criteria.ErrCode, ErrorMessage = criteria.ErrMsg };
-                }
+                return await calculateService.Excecute(criteria);
             }
 
             return new Result();
