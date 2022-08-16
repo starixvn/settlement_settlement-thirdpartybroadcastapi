@@ -56,7 +56,11 @@ namespace ThirdPartyBroadcast.Services
                 return await calculateService.Excecute(criteria);
             }
 
-            return new Result();
+            return new Result
+            {
+                ErrorCode = validationResult.ErrorCode,
+                ErrorMessage = validationResult.ErrorMessage
+            };
         }
 
         private async Task UpdateMatchInfo(FastMarketCriteria criteria)
