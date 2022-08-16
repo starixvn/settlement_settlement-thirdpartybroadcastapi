@@ -7,7 +7,7 @@ using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
 using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria;
+using ThirdPartyBroadcast.Criteria.HappyFive;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 

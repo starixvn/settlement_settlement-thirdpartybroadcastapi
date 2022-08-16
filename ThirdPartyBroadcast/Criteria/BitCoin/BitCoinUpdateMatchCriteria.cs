@@ -1,6 +1,6 @@
 ﻿using Fanex.Data.Repository;
 
-namespace ThirdPartyBroadcast.Criteria
+namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
     public class BitCoinUpdateMatchCriteria : NonQueryCommand
     {
@@ -10,7 +10,7 @@ namespace ThirdPartyBroadcast.Criteria
 
         public int AdminId { get; set; }
 
-        public bool IsAuto { get; set; } = true;
+        public bool IsAuto { get; set; }
 
         public string GameResult { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using Fanex.Data.Repository;
 using System;
 
-namespace ThirdPartyBroadcast.Criteria
+namespace ThirdPartyBroadcast.Criteria.OutRight
 {
     public class OutRightUpdateMatchCriteria : NonQueryCommand
     {

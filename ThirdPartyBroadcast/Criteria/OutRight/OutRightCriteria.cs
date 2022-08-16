@@ -1,7 +1,4 @@
-﻿using Fanex.Data;
-using Fanex.Data.Repository;
-
-namespace ThirdPartyBroadcast.Criteria
+﻿namespace ThirdPartyBroadcast.Criteria.OutRight
 {
     public class OutRightCriteria : CalculateCriteria
     {

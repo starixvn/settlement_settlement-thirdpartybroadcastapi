@@ -22,14 +22,6 @@ namespace ThirdPartyBroadcast.Controllers
         [Route("number-game"), HttpPost]
         public async Task<IActionResult> NumberGameSettle(NumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 
-
-        [Route("bit-coin-test"), HttpGet]
-        public async Task<IActionResult> BitCoinSettle()
-        {
-            var request = new BitCoinRequest();
-            return Ok(await mediator.Send(request).ConfigureAwait(false));
-        }
-
         [Route("bit-coin"), HttpPost]
         public async Task<IActionResult> BitCoinSettle(BitCoinRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 

@@ -11,5 +11,9 @@
         public const string Outright = "outright";
 
         public const string VirtualSoccer = "VS1";
+
+        public const string VirtualBetradar = "193";
+
+        public const string BetBuilder = "BB";
     }
 }

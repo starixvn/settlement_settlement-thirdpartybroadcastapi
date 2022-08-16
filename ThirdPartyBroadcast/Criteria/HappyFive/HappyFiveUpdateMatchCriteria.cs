@@ -1,6 +1,6 @@
 ﻿using Fanex.Data.Repository;
 
-namespace ThirdPartyBroadcast.Criteria
+namespace ThirdPartyBroadcast.Criteria.HappyFive
 {
     public class HappyFiveUpdateMatchCriteria : NonQueryCommand
     {

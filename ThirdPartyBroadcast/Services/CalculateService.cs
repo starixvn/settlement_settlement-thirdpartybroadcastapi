@@ -51,6 +51,11 @@ namespace ThirdPartyBroadcast.Services
                 }
             }
 
+            return MergeFailedResult(listResult);
+        }
+
+        private Result MergeFailedResult(List<Result> listResult)
+        {
             if (listResult.Any())
             {
                 return new Result

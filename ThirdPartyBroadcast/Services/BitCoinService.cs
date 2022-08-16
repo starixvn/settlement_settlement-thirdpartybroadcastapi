@@ -5,7 +5,7 @@ using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria;
+using ThirdPartyBroadcast.Criteria.BitCoin;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 
@@ -18,25 +18,21 @@ namespace ThirdPartyBroadcast.Services
 
     public class BitCoinServiceImp : BitCoinService
     {
-        private readonly ScaleOutSettleService scaleOutSettleService;
+        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
         private readonly IDynamicRepository repository;
-
-        private readonly AppSettingsKey appSettingsKey;
 
         private readonly IMapper mapper;
 
         private readonly CalculateService calculateService;
 
-        public BitCoinServiceImp(ScaleOutSettleService scaleOutSettleService,
+        public BitCoinServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
             IDynamicRepository repository,
             IMapper mapper,
-            IOptions<AppSettingsKey> appSettingsKey,
             CalculateService calculateService)
         {
-            this.scaleOutSettleService = scaleOutSettleService;
+            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
             this.repository = repository;
-            this.appSettingsKey = appSettingsKey.Value;
             this.mapper = mapper;
             this.calculateService = calculateService;
         }
@@ -57,17 +53,17 @@ namespace ThirdPartyBroadcast.Services
 
         private async Task<Result> ValidateBeforePush(BitCoinRequest request)
         {
-            var validationRequest = new EventTicketRequest
+            var validationRequest = new EventTicketThirdPartyRequest
             {
                 MatchId = request.MatchId,
                 Action = request.Action,
                 SpName = "NAP_Admin_Settlement_s175",
                 SelectedResources = request.GameResult,
                 Mode = ModeType.Bitcoin,
-                IsAuto = true
+                IsAuto = request.IsAuto
             };
 
-            var validationResult = await scaleOutSettleService.ValidateEventAndTicket(validationRequest);
+            var validationResult = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(validationRequest);
 
             return new Result
             {

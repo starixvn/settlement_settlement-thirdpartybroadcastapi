@@ -2,6 +2,7 @@
 using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
+using MediatR;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace ThirdPartyBroadcast.Services
                 Results = criteria.Results,
                 Mode = fastMarketMode,
                 IsSettleDetermined = criteria.IsSettleDetermined,
-                IsAuto = true
+                IsAuto = criteria.IsAuto
             };
 
             await scaleOutSettleService.UpdateMatchInfo(requestUpdateInfo);

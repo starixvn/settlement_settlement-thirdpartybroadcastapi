@@ -1,9 +1,9 @@
 ﻿using Fanex.Data;
 using Fanex.Data.Repository;
 
-namespace ThirdPartyBroadcast.Criteria
+namespace ThirdPartyBroadcast.Criteria.BetBuilder
 {
-    public class VirtualBetRadarCriteria : NonQueryCommand
+    public class BetBuilderCriteria : NonQueryCommand
     {
         public int MatchId { get; set; }
 
@@ -13,17 +13,11 @@ namespace ThirdPartyBroadcast.Criteria
 
         public bool IsAuto { get; set; }
 
+        public int VendorId { get; set; }
+
+        public string Resources { get; set; }
+
         public string Ip { get; set; }
-
-        public int Hth { get; set; }
-
-        public int Hta { get; set; }
-
-        public int Fth { get; set; }
-
-        public int Fta { get; set; }
-
-        public string ResourceResult { get; set; }
 
         public int ErrCode { get; set; }
 
@@ -32,7 +26,7 @@ namespace ThirdPartyBroadcast.Criteria
         [SpParam(Ignored = true)]
         public string DbServer { get; set; }
 
-        public override string GetSettingKey() => $"_{DbServer}";
+        public override string GetSettingKey() => $"NAP_Admin_Settlement_BetBuilder_Push_{DbServer}";
 
         public override bool IsValid() => MatchId > 0;
     }

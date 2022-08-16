@@ -1,4 +1,4 @@
-﻿namespace ThirdPartyBroadcast.Criteria
+﻿namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
     internal class BitCoinCriteria : CalculateCriteria
     {
