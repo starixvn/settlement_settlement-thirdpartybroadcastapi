@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
 {
-    public class UpdateMatchBetRadarCriteria : NonQueryCommand
+    public class BetRadarUpdateMatchCriteria : NonQueryCommand
     {
         public int MatchId { get; set; }
 

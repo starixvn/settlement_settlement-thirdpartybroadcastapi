@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
 {
-    public class UpdateMatchVRSoccerCriteria : NonQueryCommand
+    public class VRSoccerUpdateMatchCriteria : NonQueryCommand
     {
         public int MatchId { get; set; }
 

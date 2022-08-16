@@ -9,12 +9,10 @@ namespace ThirdPartyBroadcast.Requests
 
         public int AdminId { get; set; }
 
-        public string Action { get; set; }
+        public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; }
+        public string Ip { get; set; } = "";
 
-        public bool IsAuto { get; set; }
-
-        public string Resources { get; set; }
+        public bool IsAuto { get; set; } = true;
     }
 }

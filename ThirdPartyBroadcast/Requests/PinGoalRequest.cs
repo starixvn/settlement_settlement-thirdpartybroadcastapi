@@ -13,7 +13,7 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Ip { get; set; }
 
-        public bool IsAuto { get; set; }
+        public bool IsAuto { get; set; } = true;
 
         public string BetStatus { get; set; }
 

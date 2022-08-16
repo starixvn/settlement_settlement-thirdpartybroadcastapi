@@ -24,24 +24,16 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly IMapper mapper;
 
-        private readonly IDynamicRepository repository;
-
-        private readonly AppSettingsKey appSettingsKey;
-
         private readonly CalculateService calculateService;
 
         private readonly string fastMarketMode = "FM";
 
         public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
-            IMapper mapper,
-             IDynamicRepository repository,
-             IOptions<AppSettingsKey> appSettingsKey,
-             CalculateService calculateService)
+                IMapper mapper,
+                CalculateService calculateService)
         {
             this.scaleOutSettleService = scaleOutSettleService;
             this.mapper = mapper;
-            this.repository = repository;
-            this.appSettingsKey = appSettingsKey.Value;
             this.calculateService = calculateService;
         }
 

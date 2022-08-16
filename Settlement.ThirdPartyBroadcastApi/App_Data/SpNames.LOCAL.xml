@@ -11,6 +11,7 @@
     <Setting Key="NAP_Admin_Match_s175_Upd" SpName="NAP_Admin_Match_s175_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Match_s193_Upd" SpName="NAP_Admin_Match_s193_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Match_VS1_Upd" SpName="NAP_Admin_Match_VS1_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key="NAP_Admin_Match_NumberGame_Upd" SpName="NAP_Admin_Match_NumberGame_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">

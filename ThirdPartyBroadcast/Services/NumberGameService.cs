@@ -3,8 +3,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Fanex.Data.Repository;
+using Fanex.Settlement.ScaleOut.Request;
+using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
+using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria;
+using ThirdPartyBroadcast.Criteria.HappyFive;
+using ThirdPartyBroadcast.Criteria.NumberGame;
+using ThirdPartyBroadcast.Criteria.OutRight;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 
@@ -23,46 +29,62 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly IMapper mapper;
 
+        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
+        private readonly CalculateService calculateService;
+
         public NumberGameServiceImp(
             IDynamicRepository repository,
             IOptions<AppSettingsKey> appSettingsKey,
-            IMapper mapper)
+            IMapper mapper,
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
+            CalculateService calculateService)
         {
             this.repository = repository;
             this.appSettingsKey = appSettingsKey.Value;
             this.mapper = mapper;
+            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+            this.calculateService = calculateService;
         }
+
         public async Task<Result> Settle(NumberGameRequest request)
         {
-            var criteria = mapper.Map<NumberGameRequest, NumberGameCriteria>(request);
-            var listResult = new List<Result>();
+            var resultValidation = await ValidationBeforeSettle(request);
 
-            foreach (var server in appSettingsKey.SiteDbServer)
+            if (resultValidation.ErrorCode == 0)
             {
-                criteria.DbServer = server;
-                await repository.ExecuteAsync(criteria);
-                var result = new Result
-                {
-                    ErrorCode = criteria.ErrCode,
-                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
-                };
-
-                if (result.ErrorCode > 0)
-                {
-                    listResult.Add(result);
-                }
+                await UpdateMatchInfo(request);
+                var criteria = mapper.Map<NumberGameRequest, NumberGameCriteria>(request);
+                return await calculateService.Excecute(criteria);
             }
 
-            if (listResult.Any())
-            {
-                return new Result
-                {
-                    ErrorCode = 1000,
-                    ErrorMessage = string.Join(" |", listResult.Select(x => x.ErrorMessage))
-                };
-            }
+            return resultValidation;
+        }
 
-            return new Result();
+        private async Task UpdateMatchInfo(NumberGameRequest request)
+        {
+            var criteria = mapper.Map<NumberGameRequest, NumberGameUpdateMatchCriteria>(request);
+            await repository.ExecuteAsync(criteria);
+        }
+
+        private async Task<Result> ValidationBeforeSettle(NumberGameRequest request)
+        {
+            var eventTicketThirdPartyRequest = new EventTicketThirdPartyRequest
+            {
+                MatchId = request.MatchId,
+                Mode = ModeType.NumberGame,
+                Action = request.Action,
+                IsAuto = request.IsAuto,
+                SpName = "NAP_Admin_Settlement_s161"
+            };
+
+            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(eventTicketThirdPartyRequest);
+
+            return new Result
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage
+            };
         }
     }
 }

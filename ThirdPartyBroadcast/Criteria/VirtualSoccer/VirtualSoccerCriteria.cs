@@ -1,7 +1,7 @@
 ﻿using Fanex.Data;
 using Fanex.Data.Repository;
 
-namespace ThirdPartyBroadcast.Criteria
+namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
 {
     public class VirtualSoccerCriteria : CalculateCriteria
     {

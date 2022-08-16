@@ -13,7 +13,7 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Status { get; set; }
 
-        public float DeadHeat { get; set; }
+        public float DeadHeat { get; set; } = 1;
 
         public bool IsDeadHeat { get; set; }
     }

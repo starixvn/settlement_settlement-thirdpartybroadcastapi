@@ -4,7 +4,6 @@ using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Models;
@@ -74,7 +73,7 @@ namespace ThirdPartyBroadcast.Services
 
         private async Task UpdateMatchInfo(VirtualSoccerRequest request)
         {
-            var criteria = mapper.Map<VirtualSoccerRequest, UpdateMatchVRSoccerCriteria>(request);
+            var criteria = mapper.Map<VirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
         }
     }

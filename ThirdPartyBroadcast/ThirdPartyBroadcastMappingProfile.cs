@@ -3,6 +3,7 @@ using Fanex.Settlement.ScaleOut.Request;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Criteria.BitCoin;
 using ThirdPartyBroadcast.Criteria.HappyFive;
+using ThirdPartyBroadcast.Criteria.NumberGame;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Requests;
@@ -23,10 +24,11 @@ namespace ThirdPartyBroadcast
             CreateMap<BitCoinRequest, BitCoinUpdateMatchCriteria>();
             CreateMap<BitCoinRequest, BitCoinCriteria>();
             CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>().ForMember(dest => dest.SelectedResources, opt => opt.MapFrom(src => src.Results));
-            CreateMap<VirtualBetRadarRequest, UpdateMatchBetRadarCriteria>().ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.ResourceResult));
+            CreateMap<VirtualBetRadarRequest, BetRadarUpdateMatchCriteria>().ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.ResourceResult));
             CreateMap<VirtualBetRadarRequest, VirtualBetRadarCriteria>();
             CreateMap<VirtualSoccerRequest, VirtualSoccerCriteria>();
-            CreateMap<VirtualSoccerRequest, UpdateMatchVRSoccerCriteria>();
+            CreateMap<VirtualSoccerRequest, VRSoccerUpdateMatchCriteria>();
+            CreateMap<NumberGameRequest, NumberGameUpdateMatchCriteria>();
         }
     }
 }

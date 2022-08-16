@@ -13,6 +13,8 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Ip { get; set; }
 
+        public bool IsAuto { get; set; } = true;
+
         public int DrawSeq { get; set; }
     }
 }

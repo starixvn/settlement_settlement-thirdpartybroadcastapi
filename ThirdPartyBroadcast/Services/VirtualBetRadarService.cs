@@ -73,7 +73,7 @@ namespace ThirdPartyBroadcast.Services
 
         private async Task UpdateMatchInfo(VirtualBetRadarRequest request)
         {
-            var criteria = mapper.Map<VirtualBetRadarRequest, UpdateMatchBetRadarCriteria>(request);
+            var criteria = mapper.Map<VirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
         }
     }

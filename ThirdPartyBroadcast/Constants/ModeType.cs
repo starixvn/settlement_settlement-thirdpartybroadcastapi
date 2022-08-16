@@ -6,6 +6,8 @@
 
         public const string Bitcoin = "175";
 
+        public const string NumberGame = "161";
+
         public const string Pingoal = "pingoal";
 
         public const string Outright = "outright";
