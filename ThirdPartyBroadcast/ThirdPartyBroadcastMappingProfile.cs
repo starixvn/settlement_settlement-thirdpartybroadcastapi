@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fanex.Settlement.ScaleOut.Request;
 using ThirdPartyBroadcast.Criteria;
+using ThirdPartyBroadcast.Criteria.BetBuilder;
 using ThirdPartyBroadcast.Criteria.BitCoin;
 using ThirdPartyBroadcast.Criteria.HappyFive;
 using ThirdPartyBroadcast.Criteria.NumberGame;
@@ -29,6 +30,8 @@ namespace ThirdPartyBroadcast
             CreateMap<VirtualSoccerRequest, VirtualSoccerCriteria>();
             CreateMap<VirtualSoccerRequest, VRSoccerUpdateMatchCriteria>();
             CreateMap<NumberGameRequest, NumberGameUpdateMatchCriteria>();
+            CreateMap<BetBuilderRequest, UpdateMarketCriteria>();
+            CreateMap<BetBuilderRequest, BetBuilderCriteria>();
         }
     }
 }

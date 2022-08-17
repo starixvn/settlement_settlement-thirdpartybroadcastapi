@@ -39,12 +39,11 @@ namespace ThirdPartyBroadcast.Services
 
         public async Task<Result> Settle(BitCoinRequest request)
         {
-            var criteria = mapper.Map<BitCoinRequest, BitCoinCriteria>(request);
-
             var validationResult = await ValidateBeforePush(request);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
+                var criteria = mapper.Map<BitCoinRequest, BitCoinCriteria>(request);
                 return await calculateService.Excecute(criteria);
             }
 

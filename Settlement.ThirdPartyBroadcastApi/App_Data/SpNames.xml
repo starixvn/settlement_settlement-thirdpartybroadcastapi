@@ -12,6 +12,7 @@
     <Setting Key="NAP_Admin_Match_s193_Upd" SpName="NAP_Admin_Match_s193_Upd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Match_VS1_Upd" SpName="NAP_Admin_Match_VS1_Upd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Match_NumberGame_Upd" SpName="NAP_Admin_Match_NumberGame_Upd_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key="NAP_Admin_ChangedMarket_Sel" SpName="NAP_Admin_ChangedMarket_Sel_UAT1" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">
@@ -52,9 +53,9 @@
   </Function>
 
   <Function Name="OutRight">
-    <Function Name="NAP_Admin_Settlement_Outright">
-      <Setting Key="NAP_Admin_Settlement_Outright_DBTXN" SpName="NAP_Admin_Settlement_Outright_UAT1" DbName="DBTXN.bodb02.bodbAdminNet" />
-      <Setting Key="NAP_Admin_Settlement_Outright_DBSID01" SpName="NAP_Admin_Settlement_Outright_UAT1" DbName="DBSID01.bodb02.bodbAdminNet" />
+    <Function Name="Dot_Admin_SettleOutright_Trans">
+      <Setting Key="Dot_Admin_SettleOutright_Trans_DBTXN" SpName="Dot_Admin_SettleOutright_Trans_UAT1" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="Dot_Admin_SettleOutright_Trans_DBSID01" SpName="Dot_Admin_SettleOutright_Trans_UAT1" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
   </Function>
 

@@ -11,9 +11,11 @@ namespace ThirdPartyBroadcast.Criteria.BetBuilder
 
         public string Action { get; set; }
 
+        public bool IsAuto { get; set; }
+
         public string Resources { get; set; }
 
-        public string ResultStatusId { get; set; }
+        public int ResultStatusId { get; set; } = 2;
 
         public override string GetSettingKey()
         {
@@ -22,7 +24,7 @@ namespace ThirdPartyBroadcast.Criteria.BetBuilder
 
         public override bool IsValid()
         {
-            throw new NotImplementedException();
+            return MatchId > 0;
         }
     }
 }

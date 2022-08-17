@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Threading.Tasks;
 using AutoMapper;
 using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
+using Kaden.XmlConverter;
 using Microsoft.Extensions.Options;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.HappyFive;
@@ -24,20 +26,20 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
-        private readonly AppSettingsKey appSettingsKey;
-
         private readonly IMapper mapper;
+
+        private readonly CalculateService calculateService;
 
         public HappyFiveServiceImp(
             IDynamicRepository repository,
             ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
-            IOptions<AppSettingsKey> appSettingsKey,
-            IMapper mapper)
+            IMapper mapper,
+            CalculateService calculateService)
         {
             this.repository = repository;
             this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
-            this.appSettingsKey = appSettingsKey.Value;
             this.mapper = mapper;
+            this.calculateService = calculateService;
         }
 
         public async Task<Result> Settle(HappyFiveRequest request)
@@ -47,7 +49,8 @@ namespace ThirdPartyBroadcast.Services
             if (resultValidation.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                return await MultiExecute(request);
+                var criteria = mapper.Map<HappyFiveRequest, HappyFiveCriteria>(request);
+                return await calculateService.Excecute(criteria);
             }
 
             return resultValidation;
@@ -77,40 +80,6 @@ namespace ThirdPartyBroadcast.Services
                 ErrorCode = result.ErrorCode,
                 ErrorMessage = result.ErrorMessage
             };
-        }
-
-        private async Task<Result> MultiExecute(HappyFiveRequest request)
-        {
-            var criteria = mapper.Map<HappyFiveRequest, HappyFiveCriteria>(request);
-
-            var listResult = new List<Result>();
-
-            foreach (var server in appSettingsKey.SiteDbServer)
-            {
-                criteria.DbServer = server;
-                await repository.ExecuteAsync(criteria);
-                var result = new Result
-                {
-                    ErrorCode = criteria.ErrCode,
-                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
-                };
-
-                if (result.ErrorCode > 0)
-                {
-                    listResult.Add(result);
-                }
-            }
-
-            if (listResult.Any())
-            {
-                return new Result
-                {
-                    ErrorCode = 1000,
-                    ErrorMessage = string.Join(" |", listResult.Select(x => x.ErrorMessage))
-                };
-            }
-
-            return new Result();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ThirdPartyBroadcast.Requests
     {
         public int MatchId { get; set; }
 
-        public int AdminId { get; set; }
+        public int AdminId { get; set; } = 5838421;
 
         public string Action { get; set; }
 
@@ -15,6 +15,6 @@ namespace ThirdPartyBroadcast.Requests
 
         public float DeadHeat { get; set; } = 1;
 
-        public bool IsDeadHeat { get; set; }
+        public string EventDate { get; set; }
     }
 }

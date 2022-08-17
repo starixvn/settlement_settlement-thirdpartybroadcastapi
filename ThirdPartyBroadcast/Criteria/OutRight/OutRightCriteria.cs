@@ -4,8 +4,10 @@
     {
         public float DeadHeat { get; set; }
 
-        public bool IsDeadHeat { get; set; }
+        public string Status { get; set; }
 
-        public override string GetSettingKey() => $"NAP_Admin_Settlement_Outright_{DbServer}";
+        public string EventDate { get; set; }
+
+        public override string GetSettingKey() => $"Dot_Admin_SettleOutright_Trans_{DbServer}";
     }
 }
