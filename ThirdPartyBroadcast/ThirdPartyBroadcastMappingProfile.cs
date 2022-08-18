@@ -5,6 +5,7 @@ using ThirdPartyBroadcast.Criteria.BetBuilder;
 using ThirdPartyBroadcast.Criteria.BitCoin;
 using ThirdPartyBroadcast.Criteria.HappyFive;
 using ThirdPartyBroadcast.Criteria.NumberGame;
+using ThirdPartyBroadcast.Criteria.OutRight;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Requests;
@@ -32,6 +33,7 @@ namespace ThirdPartyBroadcast
             CreateMap<NumberGameRequest, NumberGameUpdateMatchCriteria>();
             CreateMap<BetBuilderRequest, UpdateMarketCriteria>();
             CreateMap<BetBuilderRequest, BetBuilderCriteria>();
+            CreateMap<OutrightRequest, OutRightCriteria>();
         }
     }
 }

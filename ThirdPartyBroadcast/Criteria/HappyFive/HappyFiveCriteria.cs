@@ -7,6 +7,10 @@ namespace ThirdPartyBroadcast.Criteria.HappyFive
     {
         public string Resources { get; set; }
 
+        public bool IsAuto { get; set; }
+
+        public string Action { get; set; }
+
         public override string GetSettingKey() => $"NAP_Admin_Settlement_s164_{DbServer}";
     }
 }

@@ -8,6 +8,10 @@
 
         public string SelectedResources { get; set; }
 
+        public bool IsAuto { get; set; }
+
+        public string Action { get; set; }
+
         public override string GetSettingKey() => $"NAP_Admin_Settlement_Profile_Push_{DbServer}";
     }
 }
