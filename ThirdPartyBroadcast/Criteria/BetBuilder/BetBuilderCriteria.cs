@@ -1,13 +1,8 @@
-﻿using Fanex.Data;
-using Fanex.Data.Repository;
-
-namespace ThirdPartyBroadcast.Criteria.BetBuilder
+﻿namespace ThirdPartyBroadcast.Criteria.BetBuilder
 {
     public class BetBuilderCriteria : CalculateCriteria
     {
         public int VendorId { get; set; }
-
-        public string Resources { get; set; }
 
         public string SelectedMarket { get; set; }
 

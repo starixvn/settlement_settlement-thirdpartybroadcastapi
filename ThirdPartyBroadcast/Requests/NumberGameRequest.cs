@@ -18,5 +18,9 @@ namespace ThirdPartyBroadcast.Requests
         public int DrawSeq { get; set; }
 
         public bool IsLive { get; set; }
+
+        public bool IsLoop { get; set; }
+
+        public bool IsLoopTempTable { get; set; }
     }
 }

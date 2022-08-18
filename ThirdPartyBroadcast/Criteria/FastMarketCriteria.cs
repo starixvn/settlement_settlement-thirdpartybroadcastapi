@@ -8,6 +8,8 @@
 
         public bool IsReSettledTickets { get; set; }
 
+        public string EventCounters { get; set; }
+
         public bool IsAuto { get; set; }
 
         public string Action { get; set; }

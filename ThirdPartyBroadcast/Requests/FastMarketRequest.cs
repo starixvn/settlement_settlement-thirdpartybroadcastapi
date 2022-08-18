@@ -7,7 +7,7 @@ namespace ThirdPartyBroadcast.Requests
     {
         public int MatchId { get; set; }
 
-        public int AdminId { get; set; }
+        public int AdminId { get; set; } = 0;
 
         public string Action { get; set; }
 
@@ -18,6 +18,8 @@ namespace ThirdPartyBroadcast.Requests
         public bool IsReSettledTickets { get; set; } = true;
 
         public bool IsSettleDetermined { get; set; }
+
+        public string EventCounters { get; set; }
 
         public string Results { get; set; }
     }

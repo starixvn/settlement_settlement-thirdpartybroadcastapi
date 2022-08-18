@@ -9,15 +9,15 @@ namespace ThirdPartyBroadcast.Requests
 
         public int AdminId { get; set; }
 
-        public string Action { get; set; }
+        public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; }
+        public string Ip { get; set; } = "";
 
-        public bool IsAuto { get; set; } = true;
+        public bool IsAuto { get; set; }
 
         public string BetStatus { get; set; }
 
-        public bool IsReSettledTickets { get; set; }
+        public bool IsReSettledTickets { get; set; } = true;
 
         public string SelectedResources { get; set; }
     }

@@ -9,8 +9,6 @@ namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
 
         public int Fta { get; set; }
 
-        public string Status { get; set; }
-
         public string Action { get; set; }
 
         public override string GetSettingKey() => $"NAP_Admin_Settlement_VS_180_{DbServer}";
