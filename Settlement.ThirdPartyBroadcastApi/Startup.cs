@@ -22,6 +22,7 @@ using Sentry;
 using ThirdPartyBroadcast.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Settlement.ThirdPartyBroadcastApi;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.Services;
 
@@ -66,6 +67,7 @@ namespace BroadcastApi
 
         private static void ConfigInternalServices(IServiceCollection services)
         {
+            services.AddTransient<ILogger, Logger>();
             services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
             services.AddTransient<IDynamicRepository, DynamicRepository>();
             services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
@@ -136,6 +138,8 @@ namespace BroadcastApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware<ErrorHandler>();
 
             app.UseRouting();
 
