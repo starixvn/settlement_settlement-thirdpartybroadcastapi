@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class BitCoinRequest : IRequest<Result>
+    public class AutoVirtualSoccerRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 
@@ -15,8 +15,8 @@ namespace ThirdPartyBroadcast.Requests
 
         public bool IsAuto { get; set; } = true;
 
-        public int ResultId { get; set; }
+        public int? Fth { get; set; }
 
-        public string GameResult { get; set; } = "";
+        public int? Fta { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class VirtualBetRadarRequest : IRequest<Result>
+    public class AutoVirtualBetRadarRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 

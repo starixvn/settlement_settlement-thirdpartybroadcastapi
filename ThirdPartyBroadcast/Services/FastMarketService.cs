@@ -15,7 +15,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface FastMarketService
     {
-        Task<Result> Settle(FastMarketRequest request);
+        Task<Result> Settle(AutoFastMarketRequest request);
     }
 
     public class FastMarketServiceImp : FastMarketService
@@ -37,9 +37,9 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(FastMarketRequest request)
+        public async Task<Result> Settle(AutoFastMarketRequest request)
         {
-            var criteria = mapper.Map<FastMarketRequest, FastMarketCriteria>(request);
+            var criteria = mapper.Map<AutoFastMarketRequest, FastMarketCriteria>(request);
             var requestValidation = mapper.Map<FastMarketCriteria, EventTicketFastMarketRequest>(criteria);
             var validationResult = await scaleOutSettleService.ValidateEventAndTicketFastMarket(requestValidation);
             if (validationResult.ErrorCode == 0)

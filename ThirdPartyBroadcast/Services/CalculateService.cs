@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
+using Fanex.Settlement.ScaleOut.Criteria;
+using Fanex.Settlement.ScaleOut.Models;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +18,8 @@ namespace ThirdPartyBroadcast.Services
     public interface CalculateService
     {
         Task<Result> Excecute(CalculateCriteria criteria);
+
+        Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria);
     }
 
     public class CalculateServiceImp : CalculateService
@@ -52,6 +57,24 @@ namespace ThirdPartyBroadcast.Services
             }
 
             return MergeFailedResult(listResult);
+        }
+
+        public async Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria)
+        {
+            foreach (var server in appSettingsKey.SiteDbServer)
+            {
+                criteria.DbServer = server;
+                await repository.ExecuteAsync(criteria);
+                if (criteria.ErrCode > 0)
+                {
+                    return new Result
+                    {
+                        ErrorCode = criteria.ErrCode,
+                        ErrorMessage = criteria.ErrMsg
+                    };
+                }
+            }
+            return new Result();
         }
 
         private Result MergeFailedResult(List<Result> listResult)

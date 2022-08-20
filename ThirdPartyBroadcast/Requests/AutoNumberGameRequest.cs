@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class BetBuilderRequest : IRequest<Result>
+    public class AutoNumberGameRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 
@@ -11,12 +11,16 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; } = "";
+        public string Ip { get; set; }
 
         public bool IsAuto { get; set; } = true;
 
-        public int VendorId { get; set; } = 34;
+        public int DrawSeq { get; set; }
 
-        public string Resources { get; set; } = "";
+        public bool IsLive { get; set; }
+
+        public bool IsLoop { get; set; }
+
+        public bool IsLoopTempTable { get; set; }
     }
 }

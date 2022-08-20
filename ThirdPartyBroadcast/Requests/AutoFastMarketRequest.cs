@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class FastMarketRequest : IRequest<Result>
+    public class AutoFastMarketRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 

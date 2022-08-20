@@ -1,22 +1,17 @@
 ﻿using AutoMapper;
-using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
-using Kaden.XmlConverter;
-using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.BetBuilder;
 using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+using AutoBetBuilderRequest = ThirdPartyBroadcast.Requests.AutoBetBuilderRequest;
 
 namespace ThirdPartyBroadcast.Services
 {
     public interface BetBuilderService
     {
-        Task<Result> Settle(BetBuilderRequest request);
+        Task<Result> Settle(AutoBetBuilderRequest request);
     }
 
     public class BetBuilderServiceImp : BetBuilderService
@@ -40,13 +35,13 @@ namespace ThirdPartyBroadcast.Services
             this.mapper = mapper;
         }
 
-        public async Task<Result> Settle(BetBuilderRequest request)
+        public async Task<Result> Settle(AutoBetBuilderRequest request)
         {
             var validationResult = await ValidationBeforeSettle(request);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                var criteria = mapper.Map<BetBuilderRequest, BetBuilderCriteria>(request);
+                var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
                 criteria.SelectedMarket = request.Resources;
                 return await calculateService.Excecute(criteria);
             }
@@ -54,7 +49,7 @@ namespace ThirdPartyBroadcast.Services
             return validationResult;
         }
 
-        private async Task UpdateMatchInfo(BetBuilderRequest request)
+        private async Task UpdateMatchInfo(AutoBetBuilderRequest request)
         {
             var requestUpdate = new UpdateMatchInfoRequest
             {
@@ -66,20 +61,18 @@ namespace ThirdPartyBroadcast.Services
             await scaleOutSettleService.UpdateMatchInfo(requestUpdate);
         }
 
-        private async Task<Result> ValidationBeforeSettle(BetBuilderRequest request)
+        private async Task<Result> ValidationBeforeSettle(AutoBetBuilderRequest request)
         {
-            var eventTicketThirdPartyRequest = new EventTicketThirdPartyRequest
+            var eventTicketThirdPartyRequest = new BetBuilderRequest
             {
                 MatchId = request.MatchId,
-                Mode = ModeType.BetBuilder,
                 Action = request.Action,
                 IsAuto = request.IsAuto,
-                SpName = "NAP_Admin_Settlement_BetBuilder_Push",
-                VendorId = request.VendorId,
-                SelectedResources = request.Resources
+                SelectedResources = request.Resources,
+                VendorID = request.VendorId
             };
 
-            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(eventTicketThirdPartyRequest);
+            var (result, invalidMarketIds) = await scaleOutSettleThirdPartyService.ValidateBetBuilder(eventTicketThirdPartyRequest);
 
             return new Result
             {

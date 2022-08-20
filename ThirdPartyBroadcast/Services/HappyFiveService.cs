@@ -17,7 +17,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface HappyFiveService
     {
-        Task<Result> Settle(HappyFiveRequest request);
+        Task<Result> Settle(AutoHappyFiveRequest request);
     }
 
     public class HappyFiveServiceImp : HappyFiveService
@@ -42,38 +42,36 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(HappyFiveRequest request)
+        public async Task<Result> Settle(AutoHappyFiveRequest request)
         {
             var resultValidation = await ValidationBeforeSettle(request);
 
             if (resultValidation.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                var criteria = mapper.Map<HappyFiveRequest, HappyFiveCriteria>(request);
+                var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
                 return await calculateService.Excecute(criteria);
             }
 
             return resultValidation;
         }
 
-        private async Task UpdateMatchInfo(HappyFiveRequest request)
+        private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
         {
-            var criteria = mapper.Map<HappyFiveRequest, HappyFiveUpdateMatchCriteria>(request);
+            var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
         }
 
-        private async Task<Result> ValidationBeforeSettle(HappyFiveRequest request)
+        private async Task<Result> ValidationBeforeSettle(AutoHappyFiveRequest request)
         {
-            var eventTicketThirdPartyRequest = new EventTicketThirdPartyRequest
+            var eventTicketThirdPartyRequest = new EventTicketHappyFiveRequest
             {
                 MatchId = request.MatchId,
-                Mode = ModeType.HappyFive,
                 Action = request.Action,
                 IsAuto = request.IsAuto,
-                SpName = "NAP_Admin_Settlement_s164"
             };
 
-            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(eventTicketThirdPartyRequest);
+            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicketHappyFive(eventTicketThirdPartyRequest);
 
             return new Result
             {

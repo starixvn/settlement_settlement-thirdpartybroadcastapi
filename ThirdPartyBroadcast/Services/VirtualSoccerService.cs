@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using System.Threading.Tasks;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
@@ -13,7 +10,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface VirtualSoccerService
     {
-        Task<Result> Settle(VirtualSoccerRequest request);
+        Task<Result> Settle(AutoVirtualSoccerRequest request);
     }
 
     public class VirtualSoccerServiceImp : VirtualSoccerService
@@ -37,9 +34,9 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(VirtualSoccerRequest request)
+        public async Task<Result> Settle(AutoVirtualSoccerRequest request)
         {
-            var criteria = mapper.Map<VirtualSoccerRequest, VirtualSoccerCriteria>(request);
+            var criteria = mapper.Map<AutoVirtualSoccerRequest, VirtualSoccerCriteria>(request);
 
             var validationResult = await ValidateBeforePush(request);
             if (validationResult.ErrorCode == 0)
@@ -51,29 +48,35 @@ namespace ThirdPartyBroadcast.Services
             return validationResult;
         }
 
-        private async Task<Result> ValidateBeforePush(VirtualSoccerRequest request)
+        private async Task<Result> ValidateBeforePush(AutoVirtualSoccerRequest request)
         {
-            var validationRequest = new EventTicketThirdPartyRequest
-            {
-                MatchId = request.MatchId,
-                Action = request.Action,
-                SpName = "NAP_Admin_Settlement_VS_180",
-                Mode = ModeType.VirtualSoccer,
-                IsAuto = request.IsAuto
-            };
+            var validationEventCriteria = new VirtualSoccerValidationEventCriteria { MatchId = request.MatchId };
+            var validateEvent = await ValidateEvent(validationEventCriteria);
 
-            var validationResult = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(validationRequest);
+            if (validateEvent.ErrorCode > 0)
+            {
+                return validateEvent;
+            }
+
+            var validationCriteria = new VirtualSoccerValidationCriteria { MatchId = request.MatchId };
+
+            return await calculateService.ExecuteValidationMultiServer(validationCriteria);
+        }
+
+        private async Task<Result> ValidateEvent(VirtualSoccerValidationEventCriteria criteria)
+        {
+            await repository.ExecuteAsync(criteria);
 
             return new Result
             {
-                ErrorCode = validationResult.ErrorCode,
-                ErrorMessage = validationResult.ErrorMessage
+                ErrorCode = criteria.ErrCode,
+                ErrorMessage = criteria.ErrMsg
             };
         }
 
-        private async Task UpdateMatchInfo(VirtualSoccerRequest request)
+        private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
         {
-            var criteria = mapper.Map<VirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
+            var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
         }
     }

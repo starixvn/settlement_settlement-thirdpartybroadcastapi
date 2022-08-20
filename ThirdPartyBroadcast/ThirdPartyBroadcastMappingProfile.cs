@@ -16,24 +16,24 @@ namespace ThirdPartyBroadcast
     {
         public ThirdPartyBroadcastMappingProfile()
         {
-            CreateMap<NumberGameRequest, NumberGameCriteria>();
-            CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
-            CreateMap<FastMarketRequest, FastMarketCriteria>();
-            CreateMap<HappyFiveRequest, HappyFiveUpdateMatchCriteria>();
-            CreateMap<HappyFiveRequest, HappyFiveCriteria>();
-            CreateMap<PinGoalRequest, UpdateMatchInfoRequest>();
-            CreateMap<PinGoalRequest, PinGoalCriteria>();
-            CreateMap<BitCoinRequest, BitCoinUpdateMatchCriteria>();
-            CreateMap<BitCoinRequest, BitCoinCriteria>();
+            CreateMap<AutoNumberGameRequest, NumberGameCriteria>();
+            CreateMap<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>();
+            CreateMap<AutoFastMarketRequest, FastMarketCriteria>();
+            CreateMap<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>();
+            CreateMap<AutoHappyFiveRequest, HappyFiveCriteria>();
+            CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
+            CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
+            CreateMap<AutoBitCoinRequest, BitCoinUpdateMatchCriteria>();
+            CreateMap<AutoBitCoinRequest, BitCoinCriteria>();
             CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>().ForMember(dest => dest.SelectedResources, opt => opt.MapFrom(src => src.Results));
-            CreateMap<VirtualBetRadarRequest, BetRadarUpdateMatchCriteria>().ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.ResourceResult));
-            CreateMap<VirtualBetRadarRequest, VirtualBetRadarCriteria>();
-            CreateMap<VirtualSoccerRequest, VirtualSoccerCriteria>();
-            CreateMap<VirtualSoccerRequest, VRSoccerUpdateMatchCriteria>();
-            CreateMap<NumberGameRequest, NumberGameUpdateMatchCriteria>();
-            CreateMap<BetBuilderRequest, UpdateMarketCriteria>();
-            CreateMap<BetBuilderRequest, BetBuilderCriteria>();
-            CreateMap<OutrightRequest, OutRightCriteria>();
+            CreateMap<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>().ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.ResourceResult));
+            CreateMap<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>();
+            CreateMap<AutoVirtualSoccerRequest, VirtualSoccerCriteria>();
+            CreateMap<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>();
+            CreateMap<AutoNumberGameRequest, NumberGameUpdateMatchCriteria>();
+            CreateMap<AutoBetBuilderRequest, UpdateMarketCriteria>();
+            CreateMap<AutoBetBuilderRequest, BetBuilderCriteria>();
+            CreateMap<AutoOutrightRequest, OutRightCriteria>();
         }
     }
 }

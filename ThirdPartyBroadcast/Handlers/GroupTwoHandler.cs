@@ -8,10 +8,10 @@ using ThirdPartyBroadcast.Services;
 namespace ThirdPartyBroadcast.Handlers
 {
     public class GroupTwoHandler : 
-        IRequestHandler<BitCoinRequest, Result>,
-        IRequestHandler<PinGoalRequest, Result>,
-        IRequestHandler<VirtualBetRadarRequest, Result>,
-        IRequestHandler<VirtualSoccerRequest, Result>
+        IRequestHandler<AutoBitCoinRequest, Result>,
+        IRequestHandler<AutoPinGoalRequest, Result>,
+        IRequestHandler<AutoVirtualBetRadarRequest, Result>,
+        IRequestHandler<AutoVirtualSoccerRequest, Result>
     {
         private readonly BitCoinService bitCoinService;
 
@@ -32,12 +32,12 @@ namespace ThirdPartyBroadcast.Handlers
             this.virtualBetRadarService = virtualBetRadarService;
             this.virtualSoccerService = virtualSoccerService;
         }
-        public async Task<Result> Handle(BitCoinRequest request, CancellationToken cancellationToken) => await bitCoinService.Settle(request);
+        public async Task<Result> Handle(AutoBitCoinRequest request, CancellationToken cancellationToken) => await bitCoinService.Settle(request);
 
-        public async Task<Result> Handle(PinGoalRequest request, CancellationToken cancellationToken) => await pinGoalService.Settle(request);
+        public async Task<Result> Handle(AutoPinGoalRequest request, CancellationToken cancellationToken) => await pinGoalService.Settle(request);
 
-        public async Task<Result> Handle(VirtualBetRadarRequest request, CancellationToken cancellationToken) => await virtualBetRadarService.Settle(request);
+        public async Task<Result> Handle(AutoVirtualBetRadarRequest request, CancellationToken cancellationToken) => await virtualBetRadarService.Settle(request);
 
-        public async Task<Result> Handle(VirtualSoccerRequest request, CancellationToken cancellationToken) => await virtualSoccerService.Settle(request);
+        public async Task<Result> Handle(AutoVirtualSoccerRequest request, CancellationToken cancellationToken) => await virtualSoccerService.Settle(request);
     }
 }

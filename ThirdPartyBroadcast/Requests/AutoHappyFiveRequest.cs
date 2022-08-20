@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class PinGoalRequest : IRequest<Result>
+    public class AutoHappyFiveRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 
@@ -13,12 +13,6 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Ip { get; set; } = "";
 
-        public bool IsAuto { get; set; }
-
-        public string BetStatus { get; set; }
-
-        public bool IsReSettledTickets { get; set; } = true;
-
-        public string SelectedResources { get; set; }
+        public bool IsAuto { get; set; } = true;
     }
 }

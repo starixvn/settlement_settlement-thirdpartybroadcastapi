@@ -12,7 +12,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface VirtualBetRadarService
     {
-        Task<Result> Settle(VirtualBetRadarRequest request);
+        Task<Result> Settle(AutoVirtualBetRadarRequest request);
     }
 
     public class VirtualBetRadarServiceImp : VirtualBetRadarService
@@ -36,11 +36,11 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(VirtualBetRadarRequest request)
+        public async Task<Result> Settle(AutoVirtualBetRadarRequest request)
         {
-            var criteria = mapper.Map<VirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
-
-            var validationResult = await ValidateBeforePush(request);
+            var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
+            var criteriaValidation = new BetRadarValidationCriteria { MatchId = request.MatchId, SelectedResources = request.ResourceResult };
+            var validationResult = await calculateService.ExecuteValidationMultiServer(criteriaValidation);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
@@ -50,30 +50,9 @@ namespace ThirdPartyBroadcast.Services
             return validationResult;
         }
 
-        private async Task<Result> ValidateBeforePush(VirtualBetRadarRequest request)
+        private async Task UpdateMatchInfo(AutoVirtualBetRadarRequest request)
         {
-            var validationRequest = new EventTicketThirdPartyRequest
-            {
-                MatchId = request.MatchId,
-                Action = request.Action,
-                SpName = "NAP_Admin_Settlement_VS_BetRadar_Push",
-                SelectedResources = request.ResourceResult,
-                Mode = ModeType.VirtualBetradar,
-                IsAuto = request.IsAuto
-            };
-
-            var validationResult = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(validationRequest);
-
-            return new Result
-            {
-                ErrorCode = validationResult.ErrorCode,
-                ErrorMessage = validationResult.ErrorMessage
-            };
-        }
-
-        private async Task UpdateMatchInfo(VirtualBetRadarRequest request)
-        {
-            var criteria = mapper.Map<VirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
+            var criteria = mapper.Map<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
         }
     }

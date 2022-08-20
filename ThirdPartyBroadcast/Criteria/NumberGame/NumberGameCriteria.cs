@@ -6,8 +6,6 @@
 
         public bool IsLive { get; set; }
 
-        public bool IsAuto { get; set; }
-
         public string Action { get; set; }
 
         public bool IsLoop { get; set; }

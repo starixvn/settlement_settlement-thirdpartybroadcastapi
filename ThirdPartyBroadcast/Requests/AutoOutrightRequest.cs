@@ -3,7 +3,7 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class OutrightRequest : IRequest<Result>
+    public class AutoOutrightRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 

@@ -11,7 +11,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface PinGoalService
     {
-        Task<Result> Settle(PinGoalRequest request);
+        Task<Result> Settle(AutoPinGoalRequest request);
     }
 
     public class PinGoalServiceImp : PinGoalService
@@ -31,9 +31,9 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(PinGoalRequest request)
+        public async Task<Result> Settle(AutoPinGoalRequest request)
         {
-            var criteria = mapper.Map<PinGoalRequest, PinGoalCriteria>(request);
+            var criteria = mapper.Map<AutoPinGoalRequest, PinGoalCriteria>(request);
             var validationResult = await ValidateBeforePush(request);
             if (validationResult.ErrorCode == 0)
             {
@@ -44,7 +44,7 @@ namespace ThirdPartyBroadcast.Services
             return validationResult;
         }
 
-        private async Task<Result> ValidateBeforePush(PinGoalRequest request)
+        private async Task<Result> ValidateBeforePush(AutoPinGoalRequest request)
         {
             var validationRequest = new EventTicketRequest
             {
@@ -65,9 +65,9 @@ namespace ThirdPartyBroadcast.Services
             };
         }
 
-        private async Task UpdateMatchInfo(PinGoalRequest request)
+        private async Task UpdateMatchInfo(AutoPinGoalRequest request)
         {
-            var requestUpdate = mapper.Map<PinGoalRequest, UpdateMatchInfoRequest>(request);
+            var requestUpdate = mapper.Map<AutoPinGoalRequest, UpdateMatchInfoRequest>(request);
             await scaleOutSettleService.UpdateMatchInfo(requestUpdate);
         }
     }

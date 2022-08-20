@@ -3,11 +3,11 @@ using ThirdPartyBroadcast.Models;
 
 namespace ThirdPartyBroadcast.Requests
 {
-    public class VirtualSoccerRequest : IRequest<Result>
+    public class AutoBetBuilderRequest : IRequest<Result>
     {
         public int MatchId { get; set; }
 
-        public int AdminId { get; set; }
+        public int AdminId { get; set; } = 148;
 
         public string Action { get; set; } = "CAL";
 
@@ -15,8 +15,8 @@ namespace ThirdPartyBroadcast.Requests
 
         public bool IsAuto { get; set; } = true;
 
-        public int? Fth { get; set; }
+        public int VendorId { get; set; } = 34;
 
-        public int? Fta { get; set; }
+        public string Resources { get; set; } = "";
     }
 }

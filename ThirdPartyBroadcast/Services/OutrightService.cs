@@ -13,7 +13,7 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface OutrightService
     {
-        Task<Result> Settle(OutrightRequest request);
+        Task<Result> Settle(AutoOutrightRequest request);
     }
 
     public class OutrightServiceImp : OutrightService
@@ -38,41 +38,38 @@ namespace ThirdPartyBroadcast.Services
             this.calculateService = calculateService;
         }
 
-        public async Task<Result> Settle(OutrightRequest request)
+        public async Task<Result> Settle(AutoOutrightRequest request)
         {
             var resultValidation = await ValidationBeforeSettle(request);
 
             if (resultValidation.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                var criteria = mapper.Map<OutrightRequest, OutRightCriteria>(request);
+                var criteria = mapper.Map<AutoOutrightRequest, OutRightCriteria>(request);
                 return await calculateService.Excecute(criteria);
             }
 
             return resultValidation;
         }
 
-        private async Task UpdateMatchInfo(OutrightRequest request)
+        private async Task UpdateMatchInfo(AutoOutrightRequest request)
         {
             if (request.Action == "UNDO")
             {
-                var criteria = mapper.Map<OutrightRequest, OutRightUpdateMatchCriteria>(request);
+                var criteria = mapper.Map<AutoOutrightRequest, OutRightUpdateMatchCriteria>(request);
                 await repository.ExecuteAsync(criteria);
             }
         }
 
-        private async Task<Result> ValidationBeforeSettle(OutrightRequest request)
+        private async Task<Result> ValidationBeforeSettle(AutoOutrightRequest request)
         {
-            var eventTicketThirdPartyRequest = new EventTicketThirdPartyRequest
+            var eventTicketThirdPartyRequest = new OutRightRequest
             {
                 MatchId = request.MatchId,
-                Mode = ModeType.Outright,
-                Action = request.Action,
                 IsAuto = true,
-                SpName = "NAP_Admin_Settlement_Outright"
             };
 
-            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicket3rd(eventTicketThirdPartyRequest);
+            var result = await scaleOutSettleThirdPartyService.ValidateOutRight(eventTicketThirdPartyRequest);
 
             return new Result
             {

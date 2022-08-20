@@ -1,0 +1,22 @@
+﻿using MediatR;
+using ThirdPartyBroadcast.Models;
+
+namespace ThirdPartyBroadcast.Requests
+{
+    public class AutoBitCoinRequest : IRequest<Result>
+    {
+        public int MatchId { get; set; }
+
+        public int AdminId { get; set; }
+
+        public string Action { get; set; } = "CAL";
+
+        public string Ip { get; set; } = "";
+
+        public bool IsAuto { get; set; } = true;
+
+        public int ResultId { get; set; }
+
+        public string GameResult { get; set; } = "";
+    }
+}
