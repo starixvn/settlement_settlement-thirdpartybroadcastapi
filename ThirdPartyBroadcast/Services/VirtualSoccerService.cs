@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
+using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using System.Threading.Tasks;
+using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
@@ -23,6 +25,8 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
+        private const string CalculateAction = "CAL";
+
         public VirtualSoccerServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
             IDynamicRepository repository,
             IMapper mapper,
@@ -38,7 +42,7 @@ namespace ThirdPartyBroadcast.Services
         {
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VirtualSoccerCriteria>(request);
 
-            var validationResult = await ValidateBeforePush(request);
+            var validationResult = await calculateService.ValidationDeloyFlag(SpName.VirtualSports);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
@@ -48,35 +52,19 @@ namespace ThirdPartyBroadcast.Services
             return validationResult;
         }
 
-        private async Task<Result> ValidateBeforePush(AutoVirtualSoccerRequest request)
-        {
-            var validationEventCriteria = new VirtualSoccerValidationEventCriteria { MatchId = request.MatchId };
-            var validateEvent = await ValidateEvent(validationEventCriteria);
-
-            if (validateEvent.ErrorCode > 0)
-            {
-                return validateEvent;
-            }
-
-            var validationCriteria = new VirtualSoccerValidationCriteria { MatchId = request.MatchId };
-
-            return await calculateService.ExecuteValidationMultiServer(validationCriteria);
-        }
-
-        private async Task<Result> ValidateEvent(VirtualSoccerValidationEventCriteria criteria)
-        {
-            await repository.ExecuteAsync(criteria);
-
-            return new Result
-            {
-                ErrorCode = criteria.ErrCode,
-                ErrorMessage = criteria.ErrMsg
-            };
-        }
-
         private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
         {
+            var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
+            updateInfoRequest.Command = "completed";
+            criteria.Command = "F";
+            if (request.Action.ToLower() == ActionType.Calculate)
+            {
+                updateInfoRequest.FTAway = request.Fta;
+                updateInfoRequest.FTHome = request.Fth;
+                criteria.Command = "C";
+            }
+            await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateInfoRequest);
             await repository.ExecuteAsync(criteria);
         }
     }

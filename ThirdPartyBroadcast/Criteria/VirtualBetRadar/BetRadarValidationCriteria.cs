@@ -1,6 +1,4 @@
-﻿using Fanex.Settlement.ScaleOut.Criteria;
-
-namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
+﻿namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
 {
     public class BetRadarValidationCriteria : BaseCriteria
     {

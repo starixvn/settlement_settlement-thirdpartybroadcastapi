@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
-using Kaden.XmlConverter;
-using Microsoft.Extensions.Options;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.HappyFive;
+using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 
@@ -22,29 +18,29 @@ namespace ThirdPartyBroadcast.Services
 
     public class HappyFiveServiceImp : HappyFiveService
     {
-        private readonly IDynamicRepository repository;
-
-        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
-
         private readonly IMapper mapper;
 
         private readonly CalculateService calculateService;
 
+        private readonly IDynamicRepository repository;
+
+        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
         public HappyFiveServiceImp(
-            IDynamicRepository repository,
-            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
             IMapper mapper,
-            CalculateService calculateService)
+            CalculateService calculateService,
+            IDynamicRepository repository,
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
         {
-            this.repository = repository;
-            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
             this.mapper = mapper;
             this.calculateService = calculateService;
+            this.repository = repository;
+            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         }
 
         public async Task<Result> Settle(AutoHappyFiveRequest request)
         {
-            var resultValidation = await ValidationBeforeSettle(request);
+            var resultValidation = await ValidateBeforeSettle(request);
 
             if (resultValidation.ErrorCode == 0)
             {
@@ -56,28 +52,35 @@ namespace ThirdPartyBroadcast.Services
             return resultValidation;
         }
 
-        private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
+        private async Task<Result> ValidateBeforeSettle(AutoHappyFiveRequest request)
         {
-            var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>(request);
-            await repository.ExecuteAsync(criteria);
+            var validateDeployFlag = await calculateService.ValidationDeloyFlag(SpName.HappyFive);
+            if (validateDeployFlag.ErrorCode > 0)
+            {
+                return validateDeployFlag;
+            }
+            else
+            {
+                var criteriaValidation = new ValidateHappyFive { MatchId = request.MatchId, Action = request.Action };
+                await repository.ExecuteAsync(criteriaValidation);
+                return new Result
+                {
+                    ErrorCode = criteriaValidation.ErrCode,
+                    ErrorMessage = criteriaValidation.ErrMsg
+                };
+            }
         }
 
-        private async Task<Result> ValidationBeforeSettle(AutoHappyFiveRequest request)
+        private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
         {
-            var eventTicketThirdPartyRequest = new EventTicketHappyFiveRequest
+            var updateRequest = new UpdateMatchInfo3rdRequest
             {
+                Command = "completed",
                 MatchId = request.MatchId,
                 Action = request.Action,
-                IsAuto = request.IsAuto,
+                creator = request.AdminId
             };
-
-            var result = await scaleOutSettleThirdPartyService.ValidateEventAndTicketHappyFive(eventTicketThirdPartyRequest);
-
-            return new Result
-            {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage
-            };
+            await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateRequest);
         }
     }
 }

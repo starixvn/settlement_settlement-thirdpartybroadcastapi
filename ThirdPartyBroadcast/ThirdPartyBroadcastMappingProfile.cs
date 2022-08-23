@@ -4,11 +4,11 @@ using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Criteria.BetBuilder;
 using ThirdPartyBroadcast.Criteria.BitCoin;
 using ThirdPartyBroadcast.Criteria.HappyFive;
-using ThirdPartyBroadcast.Criteria.NumberGame;
 using ThirdPartyBroadcast.Criteria.OutRight;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 using ThirdPartyBroadcast.Requests;
+using SendMailCriteria = ThirdPartyBroadcast.Criteria.VirtualBetRadar.SendMailCriteria;
 
 namespace ThirdPartyBroadcast
 {
@@ -17,9 +17,7 @@ namespace ThirdPartyBroadcast
         public ThirdPartyBroadcastMappingProfile()
         {
             CreateMap<AutoNumberGameRequest, NumberGameCriteria>();
-            CreateMap<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>();
             CreateMap<AutoFastMarketRequest, FastMarketCriteria>();
-            CreateMap<AutoHappyFiveRequest, HappyFiveUpdateMatchCriteria>();
             CreateMap<AutoHappyFiveRequest, HappyFiveCriteria>();
             CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
             CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
@@ -30,10 +28,11 @@ namespace ThirdPartyBroadcast
             CreateMap<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>();
             CreateMap<AutoVirtualSoccerRequest, VirtualSoccerCriteria>();
             CreateMap<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>();
-            CreateMap<AutoNumberGameRequest, NumberGameUpdateMatchCriteria>();
             CreateMap<AutoBetBuilderRequest, UpdateMarketCriteria>();
             CreateMap<AutoBetBuilderRequest, BetBuilderCriteria>();
             CreateMap<AutoOutrightRequest, OutRightCriteria>();
+            CreateMap<WriteLogCriteria, SendMailCriteria>().ForMember(dest => dest.AdminId, opt => opt.MapFrom(src => src.UserId));
+            CreateMap<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>().ForMember(dest => dest.creator, opt => opt.MapFrom(src => src.AdminId));
         }
     }
 }

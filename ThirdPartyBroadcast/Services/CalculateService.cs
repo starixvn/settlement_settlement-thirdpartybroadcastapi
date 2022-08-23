@@ -1,14 +1,9 @@
-﻿using AutoMapper;
-using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Criteria;
-using Fanex.Settlement.ScaleOut.Models;
+﻿using Fanex.Data.Repository;
+using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
@@ -20,6 +15,8 @@ namespace ThirdPartyBroadcast.Services
         Task<Result> Excecute(CalculateCriteria criteria);
 
         Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria);
+
+        Task<Result> ValidationDeloyFlag(string spName);
     }
 
     public class CalculateServiceImp : CalculateService
@@ -28,12 +25,16 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly AppSettingsKey appSettingsKey;
 
+        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
         public CalculateServiceImp(
             IDynamicRepository repository,
-            IOptions<AppSettingsKey> appSettingsKey)
+            IOptions<AppSettingsKey> appSettingsKey,
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
         {
             this.repository = repository;
             this.appSettingsKey = appSettingsKey.Value;
+            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         }
 
         public async Task<Result> Excecute(CalculateCriteria criteria)
@@ -75,6 +76,22 @@ namespace ThirdPartyBroadcast.Services
                 }
             }
             return new Result();
+        }
+
+        public async Task<Result> ValidationDeloyFlag(string spName)
+        {
+            var getDeploymentInfoRequest = new GetDeploymentInfoRequest
+            {
+                SPName = spName
+            };
+
+            var result = await scaleOutSettleThirdPartyService.GetDeploymentInfo(getDeploymentInfoRequest);
+
+            return new Result
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage
+            };
         }
 
         private Result MergeFailedResult(List<Result> listResult)

@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
+using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
+using Kaden.XmlConverter;
+using System.Linq;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
+using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Criteria.BetBuilder;
 using ThirdPartyBroadcast.Models;
-using AutoBetBuilderRequest = ThirdPartyBroadcast.Requests.AutoBetBuilderRequest;
+using ThirdPartyBroadcast.Requests;
 
 namespace ThirdPartyBroadcast.Services
 {
@@ -24,61 +28,127 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly IMapper mapper;
 
+        private readonly XmlConvertService xmlConvertService;
+
+        private readonly IDynamicRepository repository;
+
+        private const string LogMessage = "MarketIDs cannot be auto settled since they have been settled already: ";
+
+        private const int ExistInvalidMarketErrorCode = 1000007;
+
+        private const int Maxlenght = 115;
+
         public BetBuilderServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
                 ScaleOutSettleService scaleOutSettleService,
                 CalculateService calculateService,
-                IMapper mapper)
+                IMapper mapper,
+                XmlConvertService xmlConvertService,
+                IDynamicRepository repository)
         {
             this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
             this.scaleOutSettleService = scaleOutSettleService;
             this.calculateService = calculateService;
             this.mapper = mapper;
+            this.xmlConvertService = xmlConvertService;
+            this.repository = repository;
         }
 
         public async Task<Result> Settle(AutoBetBuilderRequest request)
         {
-            var validationResult = await ValidationBeforeSettle(request);
+            var (validationResult, invalidMarketIds) = await ValidationBeforeSettle(request);
             if (validationResult.ErrorCode == 0)
             {
-                await UpdateMatchInfo(request);
-                var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
-                criteria.SelectedMarket = request.Resources;
-                return await calculateService.Excecute(criteria);
+                var selectedMarket = RemoveInvalidMarket(invalidMarketIds, request.Resources);
+                WriteLog(request, invalidMarketIds, validationResult);
+                return string.IsNullOrEmpty(selectedMarket) ? validationResult : await UpdateAndSettle(request, selectedMarket, validationResult);
             }
 
             return validationResult;
         }
 
-        private async Task UpdateMatchInfo(AutoBetBuilderRequest request)
+        private async Task<Result> UpdateAndSettle(AutoBetBuilderRequest request, string selectedMarket, Result validateResult)
+        {
+            await UpdateMatchInfo(request, selectedMarket);
+            var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
+            criteria.SelectedMarket = selectedMarket;
+            var settleResult = await calculateService.Excecute(criteria);
+            return HandleError(validateResult, settleResult);
+        }
+
+        private Result HandleError(Result validateResult, Result SettleResult)
+        {
+            if (validateResult.ErrorCode > 0 && SettleResult.ErrorCode > 0)
+            {
+                validateResult.ErrorMessage += $"| {SettleResult.ErrorMessage}";
+                return validateResult;
+            }
+            return validateResult.ErrorCode > 0 ? validateResult : SettleResult;
+        }
+
+        private void WriteLog(AutoBetBuilderRequest request, string invalidMarketIds, Result result)
+        {
+            if (!string.IsNullOrEmpty(invalidMarketIds))
+            {
+                var marketIds = invalidMarketIds.Length > Maxlenght ? $"{invalidMarketIds[0..Maxlenght]}..." : invalidMarketIds;
+                var actionId = request.Action.ToLower() == ActionType.Calculate ? 81012 : 81010;
+                var message = $"{LogMessage}{marketIds}";
+                var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
+                repository.Execute(criteria);
+                result.ErrorMessage = message;
+                result.ErrorCode = ExistInvalidMarketErrorCode;
+            }
+        }
+
+        private async Task UpdateMatchInfo(AutoBetBuilderRequest request, string selectedMarket)
         {
             var requestUpdate = new UpdateMatchInfoRequest
             {
+                MatchId = request.MatchId,
                 Mode = ModeType.BetBuilder,
                 IsAuto = request.IsAuto,
                 Action = request.Action,
-                SelectedMarket = request.Resources
+                SelectedMarket = selectedMarket
             };
+
             await scaleOutSettleService.UpdateMatchInfo(requestUpdate);
         }
 
-        private async Task<Result> ValidationBeforeSettle(AutoBetBuilderRequest request)
+        private string RemoveInvalidMarket(string invalidMarketIds, string selectionMarket)
+        {
+            var listMarket = xmlConvertService.Deserialize<ResourcesModel>(selectionMarket);
+            var listInvalidMarket = invalidMarketIds.Split(',').ToList();
+            listInvalidMarket.ForEach(item =>
+            {
+                var index = listMarket.Items.FindIndex(i => i.MarketId == item);
+                if (index > -1)
+                {
+                    listMarket.Items.RemoveAt(index);
+                }
+            });
+
+            return listMarket.Items.Count > 0 ? xmlConvertService.Serialize(listMarket) : string.Empty;
+        }
+
+        private async Task<(Result, string)> ValidationBeforeSettle(AutoBetBuilderRequest request)
         {
             var eventTicketThirdPartyRequest = new BetBuilderRequest
             {
                 MatchId = request.MatchId,
                 Action = request.Action,
                 IsAuto = request.IsAuto,
-                SelectedResources = request.Resources,
+                SelectedMarket = request.Resources,
                 VendorID = request.VendorId
             };
 
-            var (result, invalidMarketIds) = await scaleOutSettleThirdPartyService.ValidateBetBuilder(eventTicketThirdPartyRequest);
+            var (resultValidate, invalidMarketIds) = await scaleOutSettleThirdPartyService.ValidateBetBuilder(eventTicketThirdPartyRequest);
 
-            return new Result
+            var result = new Result
             {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage
+                ErrorCode = resultValidate.ErrorCode,
+                ErrorMessage = resultValidate.ErrorMessage
             };
+
+            return (result, invalidMarketIds ?? "");
         }
     }
 }

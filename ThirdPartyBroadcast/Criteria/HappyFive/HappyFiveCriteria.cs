@@ -1,7 +1,4 @@
-﻿using Fanex.Data;
-using Fanex.Data.Repository;
-
-namespace ThirdPartyBroadcast.Criteria.HappyFive
+﻿namespace ThirdPartyBroadcast.Criteria.HappyFive
 {
     public class HappyFiveCriteria : CalculateCriteria
     {

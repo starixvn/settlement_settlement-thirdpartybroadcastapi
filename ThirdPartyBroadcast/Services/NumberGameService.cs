@@ -6,7 +6,6 @@ using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Criteria.NumberGame;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 
@@ -45,7 +44,7 @@ namespace ThirdPartyBroadcast.Services
 
         public async Task<Result> Settle(AutoNumberGameRequest request)
         {
-            var resultValidation = await ValidationBeforeSettle(request);
+            var resultValidation = await calculateService.ValidationDeloyFlag(SpName.NumberGame);
 
             if (resultValidation.ErrorCode == 0)
             {
@@ -61,26 +60,15 @@ namespace ThirdPartyBroadcast.Services
         {
             if (!request.IsLive)
             {
-                var criteria = mapper.Map<AutoNumberGameRequest, NumberGameUpdateMatchCriteria>(request);
-                await repository.ExecuteAsync(criteria);
+                var updateRequest = new UpdateMatchInfo3rdRequest
+                {
+                    Command = "completed",
+                    MatchId = request.MatchId,
+                    Action = request.Action,
+                    creator = request.AdminId
+                };
+                await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateRequest);
             }
-        }
-
-        private async Task<Result> ValidationBeforeSettle(AutoNumberGameRequest request)
-        {
-            var eventTicketThirdPartyRequest = new NumberGameRequest
-            {
-                MatchId = request.MatchId,
-                IsAuto = request.IsAuto,
-            };
-
-            var result = await scaleOutSettleThirdPartyService.ValidateNumberGame(eventTicketThirdPartyRequest);
-
-            return new Result
-            {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage
-            };
         }
     }
 }

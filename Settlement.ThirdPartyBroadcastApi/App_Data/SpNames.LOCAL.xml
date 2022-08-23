@@ -1,26 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Functions>
   <Function Name="ThirdParty Broadcast">
-    <Setting Key="NAP_Admin_Match_s164_Upd" SpName="NAP_Admin_Match_s164_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Admin_Match_Update" SpName="NAP_Admin_Match_Update" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_3rdValidation_Event" SpName="NAP_Admin_Settlement_3rdValidation_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_Validation_Event" SpName="NAP_Admin_Settlement_Validation_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_MatchInfoUpd" SpName="NAP_Admin_MatchInfoUpd" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_ValidationFM_Event" SpName="NAP_Admin_Settlement_ValidationFM_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
-    <Setting Key="NAP_Admin_Outright_Update" SpName="NAP_Admin_Outright_Update" DbName="DBPRO.bodb02.bodbAdminNet" />
-    <Setting Key="NAP_Admin_Match_s175_Upd" SpName="NAP_Admin_Match_s175_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Match_s193_Upd" SpName="NAP_Admin_Match_s193_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
-    <Setting Key="NAP_Admin_Match_VS1_Upd" SpName="NAP_Admin_Match_VS1_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
-    <Setting Key="NAP_Admin_Match_NumberGame_Upd" SpName="NAP_Admin_Match_NumberGame_Upd" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_ChangedMarket_Sel" SpName="NAP_Admin_ChangedMarket_Sel" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_s164_Validation_Event" SpName="NAP_Admin_Settlement_s164_Validation_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
     <Setting Key="NAP_Admin_Settlement_Betbuilder_Validation_Event" SpName="NAP_Admin_Settlement_Betbuilder_Validation_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
-    <Setting Key="NAP_Admin_Settlement_VS1_Validation_Event" SpName="NAP_Admin_Settlement_VS1_Validation_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Set_Match3rdSel" SpName="NAP_Set_Match3rdSel" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Admin_Result3rd_Update" SpName="NAP_Admin_Result3rd_Update" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Admin_Match3rd_Update" SpName="NAP_Admin_Match3rd_Update" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Admin_SendNotify_Bitcoin" SpName="NAP_Admin_SendNotify_Bitcoin" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_updateMatch_remark" SpName="NAP_updateMatch_remark" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key ="NAP_Admin_SendMail" SpName="NAP_Admin_SendMail" DbName="DBPRO.bodb02.bodbAdminNet" />
+    <Setting Key="WriteLog_UserLog_Settle" SpName="WriteLog_UserLog_Settle" DbName="DBLOG.bodb_CustomerLog.bodbAdminNet" />
+    <Setting Key="Dot_Admin_SettleOutright_Event" SpName="Dot_Admin_SettleOutright_Event" DbName="DBPRO.bodb02.bodbAdminNet" />
   </Function>
 
   <Function Name="DBSID01">
     <Function Name="NAP_Admin_Settlement_3rdValidation_Ticket">
       <Setting Key="NAP_Admin_Settlement_3rdValidation_Ticket_DBTXN" SpName="NAP_Admin_Settlement_3rdValidation_Ticket" DbName="DBTXN.bodb02.bodbAdminNet" />
       <Setting Key="NAP_Admin_Settlement_3rdValidation_Ticket_DBSID01" SpName="NAP_Admin_Settlement_3rdValidation_Ticket" DbName="DBSID01.bodb02.bodbAdminNet" />
+    </Function>
+
+    <Function Name="NAP_Set_SPDeploymentInfo">
+      <Setting Key="NAP_Set_SPDeploymentInfo_DBTXN" SpName="NAP_Set_SPDeploymentInfo" DbName="DBTXN.bodb02.bodbAdminNet" />
+      <Setting Key="NAP_Set_SPDeploymentInfo_DBSID01" SpName="NAP_Set_SPDeploymentInfo" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
 
     <Function Name="Happy 5">
@@ -68,20 +76,12 @@
       <Setting Key="Dot_Admin_SettleOutright_Trans_DBTXN" SpName="Dot_Admin_SettleOutright_Trans" DbName="DBTXN.bodb02.bodbAdminNet" />
       <Setting Key="Dot_Admin_SettleOutright_Trans_DBSID01" SpName="Dot_Admin_SettleOutright_Trans" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
-    <Function Name="NAP_Admin_Settlement_Outright_Validation">
-      <Setting Key="NAP_Admin_Settlement_Outright_Validation_DBTXN" SpName="NAP_Admin_Settlement_Outright_Validation" DbName="DBTXN.bodb02.bodbAdminNet" />
-      <Setting Key="NAP_Admin_Settlement_Outright_Validation_DBSID01" SpName="NAP_Admin_Settlement_Outright_Validation" DbName="DBSID01.bodb02.bodbAdminNet" />
-    </Function>
   </Function>
 
   <Function Name="Bit coin">
     <Function Name="NAP_Admin_Settlement_s175">
       <Setting Key="NAP_Admin_Settlement_s175_DBTXN" SpName="NAP_Admin_Settlement_s175" DbName="DBTXN.bodb02.bodbAdminNet" />
       <Setting Key="NAP_Admin_Settlement_s175_DBSID01" SpName="NAP_Admin_Settlement_s175" DbName="DBSID01.bodb02.bodbAdminNet" />
-    </Function>
-    <Function Name="NAP_Admin_Settlement_s175_Validation">
-      <Setting Key="NAP_Admin_Settlement_s175_Validation_DBTXN" SpName="NAP_Admin_Settlement_s175_Validation" DbName="DBTXN.bodb02.bodbAdminNet" />
-      <Setting Key="NAP_Admin_Settlement_s175_Validation_DBSID01" SpName="NAP_Admin_Settlement_s175_Validation" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
   </Function>
 
@@ -108,10 +108,6 @@
     <Function Name="NAP_Admin_Settlement_VS_180">
       <Setting Key="NAP_Admin_Settlement_VS_180_DBTXN" SpName="NAP_Admin_Settlement_VS_180" DbName="DBTXN.bodb02.bodbAdminNet" />
       <Setting Key="NAP_Admin_Settlement_VS_180_DBSID01" SpName="NAP_Admin_Settlement_VS_180" DbName="DBSID01.bodb02.bodbAdminNet" />
-    </Function>
-    <Function Name="NAP_Admin_Settlement_VS1_Validation">
-      <Setting Key="NAP_Admin_Settlement_VS1_Validation_DBTXN" SpName="NAP_Admin_Settlement_VS1_Validation" DbName="DBTXN.bodb02.bodbAdminNet" />
-      <Setting Key="NAP_Admin_Settlement_VS1_Validation_DBSID01" SpName="NAP_Admin_Settlement_VS1_Validation" DbName="DBSID01.bodb02.bodbAdminNet" />
     </Function>
   </Function>
   <Function Name="Bet Builder">

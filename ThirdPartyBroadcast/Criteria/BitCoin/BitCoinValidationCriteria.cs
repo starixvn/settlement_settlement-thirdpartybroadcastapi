@@ -1,17 +1,19 @@
-﻿using Fanex.Settlement.ScaleOut.Criteria;
+﻿using Fanex.Data.Repository;
 
 namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
-    public class BitCoinValidationCriteria : BaseCriteria
+    public class BitCoinEventStatusCriteria : CriteriaBase
     {
+        public int MatchId { get; set; }
+
         public override string GetSettingKey()
         {
-            return $"NAP_Admin_Settlement_s175_Validation_{DbServer}";
+            return $"NAP_Set_Match3rdSel";
         }
 
         public override bool IsValid()
         {
-            return true;
+            return MatchId > 0;
         }
     }
 }

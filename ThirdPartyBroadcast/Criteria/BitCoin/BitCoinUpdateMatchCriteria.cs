@@ -18,7 +18,7 @@ namespace ThirdPartyBroadcast.Criteria.BitCoin
 
         public override string GetSettingKey()
         {
-            return "NAP_Admin_Match_s175_Upd";
+            return "NAP_Admin_Result3rd_Update";
         }
 
         public override bool IsValid()

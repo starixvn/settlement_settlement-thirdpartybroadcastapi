@@ -1,9 +1,4 @@
 ﻿using Fanex.Data.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
 {
@@ -11,17 +6,11 @@ namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
     {
         public int MatchId { get; set; }
 
-        public string Action { get; set; }
-
-        public int AdminId { get; set; }
-
-        public int Fth { get; set; }
-
-        public int Fta { get; set; }
+        public string Command { get; set; }
 
         public override string GetSettingKey()
         {
-            return "NAP_Admin_Match_VS1_Upd";
+            return "NAP_updateMatch_remark";
         }
 
         public override bool IsValid()

@@ -1,10 +1,12 @@
 ﻿using Fanex.Data.Repository;
 
-namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
+namespace ThirdPartyBroadcast.Criteria.HappyFive
 {
-    public class VirtualSoccerValidationEventCriteria : NonQueryCommand
+    public class ValidateHappyFive : NonQueryCommand
     {
         public int MatchId { get; set; }
+
+        public string Action { get; set; }
 
         public int ErrCode { get; set; }
 
@@ -12,12 +14,12 @@ namespace ThirdPartyBroadcast.Criteria.VirtualSoccer
 
         public override string GetSettingKey()
         {
-            return "NAP_Admin_Settlement_VS1_Validation_Event";
+            return "NAP_Admin_Settlement_s164_Validation_Event";
         }
 
         public override bool IsValid()
         {
-            return MatchId > 0;
+            return true;
         }
     }
 }

@@ -1,19 +1,16 @@
 ﻿using Fanex.Data.Repository;
-using System;
 
-namespace ThirdPartyBroadcast.Criteria.OutRight
+namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
-    public class OutRightUpdateMatchCriteria : NonQueryCommand
+    public class UpdateEventStatusCriteria : NonQueryCommand
     {
         public int MatchId { get; set; }
-
-        public string Status { get; set; }
 
         public string Action { get; set; }
 
         public override string GetSettingKey()
         {
-            return "NAP_Admin_Outright_Update";
+            return "NAP_Admin_Match3rd_Update";
         }
 
         public override bool IsValid()
