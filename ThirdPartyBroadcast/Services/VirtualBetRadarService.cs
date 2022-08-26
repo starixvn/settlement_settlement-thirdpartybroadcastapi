@@ -93,7 +93,7 @@ namespace ThirdPartyBroadcast.Services
             }
             else
             {
-                var criteriaValidation = new BetRadarValidationCriteria { MatchId = request.MatchId, SelectedResources = request.ResourceResult };
+                var criteriaValidation = mapper.Map<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>(request);
                 return await calculateService.ExecuteValidationMultiServer(criteriaValidation);
             }
         }

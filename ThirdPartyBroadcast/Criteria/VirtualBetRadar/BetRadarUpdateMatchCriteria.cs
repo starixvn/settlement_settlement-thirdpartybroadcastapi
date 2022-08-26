@@ -25,7 +25,7 @@ namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
 
         public int Fta { get; set; }
 
-        public string Resources { get; set; }
+        public string ResourceResult { get; set; }
 
         public override string GetSettingKey()
         {

@@ -65,7 +65,7 @@ namespace ThirdPartyBroadcast.Services
                     Command = "completed",
                     MatchId = request.MatchId,
                     Action = request.Action,
-                    creator = request.AdminId
+                    Creator = request.AdminId
                 };
                 await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateRequest);
             }
