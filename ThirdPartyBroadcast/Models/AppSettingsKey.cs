@@ -5,5 +5,7 @@ namespace ThirdPartyBroadcast.Models
     public class AppSettingsKey
     {
         public List<string> SiteDbServer { get; set; }
+
+        public bool LogRequest { get; set; }
     }
 }

@@ -83,6 +83,7 @@ namespace BroadcastApi
             services.AddTransient<OutrightService, OutrightServiceImp>();
             services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
             services.AddTransient<CalculateService, CalculateServiceImp>();
+            services.AddScoped<LogRequestResponseAttribute>();
         }
 
         private static void ConfigureAutoMapper(IServiceCollection services)
