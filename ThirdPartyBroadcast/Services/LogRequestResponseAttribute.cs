@@ -22,29 +22,6 @@ namespace ThirdPartyBroadcast.Services
             this.appSettingsKey = appSettingsKey.Value;
         }
 
-        public override async void OnActionExecuted(ActionExecutedContext actionExecutedContext)
-        {
-            if (!appSettingsKey.LogRequest)
-            {
-                return;
-            }
-            var context = actionExecutedContext.HttpContext;
-            var request = context.Request;
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Url: {request.GetDisplayUrl()}");
-            stringBuilder.AppendLine($"UserAgent: {request.Headers["User-Agent"]}");
-            stringBuilder.AppendLine($"Username: {context.User.Identity.Name}");
-            if (actionExecutedContext.Result != null)
-            {
-                var objectResult = actionExecutedContext.Result as OkObjectResult;
-                var result = JsonConvert.SerializeObject(objectResult.Value);
-                stringBuilder.AppendLine(result);
-            }
-            await logger.InfoAsync(stringBuilder.ToString());
-
-            base.OnActionExecuted(actionExecutedContext);
-        }
-
         public override async void OnActionExecuting(ActionExecutingContext context)
         {
             if (!appSettingsKey.LogRequest)
@@ -53,7 +30,12 @@ namespace ThirdPartyBroadcast.Services
             }
             var model = context.ActionArguments;
             var serialString = JsonConvert.SerializeObject(model);
-            await logger.InfoAsync(serialString);
+            var Url = context.HttpContext.Request.GetDisplayUrl();
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"Url: {Url}");
+            stringBuilder.AppendLine($"Params: {serialString}");
+
+            await logger.InfoAsync(stringBuilder.ToString());
 
             base.OnActionExecuting(context);
         }

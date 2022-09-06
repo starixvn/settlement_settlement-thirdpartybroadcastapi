@@ -27,37 +27,51 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
+        private readonly ScaleOutSettleService scaleOutSettleService;
+
         public CalculateServiceImp(
             IDynamicRepository repository,
             IOptions<AppSettingsKey> appSettingsKey,
-            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
+            ScaleOutSettleService scaleOutSettleService)
         {
             this.repository = repository;
             this.appSettingsKey = appSettingsKey.Value;
             this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+            this.scaleOutSettleService = scaleOutSettleService;
         }
 
         public async Task<Result> Excecute(CalculateCriteria criteria)
         {
-            var listResult = new List<Result>();
-
+            var results = new List<Result>();
             foreach (var server in appSettingsKey.SiteDbServer)
             {
                 criteria.DbServer = server;
                 await repository.ExecuteAsync(criteria);
-                var result = new Result
-                {
-                    ErrorCode = criteria.ErrCode,
-                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
-                };
-
-                if (result.ErrorCode > 0)
-                {
-                    listResult.Add(result);
-                }
+                results = await ResultMessage(results, server, criteria.ErrMsg);
             }
 
-            return MergeFailedResult(listResult);
+            return new Result
+            {
+                ErrorCode = results.Count,
+                ErrorMessage = string.Join(" | ", results.Select(r => r.ErrorMessage).ToArray())
+            };
+        }
+
+        private async Task<List<Result>> ResultMessage(List<Result> results, string server, string message)
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                var siteDbGroupId = await scaleOutSettleService.GetSiteGroupId(server);
+                var result = new Result
+                {
+                    ErrorMessage = $"SiteDbGroupId {siteDbGroupId}: {message}"
+                };
+
+                results.Add(result);
+            }
+
+            return results;
         }
 
         public async Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria)
@@ -92,20 +106,6 @@ namespace ThirdPartyBroadcast.Services
                 ErrorCode = result.ErrorCode,
                 ErrorMessage = result.ErrorMessage
             };
-        }
-
-        private Result MergeFailedResult(List<Result> listResult)
-        {
-            if (listResult.Any())
-            {
-                return new Result
-                {
-                    ErrorCode = 1000,
-                    ErrorMessage = string.Join(" |", listResult.Select(x => x.ErrorMessage))
-                };
-            }
-
-            return new Result();
         }
     }
 }
