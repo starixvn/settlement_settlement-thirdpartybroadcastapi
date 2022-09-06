@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 using Fanex.Logging;
@@ -8,7 +7,7 @@ using ILogger = Fanex.Logging.ILogger;
 using ThirdPartyBroadcast.Models;
 using Microsoft.Extensions.Options;
 
-namespace ThirdPartyBroadcast.Services
+namespace ThirdPartyBroadcast.ActionFilters
 {
     public class LogRequestResponseAttribute : ActionFilterAttribute
     {
@@ -24,18 +23,17 @@ namespace ThirdPartyBroadcast.Services
 
         public override async void OnActionExecuting(ActionExecutingContext context)
         {
-            if (!appSettingsKey.LogRequest)
+            if (appSettingsKey.EnableLogRequest)
             {
-                return;
-            }
-            var model = context.ActionArguments;
-            var serialString = JsonConvert.SerializeObject(model);
-            var Url = context.HttpContext.Request.GetDisplayUrl();
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Url: {Url}");
-            stringBuilder.AppendLine($"Params: {serialString}");
+                var model = context.ActionArguments;
+                var serialString = JsonConvert.SerializeObject(model);
+                var url = context.HttpContext.Request.GetDisplayUrl();
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine($"Url: {url}");
+                stringBuilder.AppendLine($"Params: {serialString}");
 
-            await logger.InfoAsync(stringBuilder.ToString());
+                await logger.InfoAsync(stringBuilder.ToString());
+            }
 
             base.OnActionExecuting(context);
         }

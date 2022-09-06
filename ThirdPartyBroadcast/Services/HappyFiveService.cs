@@ -5,7 +5,6 @@ using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.HappyFive;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 
@@ -46,7 +45,7 @@ namespace ThirdPartyBroadcast.Services
             {
                 await UpdateMatchInfo(request);
                 var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
-                return await calculateService.Excecute(criteria);
+                return await calculateService.Execute(criteria);
             }
 
             return resultValidation;
@@ -54,28 +53,26 @@ namespace ThirdPartyBroadcast.Services
 
         private async Task<Result> ValidateBeforeSettle(AutoHappyFiveRequest request)
         {
-            var validateDeployFlag = await calculateService.ValidationDeloyFlag(SpName.HappyFive);
+            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.HappyFive);
             if (validateDeployFlag.ErrorCode > 0)
             {
                 return validateDeployFlag;
             }
-            else
+
+            var criteriaValidation = new ValidateHappyFive { MatchId = request.MatchId, Action = request.Action };
+            await repository.ExecuteAsync(criteriaValidation);
+            return new Result
             {
-                var criteriaValidation = new ValidateHappyFive { MatchId = request.MatchId, Action = request.Action };
-                await repository.ExecuteAsync(criteriaValidation);
-                return new Result
-                {
-                    ErrorCode = criteriaValidation.ErrCode,
-                    ErrorMessage = criteriaValidation.ErrMsg
-                };
-            }
+                ErrorCode = criteriaValidation.ErrCode,
+                ErrorMessage = criteriaValidation.ErrMsg
+            };
         }
 
         private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
         {
             var updateRequest = new UpdateMatchInfo3rdRequest
             {
-                Command = "completed",
+                Command = EventStatus.Completed,
                 MatchId = request.MatchId,
                 Action = request.Action,
                 Creator = request.AdminId

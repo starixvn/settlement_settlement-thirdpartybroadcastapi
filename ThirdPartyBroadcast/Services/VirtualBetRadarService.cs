@@ -6,7 +6,6 @@ using AutoMapper;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria;
-using System;
 
 namespace ThirdPartyBroadcast.Services
 {
@@ -23,14 +22,7 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
-        private const string SuccessfullyMessage = "NAP: VS Betradar - API inserted into single queue successfully.";
-
-        private const string FailedMessage = "NAP: VS Betradar - Error: API inserted into single queue failed. ";
-
-        private const int CalcActionId = 187;
-
-        private const int RefundActionId = 188;
-
+        
         public VirtualBetRadarServiceImp(
             IDynamicRepository repository,
             IMapper mapper,
@@ -48,7 +40,7 @@ namespace ThirdPartyBroadcast.Services
             if (validation.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                var settleResult = await calculateService.Excecute(criteria);
+                var settleResult = await calculateService.Execute(criteria);
                 HandleAfterSettle(request, settleResult);
                 return settleResult;
             }
@@ -58,12 +50,16 @@ namespace ThirdPartyBroadcast.Services
 
         private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
         {
-            var actionId = request.Action.ToLower() == ActionType.Calculate ? CalcActionId : RefundActionId;
-            var criteria = new WriteLogCriteria(request.MatchId, SuccessfullyMessage, actionId, request.AdminId, request.Ip);
-            criteria.FinalAwayScore = request.Fta;
-            criteria.FinalHomeScore = request.Fth;
-            criteria.HtAwayScore = request.Hta;
-            criteria.HtHomeScore = request.Hth;
+            const string successfullyMessage = "NAP: VS BetRadar - API inserted into single queue successfully.";
+            var actionId = request.Action.ToLower().Equals(ActionType.Calculate) ? ActionId.VirtualBetRadarCalc : ActionId.VirtualBetRadarRefund;
+            var criteria = new WriteLogCriteria(request.MatchId, successfullyMessage, actionId, request.AdminId, request.Ip)
+            {
+                FinalAwayScore = request.Fta,
+                FinalHomeScore = request.Fth,
+                HtAwayScore = request.Hta,
+                HtHomeScore = request.Hth
+            };
+
             if (settleResult.ErrorCode == 0)
             {
                 repository.Execute(criteria);
@@ -76,7 +72,8 @@ namespace ThirdPartyBroadcast.Services
 
         private void WriteLogFailed(WriteLogCriteria criteria, string errorMessage)
         {
-            criteria.Remark = FailedMessage + errorMessage;
+            const string failedMessage = "NAP: VS BetRadar - Error: API inserted into single queue failed.";
+            criteria.Remark = $"{failedMessage} {errorMessage}";
             repository.Execute(criteria);
 
             var sendMailCriteria = mapper.Map<WriteLogCriteria, SendMailCriteria>(criteria);
@@ -86,7 +83,7 @@ namespace ThirdPartyBroadcast.Services
 
         private async Task<Result> ValidateBeforeSettle(AutoVirtualBetRadarRequest request)
         {
-            var validateDeployFlag = await calculateService.ValidationDeloyFlag(SpName.VirtualBetRadar);
+            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.VirtualBetRadar);
             if (validateDeployFlag.ErrorCode > 0)
             {
                 return validateDeployFlag;

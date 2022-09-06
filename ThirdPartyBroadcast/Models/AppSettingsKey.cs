@@ -6,6 +6,6 @@ namespace ThirdPartyBroadcast.Models
     {
         public List<string> SiteDbServer { get; set; }
 
-        public bool LogRequest { get; set; }
+        public bool EnableLogRequest { get; set; }
     }
 }

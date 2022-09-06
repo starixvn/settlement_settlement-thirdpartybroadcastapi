@@ -15,9 +15,9 @@ pipeline {
     stage('Build') {
       steps {        
         script{
-          pipelineLib.beginSonarQubeForMsBuild("AutoInstant-Service-NetCore", "Olympus /  AutoInstant Service Net Core", "/d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\CoverageReports\\*.xml /d:sonar.exclusions=**/*.native.*,**/*Criteria.*,**/Models/*.cs,**/Constants/*.cs /d:sonar.cs.vstest.reportsPaths=%WORKSPACE%\\TestResults\\*.trx")
+          pipelineLib.beginSonarQubeForMsBuild("Settlement-ThirdPartyBroadcastApi", "Olympus / Settlement ThirdPartyBroadcastApi", "/d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\CoverageReports\\*.xml /d:sonar.exclusions=**/*.native.*,**/*Criteria.*,**/Models/*.cs,**/Constants/*.cs /d:sonar.cs.vstest.reportsPaths=%WORKSPACE%\\TestResults\\*.trx")
 
-          pipelineLib.msBuild16("Fanex.AutoInstant.Service.sln")
+          pipelineLib.msBuild16("Settlement.ThirdPartyBroadcastApi.sln")
         }
       }
     }
@@ -45,7 +45,7 @@ pipeline {
         always{
           script{
             if(manager.logContains(".*Quality gate status.*")){              
-              pipelineLib.generateSonarQubeReport("AutoInstant-Service-NetCore")
+              pipelineLib.generateSonarQubeReport("Settlement-ThirdPartyBroadcastApi")
             }
           }
         }

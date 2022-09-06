@@ -6,7 +6,7 @@ namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
     {
         public int MatchId { get; set; }
 
-        public string SoureName { get; set; } = "NAP-Settlement-VS-BetRadar-Single";
+        public string SourceName { get; set; } = "NAP-Settlement-VS-BetRadar-Single";
 
         public int AdminId { get; set; }
 

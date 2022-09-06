@@ -12,11 +12,11 @@ namespace ThirdPartyBroadcast.Services
 {
     public interface CalculateService
     {
-        Task<Result> Excecute(CalculateCriteria criteria);
+        Task<Result> Execute(CalculateCriteria criteria);
 
         Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria);
 
-        Task<Result> ValidationDeloyFlag(string spName);
+        Task<Result> ValidationDeployFlag(string spName);
     }
 
     public class CalculateServiceImp : CalculateService
@@ -41,7 +41,7 @@ namespace ThirdPartyBroadcast.Services
             this.scaleOutSettleService = scaleOutSettleService;
         }
 
-        public async Task<Result> Excecute(CalculateCriteria criteria)
+        public async Task<Result> Execute(CalculateCriteria criteria)
         {
             var results = new List<Result>();
             foreach (var server in appSettingsKey.SiteDbServer)
@@ -92,7 +92,7 @@ namespace ThirdPartyBroadcast.Services
             return new Result();
         }
 
-        public async Task<Result> ValidationDeloyFlag(string spName)
+        public async Task<Result> ValidationDeployFlag(string spName)
         {
             var getDeploymentInfoRequest = new GetDeploymentInfoRequest
             {

@@ -25,8 +25,6 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
-        private const string CalculateAction = "CAL";
-
         public VirtualSoccerServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
             IDynamicRepository repository,
             IMapper mapper,
@@ -42,11 +40,11 @@ namespace ThirdPartyBroadcast.Services
         {
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VirtualSoccerCriteria>(request);
 
-            var validationResult = await calculateService.ValidationDeloyFlag(SpName.VirtualSports);
+            var validationResult = await calculateService.ValidationDeployFlag(SpName.VirtualSports);
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                return await calculateService.Excecute(criteria);
+                return await calculateService.Execute(criteria);
             }
 
             return validationResult;
@@ -56,14 +54,19 @@ namespace ThirdPartyBroadcast.Services
         {
             var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
-            updateInfoRequest.Command = "completed";
-            criteria.Command = "F";
-            if (request.Action.ToLower() == ActionType.Calculate)
+            updateInfoRequest.Command = EventStatus.Completed;
+            
+            if (request.Action.ToLower().Equals(ActionType.Calculate))
             {
                 updateInfoRequest.FTAway = request.Fta;
                 updateInfoRequest.FTHome = request.Fth;
                 criteria.Command = "C";
             }
+            else
+            {
+                criteria.Command = "F";
+            }
+
             await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateInfoRequest);
             await repository.ExecuteAsync(criteria);
         }

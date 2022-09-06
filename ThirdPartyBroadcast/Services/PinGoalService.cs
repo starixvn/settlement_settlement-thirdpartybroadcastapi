@@ -2,7 +2,7 @@
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using System.Threading.Tasks;
-using ThirdPartyBroadcast.Constants;
+using Fanex.Settlement.ScaleOut.Constants;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
@@ -38,7 +38,7 @@ namespace ThirdPartyBroadcast.Services
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
-                return await calculateService.Excecute(criteria);
+                return await calculateService.Execute(criteria);
             }
 
             return validationResult;
@@ -52,7 +52,7 @@ namespace ThirdPartyBroadcast.Services
                 Action = request.Action,
                 SpName = "NAP_Admin_Settlement_Profile_Push",
                 SelectedResources = request.SelectedResources,
-                Mode = ModeType.Pingoal,
+                Mode = Mode.PinGoal,
                 IsAuto = request.IsAuto
             };
 

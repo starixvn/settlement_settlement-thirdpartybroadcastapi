@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using MediatR;
+using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Requests;
-using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Controllers
 {

@@ -19,7 +19,7 @@ namespace ThirdPartyBroadcast.Criteria
 
         public string Remark { get; set; }
 
-        public string IP { get; } = string.Empty;
+        public string IP { get; set; }
 
         public int ActionId { get; }
 
@@ -31,10 +31,7 @@ namespace ThirdPartyBroadcast.Criteria
 
         public int? HtAwayScore { get; set; }
 
-        public override bool IsValid()
-        {
-            return MatchId > 0;
-        }
+        public override bool IsValid() => MatchId > 0;
 
         public override string GetSettingKey()
         {

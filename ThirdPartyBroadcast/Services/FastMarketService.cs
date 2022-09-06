@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
-using Fanex.Data.Repository;
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
-using MediatR;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Fanex.Settlement.ScaleOut.Constants;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
@@ -26,8 +22,6 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
-        private readonly string fastMarketMode = "FM";
-
         public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
                 IMapper mapper,
                 CalculateService calculateService)
@@ -45,7 +39,7 @@ namespace ThirdPartyBroadcast.Services
             if (validationResult.ErrorCode == 0)
             {
                 await UpdateMatchInfo(criteria);
-                return await calculateService.Excecute(criteria);
+                return await calculateService.Execute(criteria);
             }
 
             return new Result
@@ -63,7 +57,7 @@ namespace ThirdPartyBroadcast.Services
                 Action = criteria.Action,
                 AdminId = criteria.AdminId,
                 Results = criteria.Results,
-                Mode = fastMarketMode,
+                Mode = Mode.FastMarket,
                 IsSettleDetermined = criteria.IsSettleDetermined,
                 IsAuto = criteria.IsAuto
             };

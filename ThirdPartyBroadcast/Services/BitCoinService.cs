@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using MediatR;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.BitCoin;
@@ -24,12 +21,6 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
-        private const string compeleted = "completed";
-
-        private const int RefundId = 81034;
-
-        private const int CalcId = 81033;
-
         public BitCoinServiceImp(
             IDynamicRepository repository,
             IMapper mapper,
@@ -42,14 +33,14 @@ namespace ThirdPartyBroadcast.Services
 
         public async Task<Result> Settle(AutoBitCoinRequest request)
         {
-            var validationResult = await calculateService.ValidationDeloyFlag(SpName.BitCoin);
+            var validationResult = await calculateService.ValidationDeployFlag(SpName.BitCoin);
             if (validationResult.ErrorCode == 0)
             {
                 var eventStatus = await GetEventStatus(request.MatchId);
                 await UpdateMatchInfo(request);
                 var criteria = mapper.Map<AutoBitCoinRequest, BitCoinCriteria>(request);
-                var result = await calculateService.Excecute(criteria);
-                await SendMail(result, request, eventStatus);
+                var result = await calculateService.Execute(criteria);
+                await Notification(result, request, eventStatus);
                 return result;
             }
 
@@ -63,19 +54,21 @@ namespace ThirdPartyBroadcast.Services
             return await repository.GetAsync<string>(criteria);
         }
 
-        private async Task SendMail(Result result, AutoBitCoinRequest request, string eventStatus)
+        private async Task Notification(Result result, AutoBitCoinRequest request, string eventStatus)
         {
-            if (result.ErrorCode > 0 || string.IsNullOrEmpty(eventStatus))
+            if (result.ErrorCode > 0 || string.IsNullOrWhiteSpace(eventStatus))
             {
                 return;
             }
-            if (eventStatus.ToLower().Equals(compeleted) || request.Action.ToLower() == ActionType.Refund)
+
+            if (eventStatus.ToLower().Equals(EventStatus.Completed) || request.Action.ToLower() == ActionType.Refund)
             {
-                var criteria = new SendMailCriteria
+                var criteria = new NotifyCriteria
                 {
                     MatchId = request.MatchId,
-                    NotifyAction = request.Action.ToLower() == ActionType.Refund ? RefundId : CalcId
+                    NotifyAction = request.Action.ToLower() == ActionType.Refund ? ActionId.BitCoinRefund : ActionId.BitCoinCalc
                 };
+
                 await repository.ExecuteAsync(criteria);
             }
         }

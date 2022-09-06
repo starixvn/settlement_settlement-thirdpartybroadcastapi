@@ -11,7 +11,7 @@ namespace ThirdPartyBroadcast.Requests
 
         public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; } = "";
+        public string Ip { get; set; } = string.Empty;
 
         public bool IsAuto { get; set; } = true;
 
@@ -23,6 +23,6 @@ namespace ThirdPartyBroadcast.Requests
 
         public int? Fta { get; set; }
 
-        public string ResourceResult { get; set; } = "";
+        public string ResourceResult { get; set; } = string.Empty;
     }
 }

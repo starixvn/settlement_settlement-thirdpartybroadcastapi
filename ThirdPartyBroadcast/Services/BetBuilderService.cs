@@ -5,6 +5,7 @@ using Fanex.Settlement.ScaleOut.Services;
 using Kaden.XmlConverter;
 using System.Linq;
 using System.Threading.Tasks;
+using Fanex.Settlement.ScaleOut.Constants;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Criteria.BetBuilder;
@@ -32,11 +33,7 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly IDynamicRepository repository;
 
-        private const string LogMessage = "MarketIDs cannot be auto settled since they have been settled already: ";
-
-        private const int ExistInvalidMarketErrorCode = 1000007;
-
-        private const int Maxlenght = 115;
+        private const int MaxLength = 115;
 
         public BetBuilderServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
                 ScaleOutSettleService scaleOutSettleService,
@@ -71,31 +68,41 @@ namespace ThirdPartyBroadcast.Services
             await UpdateMatchInfo(request, selectedMarket);
             var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
             criteria.SelectedMarket = selectedMarket;
-            var settleResult = await calculateService.Excecute(criteria);
+            var settleResult = await calculateService.Execute(criteria);
             return HandleError(validateResult, settleResult);
         }
 
-        private Result HandleError(Result validateResult, Result SettleResult)
+        private static Result HandleError(Result validateResult, Result settleResult)
         {
-            if (validateResult.ErrorCode > 0 && SettleResult.ErrorCode > 0)
+            if (validateResult.ErrorCode > 0 && settleResult.ErrorCode > 0)
             {
-                validateResult.ErrorMessage += $"| {SettleResult.ErrorMessage}";
+                validateResult.ErrorMessage += $"| {settleResult.ErrorMessage}";
                 return validateResult;
             }
-            return validateResult.ErrorCode > 0 ? validateResult : SettleResult;
+
+            return validateResult.ErrorCode > 0 ? validateResult : settleResult;
         }
 
         private void WriteLog(AutoBetBuilderRequest request, string invalidMarketIds, Result result)
         {
             if (!string.IsNullOrEmpty(invalidMarketIds))
             {
-                var marketIds = invalidMarketIds.Length > Maxlenght ? $"{invalidMarketIds[0..Maxlenght]}..." : invalidMarketIds;
-                var actionId = request.Action.ToLower() == ActionType.Calculate ? 81012 : 81010;
-                var message = $"{LogMessage}{marketIds}";
+                const int existInvalidMarketErrorCode = 1000007;
+                const string logMessage = "MarketIDs cannot be auto settled since they have been settled already:";
+                var marketIds = invalidMarketIds.Length > MaxLength
+                    ? $"{invalidMarketIds[0..MaxLength]}..."
+                    : invalidMarketIds;
+
+                var actionId = request.Action.ToLower() == ActionType.Calculate
+                    ? ActionId.BetBuilderCalc
+                    : ActionId.BetBuilderRefund;
+
+                var message = $"{logMessage} {marketIds}";
+
                 var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
                 repository.Execute(criteria);
                 result.ErrorMessage = message;
-                result.ErrorCode = ExistInvalidMarketErrorCode;
+                result.ErrorCode = existInvalidMarketErrorCode;
             }
         }
 
@@ -104,7 +111,7 @@ namespace ThirdPartyBroadcast.Services
             var requestUpdate = new UpdateMatchInfoRequest
             {
                 MatchId = request.MatchId,
-                Mode = ModeType.BetBuilder,
+                Mode = Mode.BetBuilder,
                 IsAuto = request.IsAuto,
                 Action = request.Action,
                 SelectedMarket = selectedMarket
@@ -148,7 +155,7 @@ namespace ThirdPartyBroadcast.Services
                 ErrorMessage = resultValidate.ErrorMessage
             };
 
-            return (result, invalidMarketIds ?? "");
+            return (result, invalidMarketIds ?? string.Empty);
         }
     }
 }

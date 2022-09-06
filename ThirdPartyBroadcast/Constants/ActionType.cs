@@ -6,6 +6,5 @@
 
         public const string Refund = "refund";
 
-        public const string Uncalculate = "undo";
     }
 }
