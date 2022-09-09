@@ -61,12 +61,12 @@ namespace ThirdPartyBroadcast.Services
                 return;
             }
 
-            if (eventStatus.ToLower().Equals(EventStatus.Completed) || request.Action.ToLower() == ActionType.Refund)
+            if (eventStatus.ToLowerInvariant().Equals(EventStatus.Completed) || request.Action.ToLowerInvariant() == ActionType.Refund)
             {
                 var criteria = new NotifyCriteria
                 {
                     MatchId = request.MatchId,
-                    NotifyAction = request.Action.ToLower() == ActionType.Refund ? ActionId.BitCoinRefund : ActionId.BitCoinCalc
+                    NotifyAction = request.Action.ToLowerInvariant() == ActionType.Refund ? ActionId.BitCoinRefund : ActionId.BitCoinCalc
                 };
 
                 await repository.ExecuteAsync(criteria);

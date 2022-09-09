@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using System.Text;
 using Fanex.Logging;
@@ -9,13 +10,14 @@ using Microsoft.Extensions.Options;
 
 namespace ThirdPartyBroadcast.ActionFilters
 {
-    public class LogRequestResponseAttribute : ActionFilterAttribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public class LogRequestAttribute : ActionFilterAttribute
     {
         private readonly ILogger logger;
 
         private readonly AppSettingsKey appSettingsKey;
 
-        public LogRequestResponseAttribute(IOptions<AppSettingsKey> appSettingsKey)
+        public LogRequestAttribute(IOptions<AppSettingsKey> appSettingsKey)
         {
             this.logger = new Logger();
             this.appSettingsKey = appSettingsKey.Value;

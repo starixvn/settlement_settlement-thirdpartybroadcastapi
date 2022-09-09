@@ -8,7 +8,7 @@ namespace ThirdPartyBroadcast.Criteria.BitCoin
 
         public override string GetSettingKey()
         {
-            return $"NAP_Set_Match3rdSel";
+            return "NAP_Set_Match3rdSel";
         }
 
         public override bool IsValid()

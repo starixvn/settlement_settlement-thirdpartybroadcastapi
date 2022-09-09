@@ -7,7 +7,7 @@ namespace ThirdPartyBroadcast.Requests
     {
         public int MatchId { get; set; }
 
-        public int AdminId { get; set; } = 5838421;
+        public int AdminId { get; set; } = 5_838_421;
 
         public string Action { get; set; }
 

@@ -87,13 +87,13 @@ namespace ThirdPartyBroadcast.Services
         {
             if (!string.IsNullOrEmpty(invalidMarketIds))
             {
-                const int existInvalidMarketErrorCode = 1000007;
+                const int existInvalidMarketErrorCode = 1_000_007;
                 const string logMessage = "MarketIDs cannot be auto settled since they have been settled already:";
                 var marketIds = invalidMarketIds.Length > MaxLength
                     ? $"{invalidMarketIds[0..MaxLength]}..."
                     : invalidMarketIds;
 
-                var actionId = request.Action.ToLower() == ActionType.Calculate
+                var actionId = request.Action.ToLowerInvariant() == ActionType.Calculate
                     ? ActionId.BetBuilderCalc
                     : ActionId.BetBuilderRefund;
 

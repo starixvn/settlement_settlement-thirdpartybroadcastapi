@@ -51,7 +51,7 @@ namespace ThirdPartyBroadcast.Services
         private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
         {
             const string successfullyMessage = "NAP: VS BetRadar - API inserted into single queue successfully.";
-            var actionId = request.Action.ToLower().Equals(ActionType.Calculate) ? ActionId.VirtualBetRadarCalc : ActionId.VirtualBetRadarRefund;
+            var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.VirtualBetRadarCalc : ActionId.VirtualBetRadarRefund;
             var criteria = new WriteLogCriteria(request.MatchId, successfullyMessage, actionId, request.AdminId, request.Ip)
             {
                 FinalAwayScore = request.Fta,

@@ -56,7 +56,7 @@ namespace ThirdPartyBroadcast.Services
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
             updateInfoRequest.Command = EventStatus.Completed;
             
-            if (request.Action.ToLower().Equals(ActionType.Calculate))
+            if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
             {
                 updateInfoRequest.FTAway = request.Fta;
                 updateInfoRequest.FTHome = request.Fth;
