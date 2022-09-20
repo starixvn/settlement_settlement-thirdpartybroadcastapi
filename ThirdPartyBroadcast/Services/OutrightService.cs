@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fanex.Settlement.ScaleOut.Services;
 using System.Threading.Tasks;
 using ThirdPartyBroadcast.Constants;
 using ThirdPartyBroadcast.Criteria.OutRight;
@@ -18,25 +19,49 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
+        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
         public OutrightServiceImp(
             IMapper mapper,
-            CalculateService calculateService)
+            CalculateService calculateService,
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
         {
             this.mapper = mapper;
             this.calculateService = calculateService;
+            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         }
 
         public async Task<Result> Settle(AutoOutrightRequest request)
         {
-            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.OutRight);
+            var validation = await ValidateBeforeSettle(request);
 
-            if (validateDeployFlag.ErrorCode == 0)
+            if (validation.ErrorCode == 0)
             {
                 var criteria = mapper.Map<AutoOutrightRequest, OutRightCriteria>(request);
                 return await calculateService.Execute(criteria);
             }
 
-            return validateDeployFlag;
+            return validation;
+        }
+
+        private async Task<Result> ValidateBeforeSettle(AutoOutrightRequest request)
+        {
+            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.OutRight);
+            if (validateDeployFlag.ErrorCode > 0)
+            {
+                return validateDeployFlag;
+            }
+            else
+            {
+                var eventTable = "outright";
+                var criteriaValidation =
+                    await scaleOutSettleThirdPartyService.ValidateMoveBetDay(request.MatchId.ToString(), eventTable);
+                return new Result
+                {
+                    ErrorCode = criteriaValidation.ErrorCode,
+                    ErrorMessage = criteriaValidation.ErrorMessage
+                };
+            }
         }
     }
 }
