@@ -15,6 +15,8 @@ namespace ThirdPartyBroadcast.Requests
 
         public bool IsAuto { get; set; } = true;
 
+        public string BetStatus { get; set; }
+
         public int? Fth { get; set; }
 
         public int? Fta { get; set; }

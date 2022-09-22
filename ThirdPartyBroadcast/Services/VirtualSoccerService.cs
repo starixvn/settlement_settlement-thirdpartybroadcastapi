@@ -54,17 +54,18 @@ namespace ThirdPartyBroadcast.Services
         {
             var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
             var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
-            updateInfoRequest.Command = EventStatus.Completed;
-            
+
             if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
             {
                 updateInfoRequest.FTAway = request.Fta;
                 updateInfoRequest.FTHome = request.Fth;
                 criteria.Command = "C";
+                updateInfoRequest.Command = $"{SpName.VirtualSports}-CAL";
             }
             else
             {
                 criteria.Command = "F";
+                updateInfoRequest.Command = $"{SpName.VirtualSports}-REFUND";
             }
 
             await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateInfoRequest);
