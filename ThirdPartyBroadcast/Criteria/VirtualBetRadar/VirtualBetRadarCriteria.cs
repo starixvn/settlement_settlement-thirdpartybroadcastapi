@@ -1,10 +1,8 @@
-﻿using Fanex.Data;
-using Fanex.Data.Repository;
-
-namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
+﻿namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
 {
     public class VirtualBetRadarCriteria : CalculateCriteria
     {
+        private int notifyFlag = 0;
         public int Hth { get; set; }
 
         public int Hta { get; set; }
@@ -18,6 +16,24 @@ namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
         public bool IsAuto { get; set; }
 
         public string Action { get; set; }
+
+        public int NotifyFlag
+        {
+            get
+            {
+                if (DbServer != "DBTXN")
+                {
+                    return 0;
+                }
+
+                return notifyFlag;
+            }
+
+            set
+            {
+                notifyFlag = value;
+            }
+        }
 
         public override string GetSettingKey() => $"NAP_Admin_Settlement_VS_BetRadar_Push_{DbServer}";
     }

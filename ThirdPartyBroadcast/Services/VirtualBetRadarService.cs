@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using AutoMapper;
+using Fanex.Data.Repository;
+using System.Threading.Tasks;
+using ThirdPartyBroadcast.Constants;
+using ThirdPartyBroadcast.Criteria;
+using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
-using Fanex.Data.Repository;
-using AutoMapper;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
-using ThirdPartyBroadcast.Criteria;
 
 namespace ThirdPartyBroadcast.Services
 {
@@ -22,7 +22,6 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly CalculateService calculateService;
 
-        
         public VirtualBetRadarServiceImp(
             IDynamicRepository repository,
             IMapper mapper,
@@ -37,6 +36,7 @@ namespace ThirdPartyBroadcast.Services
         {
             var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
             var validation = await ValidateBeforeSettle(request);
+            criteria.NotifyFlag = await ValidateMatchStatus(request);
             if (validation.ErrorCode == 0)
             {
                 await UpdateMatchInfo(request);
@@ -99,6 +99,29 @@ namespace ThirdPartyBroadcast.Services
         {
             var criteria = mapper.Map<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
             await repository.ExecuteAsync(criteria);
+        }
+
+        private async Task<int> ValidateMatchStatus(AutoVirtualBetRadarRequest request)
+        {
+            const int notifyRefund = 10;
+            const int notifySingleValue = 2;
+            if (!request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
+            {
+                return notifyRefund;
+            }
+            else
+            {
+                var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
+                var matchStatus = await repository.GetAsync<VSBetRadarMatchStatus>(criteria);
+                var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
+                return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
+            }
+        }
+
+        private static int ParlayNotify(VSBetRadarMatchStatus matchStatus)
+        {
+            const int notifyParlayValue = 8;
+            return matchStatus.Multiple || matchStatus.Refund ? notifyParlayValue : 0;
         }
     }
 }
