@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32602.291
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Settlement.ThirdPartyBroadcastApi", "Settlement.ThirdPartyBroadcastApi\Settlement.ThirdPartyBroadcastApi.csproj", "{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThirdPartyBroadcast", "ThirdPartyBroadcast\ThirdPartyBroadcast.csproj", "{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThirdPartyBroadcast", "ThirdPartyBroadcast\ThirdPartyBroadcast.csproj", "{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{E47901AD-1B00-410E-A4C3-85C88719E295}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B75F1395-AB67-4F65-ABA3-9DB783C79519}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThirdPartyBroadcast.UnitTests", "ThirdPartyBroadcast.UnitTests\ThirdPartyBroadcast.UnitTests.csproj", "{D452C015-0A20-4EC1-B8E4-B0750204A885}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +27,18 @@ Global
 		{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D452C015-0A20-4EC1-B8E4-B0750204A885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D452C015-0A20-4EC1-B8E4-B0750204A885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D452C015-0A20-4EC1-B8E4-B0750204A885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D452C015-0A20-4EC1-B8E4-B0750204A885}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DCDD8F02-EF9D-4E97-ADE1-4F3B6A3D9EE9} = {E47901AD-1B00-410E-A4C3-85C88719E295}
+		{7BE8789B-51A1-4CE2-8255-CE5EC6FEB52A} = {E47901AD-1B00-410E-A4C3-85C88719E295}
+		{D452C015-0A20-4EC1-B8E4-B0750204A885} = {B75F1395-AB67-4F65-ABA3-9DB783C79519}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B9452C8-F9F3-4544-A591-F598AE8D54EE}
