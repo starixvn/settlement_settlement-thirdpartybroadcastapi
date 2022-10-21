@@ -2,7 +2,7 @@
 
 namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
-    internal class NotifyCriteria : NonQueryCommand
+    public class NotifyCriteria : NonQueryCommand
     {
         public int MatchId { get; set; }
 

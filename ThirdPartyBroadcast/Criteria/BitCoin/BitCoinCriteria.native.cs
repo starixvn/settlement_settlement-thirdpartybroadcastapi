@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Criteria.BitCoin
 {
-    internal class BitCoinCriteria : CalculateCriteria
+    public class BitCoinCriteria : CalculateCriteria
     {
         public string GameResult { get; set; }
 

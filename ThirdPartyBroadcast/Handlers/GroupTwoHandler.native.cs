@@ -7,7 +7,7 @@ using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Handlers
 {
-    public class GroupTwoHandler : 
+    public class GroupTwoHandler :
         IRequestHandler<AutoBitCoinRequest, Result>,
         IRequestHandler<AutoPinGoalRequest, Result>,
         IRequestHandler<AutoVirtualBetRadarRequest, Result>,
@@ -32,6 +32,7 @@ namespace ThirdPartyBroadcast.Handlers
             this.virtualBetRadarService = virtualBetRadarService;
             this.virtualSoccerService = virtualSoccerService;
         }
+
         public async Task<Result> Handle(AutoBitCoinRequest request, CancellationToken cancellationToken) => await bitCoinService.Settle(request);
 
         public async Task<Result> Handle(AutoPinGoalRequest request, CancellationToken cancellationToken) => await pinGoalService.Settle(request);
