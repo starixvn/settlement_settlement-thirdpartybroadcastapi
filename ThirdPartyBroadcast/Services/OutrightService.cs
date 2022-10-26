@@ -53,7 +53,7 @@ namespace ThirdPartyBroadcast.Services
             }
             else
             {
-                var eventTable = "outright";
+                const string eventTable = "outright";
                 var criteriaValidation =
                     await scaleOutSettleThirdPartyService.ValidateMoveBetDay(request.MatchId.ToString(), eventTable);
                 return new Result

@@ -2,7 +2,7 @@
 {
     public class VirtualBetRadarCriteria : CalculateCriteria
     {
-        private int notifyFlag = 0;
+        private int notifyFlag;
         public int Hth { get; set; }
 
         public int Hta { get; set; }
