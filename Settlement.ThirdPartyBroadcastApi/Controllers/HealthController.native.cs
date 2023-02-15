@@ -2,7 +2,7 @@
 
 namespace ThirdPartyBroadcastApi.Controllers
 {
-    public class HomeController : Controller
+    public class HealthController : ControllerBase
     {
         [HttpGet]
         public IActionResult Index()
