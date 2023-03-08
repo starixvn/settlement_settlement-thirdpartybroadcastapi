@@ -1,11 +1,6 @@
-﻿using AutoMapper;
-using Fanex.Data.Repository;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria.BitCoin;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services;
+using Criteria.BitCoin;
 
 public interface BitCoinService
 {

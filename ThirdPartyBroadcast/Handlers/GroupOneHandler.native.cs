@@ -1,13 +1,11 @@
 ﻿using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Requests;
 using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Handlers
 {
-    public class GroupOneHandler : 
+    public class GroupOneHandler :
         IRequestHandler<AutoHappyFiveRequest, Result>,
         IRequestHandler<AutoFastMarketRequest, Result>,
         IRequestHandler<AutoOutrightRequest, Result>,

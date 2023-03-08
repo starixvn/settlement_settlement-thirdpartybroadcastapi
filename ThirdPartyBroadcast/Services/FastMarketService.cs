@@ -1,68 +1,58 @@
-﻿using AutoMapper;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using System.Threading.Tasks;
-using Fanex.Settlement.ScaleOut.Constants;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services
+public interface FastMarketService
 {
-    public interface FastMarketService
+    Task<Result> Settle(AutoFastMarketRequest request);
+}
+
+public class FastMarketServiceImp : FastMarketService
+{
+    private readonly ScaleOutSettleService scaleOutSettleService;
+
+    private readonly IMapper mapper;
+
+    private readonly CalculateService calculateService;
+
+    public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
+            IMapper mapper,
+            CalculateService calculateService)
     {
-        Task<Result> Settle(AutoFastMarketRequest request);
+        this.scaleOutSettleService = scaleOutSettleService;
+        this.mapper = mapper;
+        this.calculateService = calculateService;
     }
 
-    public class FastMarketServiceImp : FastMarketService
+    public async Task<Result> Settle(AutoFastMarketRequest request)
     {
-        private readonly ScaleOutSettleService scaleOutSettleService;
-
-        private readonly IMapper mapper;
-
-        private readonly CalculateService calculateService;
-
-        public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
-                IMapper mapper,
-                CalculateService calculateService)
+        var criteria = mapper.Map<AutoFastMarketRequest, FastMarketCriteria>(request);
+        var requestValidation = mapper.Map<FastMarketCriteria, EventTicketFastMarketRequest>(criteria);
+        var validationResult = await scaleOutSettleService.ValidateEventAndTicketFastMarket(requestValidation);
+        if (validationResult.ErrorCode == 0)
         {
-            this.scaleOutSettleService = scaleOutSettleService;
-            this.mapper = mapper;
-            this.calculateService = calculateService;
+            await UpdateMatchInfo(criteria);
+            return await calculateService.Execute(criteria);
         }
 
-        public async Task<Result> Settle(AutoFastMarketRequest request)
+        return new Result
         {
-            var criteria = mapper.Map<AutoFastMarketRequest, FastMarketCriteria>(request);
-            var requestValidation = mapper.Map<FastMarketCriteria, EventTicketFastMarketRequest>(criteria);
-            var validationResult = await scaleOutSettleService.ValidateEventAndTicketFastMarket(requestValidation);
-            if (validationResult.ErrorCode == 0)
-            {
-                await UpdateMatchInfo(criteria);
-                return await calculateService.Execute(criteria);
-            }
+            ErrorCode = validationResult.ErrorCode,
+            ErrorMessage = validationResult.ErrorMessage
+        };
+    }
 
-            return new Result
-            {
-                ErrorCode = validationResult.ErrorCode,
-                ErrorMessage = validationResult.ErrorMessage
-            };
-        }
-
-        private async Task UpdateMatchInfo(FastMarketCriteria criteria)
+    private async Task UpdateMatchInfo(FastMarketCriteria criteria)
+    {
+        var requestUpdateInfo = new UpdateMatchInfoRequest
         {
-            var requestUpdateInfo = new UpdateMatchInfoRequest
-            {
-                MatchId = criteria.MatchId,
-                Action = criteria.Action,
-                AdminId = criteria.AdminId,
-                Results = criteria.Results,
-                Mode = Mode.FastMarket,
-                IsSettleDetermined = criteria.IsSettleDetermined,
-                IsAuto = criteria.IsAuto
-            };
+            MatchId = criteria.MatchId,
+            Action = criteria.Action,
+            AdminId = criteria.AdminId,
+            Results = criteria.Results,
+            Mode = Mode.FastMarket,
+            IsSettleDetermined = criteria.IsSettleDetermined,
+            IsAuto = criteria.IsAuto
+        };
 
-            await scaleOutSettleService.UpdateMatchInfo(requestUpdateInfo);
-        }
+        await scaleOutSettleService.UpdateMatchInfo(requestUpdateInfo);
     }
 }

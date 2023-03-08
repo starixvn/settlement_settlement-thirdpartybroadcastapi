@@ -1,32 +1,32 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+using Settlement.ThirdPartyBroadcastApi;
 using ThirdPartyBroadcast.Models;
 
-namespace BroadcastApi
-{
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+var builder = WebApplication.CreateBuilder(args);
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseUrls($"http://0.0.0.0:5000");
-                    webBuilder.ConfigureKestrel(serverOptions =>
-                    {
-                    }).UseStartup<Startup>();
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services
-                        .Configure<AppSettingsKey>(hostContext.Configuration)
-                        .AddSingleton(sp => sp.GetRequiredService<IOptions<AppSettingsKey>>().Value);
-                });
-    }
-}
+builder.Services.Configure<AppSettingsKey>(builder.Configuration);
+
+builder.Services.AddBroadcastServices(builder.Configuration);
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseMiddleware<ErrorHandler>();
+
+app.UseRouting();
+
+app.UseCors(DependencyInjection.AllowOrigin);
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapControllerRoute(
+        "default",
+        "{controller=Home}/{action=Index}/{id?}");
+});
+
+#if DEBUG
+app.Run();
+#else
+await app.RunAsync("http://0.0.0.0:5000");
+#endif

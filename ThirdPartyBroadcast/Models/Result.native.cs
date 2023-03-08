@@ -1,10 +1,8 @@
-﻿namespace ThirdPartyBroadcast.Models
+﻿namespace ThirdPartyBroadcast.Models;
+
+public class Result
 {
-    public class Result
-    {
-        public int ErrorCode { get; set; }
+    public int ErrorCode { get; set; }
 
-        public string ErrorMessage { get; set; }
-
-    }
+    public string ErrorMessage { get; set; }
 }

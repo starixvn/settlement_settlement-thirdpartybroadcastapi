@@ -1,118 +1,119 @@
-﻿using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using Microsoft.Extensions.Options;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Models;
+﻿using Microsoft.Extensions.Options;
 
-namespace ThirdPartyBroadcast.Services
+namespace ThirdPartyBroadcast.Services;
+
+public interface CalculateService
 {
-    public interface CalculateService
+    Task<Result> Execute(CalculateCriteria criteria);
+
+    Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria);
+
+    Task<Result> ValidationDeployFlag(string spName);
+}
+
+public class CalculateServiceImp : CalculateService
+{
+    private readonly IDynamicRepository repository;
+
+    private readonly AppSettingsKey appSettingsKey;
+
+    private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
+    private const int DeployFlag = 99;
+
+    public CalculateServiceImp(
+        IDynamicRepository repository,
+        IOptions<AppSettingsKey> appSettingsKey,
+        ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
     {
-        Task<Result> Execute(CalculateCriteria criteria);
-
-        Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria);
-
-        Task<Result> ValidationDeployFlag(string spName);
+        this.repository = repository;
+        this.appSettingsKey = appSettingsKey.Value;
+        this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
     }
 
-    public class CalculateServiceImp : CalculateService
+    public async Task<Result> Execute(CalculateCriteria criteria)
     {
-        private readonly IDynamicRepository repository;
-
-        private readonly AppSettingsKey appSettingsKey;
-
-        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
-
-        private const int DeployFlag = 99;
-
-        public CalculateServiceImp(
-            IDynamicRepository repository,
-            IOptions<AppSettingsKey> appSettingsKey,
-            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
+        var results = new List<Result>();
+        foreach (var server in appSettingsKey.SiteDbServer)
         {
-            this.repository = repository;
-            this.appSettingsKey = appSettingsKey.Value;
-            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+            criteria.DbServer = server;
+            await repository.ExecuteAsync(criteria);
+            results = ResultMessage(results, server, criteria);
         }
 
-        public async Task<Result> Execute(CalculateCriteria criteria)
+        var errorCode = GetErrorCode(results);
+
+        return new Result
         {
-            var results = new List<Result>();
-            foreach (var server in appSettingsKey.SiteDbServer)
-            {
-                criteria.DbServer = server;
-                await repository.ExecuteAsync(criteria);
-                results = ResultMessage(results, server, criteria);
-            }
+            ErrorCode = errorCode,
+            ErrorMessage = string.Join(" | ", results.Select(r => r.ErrorMessage).ToArray())
+        };
+    }
 
-            var deployFlagError = results.Where(result => result.ErrorCode == DeployFlag);
-            var errorCode = 0;
+    private static int GetErrorCode(IReadOnlyCollection<Result> listResult)
+    {
+        var deployFlagError = listResult.Where(result => result.ErrorCode == DeployFlag);
+        var errorCode = 0;
 
-            if (deployFlagError.Any())
-            {
-                errorCode = DeployFlag;
-            }
-            else if (results.Count > 0)
-            {
-                errorCode = results[0].ErrorCode;
-            }
+        if (deployFlagError.Any())
+        {
+            errorCode = DeployFlag;
+        }
+        else if (listResult.Count > 0)
+        {
+            errorCode = listResult.Count;
+        }
 
-            return new Result
+        return errorCode;
+    }
+
+    private static List<Result> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)
+    {
+        if (criteria.ErrCode > 0)
+        {
+            var result = new Result
             {
-                ErrorCode = errorCode,
-                ErrorMessage = string.Join(" | ", results.Select(r => r.ErrorMessage).ToArray())
+                ErrorCode = criteria.ErrCode,
+                ErrorMessage = $"{server}: {criteria.ErrCode} - {criteria.ErrMsg}"
             };
+
+            results.Add(result);
         }
 
-        private static List<Result> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)
+        return results;
+    }
+
+    public async Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria)
+    {
+        foreach (var server in appSettingsKey.SiteDbServer)
         {
+            criteria.DbServer = server;
+            await repository.ExecuteAsync(criteria);
             if (criteria.ErrCode > 0)
             {
-                var result = new Result
+                return new Result
                 {
                     ErrorCode = criteria.ErrCode,
-                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
+                    ErrorMessage = criteria.ErrMsg
                 };
-
-                results.Add(result);
             }
-
-            return results;
         }
+        return new Result();
+    }
 
-        public async Task<Result> ExecuteValidationMultiServer(BaseCriteria criteria)
+    public async Task<Result> ValidationDeployFlag(string spName)
+    {
+        var getDeploymentInfoRequest = new GetDeploymentInfoRequest
         {
-            foreach (var server in appSettingsKey.SiteDbServer)
-            {
-                criteria.DbServer = server;
-                await repository.ExecuteAsync(criteria);
-                if (criteria.ErrCode > 0)
-                {
-                    return new Result
-                    {
-                        ErrorCode = criteria.ErrCode,
-                        ErrorMessage = criteria.ErrMsg
-                    };
-                }
-            }
-            return new Result();
-        }
+            SPName = spName
+        };
 
-        public async Task<Result> ValidationDeployFlag(string spName)
+        var result = await scaleOutSettleThirdPartyService.GetDeploymentInfo(getDeploymentInfoRequest);
+
+        return new Result
         {
-            var getDeploymentInfoRequest = new GetDeploymentInfoRequest
-            {
-                SPName = spName
-            };
-
-            var result = await scaleOutSettleThirdPartyService.GetDeploymentInfo(getDeploymentInfoRequest);
-
-            return new Result
-            {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage
-            };
-        }
+            ErrorCode = result.ErrorCode,
+            ErrorMessage = result.ErrorMessage
+        };
     }
 }

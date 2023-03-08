@@ -1,83 +1,74 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
-using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria.HappyFive;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services
+using Criteria.HappyFive;
+
+public interface HappyFiveService
 {
-    public interface HappyFiveService
+    Task<Result> Settle(AutoHappyFiveRequest request);
+}
+
+public class HappyFiveServiceImp : HappyFiveService
+{
+    private readonly IMapper mapper;
+
+    private readonly CalculateService calculateService;
+
+    private readonly IDynamicRepository repository;
+
+    private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
+    public HappyFiveServiceImp(
+        IMapper mapper,
+        CalculateService calculateService,
+        IDynamicRepository repository,
+        ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
     {
-        Task<Result> Settle(AutoHappyFiveRequest request);
+        this.mapper = mapper;
+        this.calculateService = calculateService;
+        this.repository = repository;
+        this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
     }
 
-    public class HappyFiveServiceImp : HappyFiveService
+    public async Task<Result> Settle(AutoHappyFiveRequest request)
     {
-        private readonly IMapper mapper;
+        var resultValidation = await ValidateBeforeSettle(request);
 
-        private readonly CalculateService calculateService;
-
-        private readonly IDynamicRepository repository;
-
-        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
-
-        public HappyFiveServiceImp(
-            IMapper mapper,
-            CalculateService calculateService,
-            IDynamicRepository repository,
-            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
+        if (resultValidation.ErrorCode == 0)
         {
-            this.mapper = mapper;
-            this.calculateService = calculateService;
-            this.repository = repository;
-            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+            await UpdateMatchInfo(request);
+            var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
+            return await calculateService.Execute(criteria);
         }
 
-        public async Task<Result> Settle(AutoHappyFiveRequest request)
+        return resultValidation;
+    }
+
+    private async Task<Result> ValidateBeforeSettle(AutoHappyFiveRequest request)
+    {
+        var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.HappyFive);
+        if (validateDeployFlag.ErrorCode > 0)
         {
-            var resultValidation = await ValidateBeforeSettle(request);
-
-            if (resultValidation.ErrorCode == 0)
-            {
-                await UpdateMatchInfo(request);
-                var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
-                return await calculateService.Execute(criteria);
-            }
-
-            return resultValidation;
+            return validateDeployFlag;
         }
 
-        private async Task<Result> ValidateBeforeSettle(AutoHappyFiveRequest request)
+        var criteriaValidation = new ValidateHappyFive { MatchId = request.MatchId, Action = request.Action };
+        await repository.ExecuteAsync(criteriaValidation);
+        return new Result
         {
-            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.HappyFive);
-            if (validateDeployFlag.ErrorCode > 0)
-            {
-                return validateDeployFlag;
-            }
+            ErrorCode = criteriaValidation.ErrCode,
+            ErrorMessage = criteriaValidation.ErrMsg
+        };
+    }
 
-            var criteriaValidation = new ValidateHappyFive { MatchId = request.MatchId, Action = request.Action };
-            await repository.ExecuteAsync(criteriaValidation);
-            return new Result
-            {
-                ErrorCode = criteriaValidation.ErrCode,
-                ErrorMessage = criteriaValidation.ErrMsg
-            };
-        }
-
-        private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
+    private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
+    {
+        var updateRequest = new UpdateMatchInfo3rdRequest
         {
-            var updateRequest = new UpdateMatchInfo3rdRequest
-            {
-                Command = EventStatus.Completed,
-                MatchId = request.MatchId,
-                Action = request.Action,
-                Creator = request.AdminId
-            };
-            await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateRequest);
-        }
+            Command = EventStatus.Completed,
+            MatchId = request.MatchId,
+            Action = request.Action,
+            Creator = request.AdminId
+        };
+        await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateRequest);
     }
 }

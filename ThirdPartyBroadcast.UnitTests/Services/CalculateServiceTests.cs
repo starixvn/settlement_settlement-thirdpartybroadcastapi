@@ -28,21 +28,34 @@ namespace ThirdPartyBroadcast.UnitTests.Services
             service = new CalculateServiceImp(repository, options, scaleOutSettleThirdPartyService);
         }
 
-        [Theory]
-        [InlineData(123)]
-        [InlineData(99)]
-        public async Task Execute_ExistError_ReturnCorrectErrorCode(int errorCode)
+        [Fact]
+        public async Task Execute_IsExistErrorCode99_ReturnErrorCode99()
         {
             await repository.ExecuteAsync(Arg.Do<CalculateCriteria>(criteria =>
             {
                 criteria.ErrMsg = "Test";
-                criteria.ErrCode = errorCode;
+                criteria.ErrCode = 99;
             }));
 
             var result = await service.Execute(new CalculateCriteria());
 
             //Assert
-            Assert.Equal(errorCode, result.ErrorCode);
+            Assert.Equal(99, result.ErrorCode);
+        }
+
+        [Fact]
+        public async Task Execute_IsNotExistErrorCode99_ReturnCountError()
+        {
+            await repository.ExecuteAsync(Arg.Do<CalculateCriteria>(criteria =>
+            {
+                criteria.ErrMsg = "Test";
+                criteria.ErrCode = 12345;
+            }));
+
+            var result = await service.Execute(new CalculateCriteria());
+
+            //Assert
+            Assert.Equal(2, result.ErrorCode);
         }
 
         [Fact]
@@ -55,7 +68,7 @@ namespace ThirdPartyBroadcast.UnitTests.Services
             }));
 
             var result = await service.Execute(new CalculateCriteria());
-            const string expected = "01: Test | 02: Test";
+            const string expected = "01: 1 - Test | 02: 1 - Test";
 
             //Assert
             Assert.Equal(expected, result.ErrorMessage);

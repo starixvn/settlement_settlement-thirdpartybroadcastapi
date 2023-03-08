@@ -1,75 +1,66 @@
-﻿using AutoMapper;
-using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using System.Threading.Tasks;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria.VirtualSoccer;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services
+using Criteria.VirtualSoccer;
+
+public interface VirtualSoccerService
 {
-    public interface VirtualSoccerService
+    Task<Result> Settle(AutoVirtualSoccerRequest request);
+}
+
+public class VirtualSoccerServiceImp : VirtualSoccerService
+{
+    private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
+    private readonly IDynamicRepository repository;
+
+    private readonly IMapper mapper;
+
+    private readonly CalculateService calculateService;
+
+    public VirtualSoccerServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
+        IDynamicRepository repository,
+        IMapper mapper,
+        CalculateService calculateService)
     {
-        Task<Result> Settle(AutoVirtualSoccerRequest request);
+        this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+        this.repository = repository;
+        this.mapper = mapper;
+        this.calculateService = calculateService;
     }
 
-    public class VirtualSoccerServiceImp : VirtualSoccerService
+    public async Task<Result> Settle(AutoVirtualSoccerRequest request)
     {
-        private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+        var criteria = mapper.Map<AutoVirtualSoccerRequest, VirtualSoccerCriteria>(request);
 
-        private readonly IDynamicRepository repository;
-
-        private readonly IMapper mapper;
-
-        private readonly CalculateService calculateService;
-
-        public VirtualSoccerServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
-            IDynamicRepository repository,
-            IMapper mapper,
-            CalculateService calculateService)
+        var validationResult = await calculateService.ValidationDeployFlag(SpName.VirtualSports);
+        if (validationResult.ErrorCode == 0)
         {
-            this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
-            this.repository = repository;
-            this.mapper = mapper;
-            this.calculateService = calculateService;
+            await UpdateMatchInfo(request);
+            return await calculateService.Execute(criteria);
         }
 
-        public async Task<Result> Settle(AutoVirtualSoccerRequest request)
+        return validationResult;
+    }
+
+    private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
+    {
+        var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
+        var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
+
+        if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
         {
-            var criteria = mapper.Map<AutoVirtualSoccerRequest, VirtualSoccerCriteria>(request);
-
-            var validationResult = await calculateService.ValidationDeployFlag(SpName.VirtualSports);
-            if (validationResult.ErrorCode == 0)
-            {
-                await UpdateMatchInfo(request);
-                return await calculateService.Execute(criteria);
-            }
-
-            return validationResult;
+            updateInfoRequest.FTAway = request.Fta;
+            updateInfoRequest.FTHome = request.Fth;
+            criteria.Command = "C";
+            updateInfoRequest.Command = $"{SpName.VirtualSports}-CAL";
+        }
+        else
+        {
+            criteria.Command = "F";
+            updateInfoRequest.Command = $"{SpName.VirtualSports}-REFUND";
         }
 
-        private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
-        {
-            var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
-            var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
-
-            if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
-            {
-                updateInfoRequest.FTAway = request.Fta;
-                updateInfoRequest.FTHome = request.Fth;
-                criteria.Command = "C";
-                updateInfoRequest.Command = $"{SpName.VirtualSports}-CAL";
-            }
-            else
-            {
-                criteria.Command = "F";
-                updateInfoRequest.Command = $"{SpName.VirtualSports}-REFUND";
-            }
-
-            await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateInfoRequest);
-            await repository.ExecuteAsync(criteria);
-        }
+        await scaleOutSettleThirdPartyService.UpdateMatchInfo3rd(updateInfoRequest);
+        await repository.ExecuteAsync(criteria);
     }
 }

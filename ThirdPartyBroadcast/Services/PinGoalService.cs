@@ -1,74 +1,64 @@
-﻿using AutoMapper;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using System.Threading.Tasks;
-using Fanex.Settlement.ScaleOut.Constants;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services
+public interface PinGoalService
 {
-    public interface PinGoalService
+    Task<Result> Settle(AutoPinGoalRequest request);
+}
+
+public class PinGoalServiceImp : PinGoalService
+{
+    private readonly ScaleOutSettleService scaleOutSettleService;
+
+    private readonly IMapper mapper;
+
+    private readonly CalculateService calculateService;
+
+    public PinGoalServiceImp(ScaleOutSettleService scaleOutSettleService,
+        IMapper mapper,
+        CalculateService calculateService)
     {
-        Task<Result> Settle(AutoPinGoalRequest request);
+        this.scaleOutSettleService = scaleOutSettleService;
+        this.mapper = mapper;
+        this.calculateService = calculateService;
     }
 
-    public class PinGoalServiceImp : PinGoalService
+    public async Task<Result> Settle(AutoPinGoalRequest request)
     {
-        private readonly ScaleOutSettleService scaleOutSettleService;
-
-        private readonly IMapper mapper;
-
-        private readonly CalculateService calculateService;
-
-        public PinGoalServiceImp(ScaleOutSettleService scaleOutSettleService,
-            IMapper mapper,
-            CalculateService calculateService)
+        var criteria = mapper.Map<AutoPinGoalRequest, PinGoalCriteria>(request);
+        var validationResult = await ValidateBeforePush(request);
+        if (validationResult.ErrorCode == 0)
         {
-            this.scaleOutSettleService = scaleOutSettleService;
-            this.mapper = mapper;
-            this.calculateService = calculateService;
+            await UpdateMatchInfo(request);
+            return await calculateService.Execute(criteria);
         }
 
-        public async Task<Result> Settle(AutoPinGoalRequest request)
+        return validationResult;
+    }
+
+    private async Task<Result> ValidateBeforePush(AutoPinGoalRequest request)
+    {
+        var validationRequest = new EventTicketRequest
         {
-            var criteria = mapper.Map<AutoPinGoalRequest, PinGoalCriteria>(request);
-            var validationResult = await ValidateBeforePush(request);
-            if (validationResult.ErrorCode == 0)
-            {
-                await UpdateMatchInfo(request);
-                return await calculateService.Execute(criteria);
-            }
+            MatchId = request.MatchId,
+            Action = request.Action,
+            SpName = "NAP_Admin_Settlement_Profile_Push",
+            SelectedResources = request.SelectedResources,
+            Mode = Mode.PinGoal,
+            IsAuto = request.IsAuto
+        };
 
-            return validationResult;
-        }
+        var validationResult = await scaleOutSettleService.ValidateEventAndTicket(validationRequest);
 
-        private async Task<Result> ValidateBeforePush(AutoPinGoalRequest request)
+        return new Result
         {
-            var validationRequest = new EventTicketRequest
-            {
-                MatchId = request.MatchId,
-                Action = request.Action,
-                SpName = "NAP_Admin_Settlement_Profile_Push",
-                SelectedResources = request.SelectedResources,
-                Mode = Mode.PinGoal,
-                IsAuto = request.IsAuto
-            };
+            ErrorCode = validationResult.ErrorCode,
+            ErrorMessage = validationResult.ErrorMessage
+        };
+    }
 
-            var validationResult = await scaleOutSettleService.ValidateEventAndTicket(validationRequest);
-
-            return new Result
-            {
-                ErrorCode = validationResult.ErrorCode,
-                ErrorMessage = validationResult.ErrorMessage
-            };
-        }
-
-        private async Task UpdateMatchInfo(AutoPinGoalRequest request)
-        {
-            var requestUpdate = mapper.Map<AutoPinGoalRequest, UpdateMatchInfoRequest>(request);
-            await scaleOutSettleService.UpdateMatchInfo(requestUpdate);
-        }
+    private async Task UpdateMatchInfo(AutoPinGoalRequest request)
+    {
+        var requestUpdate = mapper.Map<AutoPinGoalRequest, UpdateMatchInfoRequest>(request);
+        await scaleOutSettleService.UpdateMatchInfo(requestUpdate);
     }
 }

@@ -1,16 +1,10 @@
-﻿using AutoMapper;
-using Fanex.Settlement.ScaleOut.Request;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Criteria.BetBuilder;
-using ThirdPartyBroadcast.Criteria.BitCoin;
-using ThirdPartyBroadcast.Criteria.HappyFive;
-using ThirdPartyBroadcast.Criteria.OutRight;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
-using ThirdPartyBroadcast.Criteria.VirtualSoccer;
-using ThirdPartyBroadcast.Requests;
-using SendMailCriteria = ThirdPartyBroadcast.Criteria.VirtualBetRadar.SendMailCriteria;
+﻿namespace ThirdPartyBroadcast;
 
-namespace ThirdPartyBroadcast;
+using Criteria.BitCoin;
+using Criteria.HappyFive;
+using Criteria.OutRight;
+using Criteria.VirtualBetRadar;
+using Criteria.VirtualSoccer;
 
 public class ThirdPartyBroadcastMappingProfile : Profile
 {

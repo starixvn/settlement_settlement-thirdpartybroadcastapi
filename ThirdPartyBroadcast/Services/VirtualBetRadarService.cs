@@ -1,127 +1,119 @@
-﻿using AutoMapper;
-using Fanex.Data.Repository;
-using System.Threading.Tasks;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
+﻿namespace ThirdPartyBroadcast.Services;
 
-namespace ThirdPartyBroadcast.Services
+using Criteria.VirtualBetRadar;
+
+public interface VirtualBetRadarService
 {
-    public interface VirtualBetRadarService
+    Task<Result> Settle(AutoVirtualBetRadarRequest request);
+}
+
+public class VirtualBetRadarServiceImp : VirtualBetRadarService
+{
+    private readonly IDynamicRepository repository;
+
+    private readonly IMapper mapper;
+
+    private readonly CalculateService calculateService;
+
+    public VirtualBetRadarServiceImp(
+        IDynamicRepository repository,
+        IMapper mapper,
+        CalculateService calculateService)
     {
-        Task<Result> Settle(AutoVirtualBetRadarRequest request);
+        this.repository = repository;
+        this.mapper = mapper;
+        this.calculateService = calculateService;
     }
 
-    public class VirtualBetRadarServiceImp : VirtualBetRadarService
+    public async Task<Result> Settle(AutoVirtualBetRadarRequest request)
     {
-        private readonly IDynamicRepository repository;
-
-        private readonly IMapper mapper;
-
-        private readonly CalculateService calculateService;
-
-        public VirtualBetRadarServiceImp(
-            IDynamicRepository repository,
-            IMapper mapper,
-            CalculateService calculateService)
+        var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
+        var validation = await ValidateBeforeSettle(request);
+        criteria.NotifyFlag = await ValidateMatchStatus(request);
+        if (validation.ErrorCode == 0)
         {
-            this.repository = repository;
-            this.mapper = mapper;
-            this.calculateService = calculateService;
+            await UpdateMatchInfo(request);
+            var settleResult = await calculateService.Execute(criteria);
+            HandleAfterSettle(request, settleResult);
+            return settleResult;
         }
 
-        public async Task<Result> Settle(AutoVirtualBetRadarRequest request)
+        return validation;
+    }
+
+    private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
+    {
+        const string successfullyMessage = "NAP: VS BetRadar - API inserted into single queue successfully.";
+        var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.VirtualBetRadarCalc : ActionId.VirtualBetRadarRefund;
+        var criteria = new WriteLogCriteria(request.MatchId, successfullyMessage, actionId, request.AdminId, request.Ip)
         {
-            var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
-            var validation = await ValidateBeforeSettle(request);
-            criteria.NotifyFlag = await ValidateMatchStatus(request);
-            if (validation.ErrorCode == 0)
-            {
-                await UpdateMatchInfo(request);
-                var settleResult = await calculateService.Execute(criteria);
-                HandleAfterSettle(request, settleResult);
-                return settleResult;
-            }
+            FinalAwayScore = request.Fta,
+            FinalHomeScore = request.Fth,
+            HtAwayScore = request.Hta,
+            HtHomeScore = request.Hth
+        };
 
-            return validation;
-        }
-
-        private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
+        if (settleResult.ErrorCode == 0)
         {
-            const string successfullyMessage = "NAP: VS BetRadar - API inserted into single queue successfully.";
-            var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.VirtualBetRadarCalc : ActionId.VirtualBetRadarRefund;
-            var criteria = new WriteLogCriteria(request.MatchId, successfullyMessage, actionId, request.AdminId, request.Ip)
-            {
-                FinalAwayScore = request.Fta,
-                FinalHomeScore = request.Fth,
-                HtAwayScore = request.Hta,
-                HtHomeScore = request.Hth
-            };
-
-            if (settleResult.ErrorCode == 0)
-            {
-                repository.Execute(criteria);
-            }
-            else
-            {
-                WriteLogFailed(criteria, settleResult.ErrorMessage);
-            }
-        }
-
-        private void WriteLogFailed(WriteLogCriteria criteria, string errorMessage)
-        {
-            const string failedMessage = "NAP: VS BetRadar - Error: API inserted into single queue failed.";
-            criteria.Remark = $"{failedMessage} {errorMessage}";
             repository.Execute(criteria);
-
-            var sendMailCriteria = mapper.Map<WriteLogCriteria, SendMailCriteria>(criteria);
-            sendMailCriteria.Message = errorMessage;
-            repository.Execute(sendMailCriteria);
         }
-
-        private async Task<Result> ValidateBeforeSettle(AutoVirtualBetRadarRequest request)
+        else
         {
-            var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.VirtualBetRadar);
-            if (validateDeployFlag.ErrorCode > 0)
-            {
-                return validateDeployFlag;
-            }
-            else
-            {
-                var criteriaValidation = mapper.Map<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>(request);
-                return await calculateService.ExecuteValidationMultiServer(criteriaValidation);
-            }
+            WriteLogFailed(criteria, settleResult.ErrorMessage);
         }
+    }
 
-        private async Task UpdateMatchInfo(AutoVirtualBetRadarRequest request)
-        {
-            var criteria = mapper.Map<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
-            await repository.ExecuteAsync(criteria);
-        }
+    private void WriteLogFailed(WriteLogCriteria criteria, string errorMessage)
+    {
+        const string failedMessage = "NAP: VS BetRadar - Error: API inserted into single queue failed.";
+        criteria.Remark = $"{failedMessage} {errorMessage}";
+        repository.Execute(criteria);
 
-        private async Task<int> ValidateMatchStatus(AutoVirtualBetRadarRequest request)
-        {
-            const int notifyRefund = 10;
-            const int notifySingleValue = 2;
-            if (!request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
-            {
-                return notifyRefund;
-            }
-            else
-            {
-                var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
-                var matchStatus = await repository.GetAsync<VSBetRadarMatchStatus>(criteria);
-                var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
-                return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
-            }
-        }
+        var sendMailCriteria = mapper.Map<WriteLogCriteria, SendMailCriteria>(criteria);
+        sendMailCriteria.Message = errorMessage;
+        repository.Execute(sendMailCriteria);
+    }
 
-        private static int ParlayNotify(VSBetRadarMatchStatus matchStatus)
+    private async Task<Result> ValidateBeforeSettle(AutoVirtualBetRadarRequest request)
+    {
+        var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.VirtualBetRadar);
+        if (validateDeployFlag.ErrorCode > 0)
         {
-            const int notifyParlayValue = 8;
-            return matchStatus.Multiple || matchStatus.Refund ? notifyParlayValue : 0;
+            return validateDeployFlag;
         }
+        else
+        {
+            var criteriaValidation = mapper.Map<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>(request);
+            return await calculateService.ExecuteValidationMultiServer(criteriaValidation);
+        }
+    }
+
+    private async Task UpdateMatchInfo(AutoVirtualBetRadarRequest request)
+    {
+        var criteria = mapper.Map<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>(request);
+        await repository.ExecuteAsync(criteria);
+    }
+
+    private async Task<int> ValidateMatchStatus(AutoVirtualBetRadarRequest request)
+    {
+        const int notifyRefund = 10;
+        const int notifySingleValue = 2;
+        if (!request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
+        {
+            return notifyRefund;
+        }
+        else
+        {
+            var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
+            var matchStatus = await repository.GetAsync<VSBetRadarMatchStatus>(criteria);
+            var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
+            return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
+        }
+    }
+
+    private static int ParlayNotify(VSBetRadarMatchStatus matchStatus)
+    {
+        const int notifyParlayValue = 8;
+        return matchStatus.Multiple || matchStatus.Refund ? notifyParlayValue : 0;
     }
 }
