@@ -2,9 +2,6 @@
 using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
 
@@ -48,24 +45,25 @@ namespace ThirdPartyBroadcast.Services
             {
                 criteria.DbServer = server;
                 await repository.ExecuteAsync(criteria);
-                results = await ResultMessage(results, server, criteria.ErrMsg);
+                results = await ResultMessage(results, server, criteria);
             }
 
             return new Result
             {
-                ErrorCode = results.Count,
+                ErrorCode = results.Count > 0 ? results[0].ErrorCode : 0,
                 ErrorMessage = string.Join(" | ", results.Select(r => r.ErrorMessage).ToArray())
             };
         }
 
-        private async Task<List<Result>> ResultMessage(List<Result> results, string server, string message)
+        private async Task<List<Result>> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)
         {
-            if (!string.IsNullOrWhiteSpace(message))
+            if (criteria.ErrCode > 0)
             {
                 var siteDbGroupId = await scaleOutSettleService.GetSiteGroupId(server);
                 var result = new Result
                 {
-                    ErrorMessage = $"SiteDbGroupId {siteDbGroupId}: {message}"
+                    ErrorCode = criteria.ErrCode,
+                    ErrorMessage = $"SiteDbGroupId {siteDbGroupId}: {criteria.ErrMsg}"
                 };
 
                 results.Add(result);
