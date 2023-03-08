@@ -24,18 +24,16 @@ namespace ThirdPartyBroadcast.Services
 
         private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
-        private readonly ScaleOutSettleService scaleOutSettleService;
+        private const int DeployFlag = 99;
 
         public CalculateServiceImp(
             IDynamicRepository repository,
             IOptions<AppSettingsKey> appSettingsKey,
-            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
-            ScaleOutSettleService scaleOutSettleService)
+            ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
         {
             this.repository = repository;
             this.appSettingsKey = appSettingsKey.Value;
             this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
-            this.scaleOutSettleService = scaleOutSettleService;
         }
 
         public async Task<Result> Execute(CalculateCriteria criteria)
@@ -45,25 +43,36 @@ namespace ThirdPartyBroadcast.Services
             {
                 criteria.DbServer = server;
                 await repository.ExecuteAsync(criteria);
-                results = await ResultMessage(results, server, criteria);
+                results = ResultMessage(results, server, criteria);
+            }
+
+            var deployFlagError = results.Where(result => result.ErrorCode == DeployFlag);
+            var errorCode = 0;
+
+            if (deployFlagError.Any())
+            {
+                errorCode = DeployFlag;
+            }
+            else if (results.Count > 0)
+            {
+                errorCode = results[0].ErrorCode;
             }
 
             return new Result
             {
-                ErrorCode = results.Count > 0 ? results[0].ErrorCode : 0,
+                ErrorCode = errorCode,
                 ErrorMessage = string.Join(" | ", results.Select(r => r.ErrorMessage).ToArray())
             };
         }
 
-        private async Task<List<Result>> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)
+        private static List<Result> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)
         {
             if (criteria.ErrCode > 0)
             {
-                var siteDbGroupId = await scaleOutSettleService.GetSiteGroupId(server);
                 var result = new Result
                 {
                     ErrorCode = criteria.ErrCode,
-                    ErrorMessage = $"SiteDbGroupId {siteDbGroupId}: {criteria.ErrMsg}"
+                    ErrorMessage = $"{server}: {criteria.ErrMsg}"
                 };
 
                 results.Add(result);

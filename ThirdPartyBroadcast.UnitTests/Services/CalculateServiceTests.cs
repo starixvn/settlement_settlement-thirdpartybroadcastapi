@@ -3,8 +3,6 @@ using Fanex.Settlement.ScaleOut.Request;
 using Fanex.Settlement.ScaleOut.Services;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ThirdPartyBroadcast.Criteria;
 using ThirdPartyBroadcast.Models;
 using ThirdPartyBroadcast.Services;
@@ -18,32 +16,48 @@ namespace ThirdPartyBroadcast.UnitTests.Services
 
         private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
-        private readonly ScaleOutSettleService scaleOutSettleService;
-
         private readonly CalculateService service;
 
         public CalculateServiceTests()
         {
             repository = Substitute.For<IDynamicRepository>();
-            scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
             scaleOutSettleThirdPartyService = Substitute.For<ScaleOutSettleThirdPartyService>();
             var appSettingsKey = new AppSettingsKey { SiteDbServer = new List<string> { "01", "02" } };
             var options = Options.Create(appSettingsKey);
 
-            service = new CalculateServiceImp(repository, options, scaleOutSettleThirdPartyService, scaleOutSettleService);
+            service = new CalculateServiceImp(repository, options, scaleOutSettleThirdPartyService);
+        }
+
+        [Theory]
+        [InlineData(123)]
+        [InlineData(99)]
+        public async Task Execute_ExistError_ReturnCorrectErrorCode(int errorCode)
+        {
+            await repository.ExecuteAsync(Arg.Do<CalculateCriteria>(criteria =>
+            {
+                criteria.ErrMsg = "Test";
+                criteria.ErrCode = errorCode;
+            }));
+
+            var result = await service.Execute(new CalculateCriteria());
+
+            //Assert
+            Assert.Equal(errorCode, result.ErrorCode);
         }
 
         [Fact]
         public async Task Execute_ExistError_ReturnCorrectMessage()
         {
-            await repository.ExecuteAsync(Arg.Do<CalculateCriteria>(criteria => criteria.ErrMsg = "Test"));
-            scaleOutSettleService.GetSiteGroupId(Arg.Any<string>()).Returns(1, 2);
+            await repository.ExecuteAsync(Arg.Do<CalculateCriteria>(criteria =>
+            {
+                criteria.ErrMsg = "Test";
+                criteria.ErrCode = 1;
+            }));
 
             var result = await service.Execute(new CalculateCriteria());
-            var expected = "SiteDbGroupId 1: Test | SiteDbGroupId 2: Test";
+            const string expected = "01: Test | 02: Test";
 
             //Assert
-            Assert.Equal(2, result.ErrorCode);
             Assert.Equal(expected, result.ErrorMessage);
         }
 
