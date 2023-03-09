@@ -1,7 +1,6 @@
-﻿namespace ThirdPartyBroadcast.Constants
+﻿namespace ThirdPartyBroadcast.Constants;
+
+public static class EventStatus
 {
-    public static class EventStatus
-    {
-        public const string Completed = "completed";
-    }
+    public const string Completed = "completed";
 }

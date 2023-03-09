@@ -1,21 +1,18 @@
-﻿using Fanex.Data.Repository;
+﻿namespace ThirdPartyBroadcast.Criteria.BitCoin;
 
-namespace ThirdPartyBroadcast.Criteria.BitCoin
+public class NotifyCriteria : NonQueryCommand
 {
-    public class NotifyCriteria : NonQueryCommand
+    public int MatchId { get; set; }
+
+    public int NotifyAction { get; set; }
+
+    public override string GetSettingKey()
     {
-        public int MatchId { get; set; }
+        return "NAP_Admin_SendNotify_Bitcoin";
+    }
 
-        public int NotifyAction { get; set; }
-
-        public override string GetSettingKey()
-        {
-            return "NAP_Admin_SendNotify_Bitcoin";
-        }
-
-        public override bool IsValid()
-        {
-            return MatchId > 0;
-        }
+    public override bool IsValid()
+    {
+        return MatchId > 0;
     }
 }

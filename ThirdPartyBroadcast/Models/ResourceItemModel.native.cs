@@ -1,10 +1,9 @@
 ﻿using System.Xml.Serialization;
 
-namespace ThirdPartyBroadcast.Models
+namespace ThirdPartyBroadcast.Models;
+
+public class ResourceItemModel
 {
-    public class ResourceItemModel
-    {
-        [XmlAttribute("m")]
-        public string MarketId { get; set; }
-    }
+    [XmlAttribute("m")]
+    public string MarketId { get; set; }
 }

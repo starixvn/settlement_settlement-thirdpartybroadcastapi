@@ -1,24 +1,20 @@
-﻿using MediatR;
-using ThirdPartyBroadcast.Models;
+﻿namespace ThirdPartyBroadcast.Requests;
 
-namespace ThirdPartyBroadcast.Requests
+public class AutoPinGoalRequest : IRequest<Result>
 {
-    public class AutoPinGoalRequest : IRequest<Result>
-    {
-        public int MatchId { get; set; }
+    public int MatchId { get; set; }
 
-        public int AdminId { get; set; }
+    public int AdminId { get; set; }
 
-        public string Action { get; set; } = "CAL";
+    public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; } = string.Empty;
+    public string Ip { get; set; } = string.Empty;
 
-        public bool IsAuto { get; set; }
+    public bool IsAuto { get; set; }
 
-        public string BetStatus { get; set; }
+    public string BetStatus { get; set; }
 
-        public bool IsReSettledTickets { get; set; } = true;
+    public bool IsReSettledTickets { get; set; } = true;
 
-        public string SelectedResources { get; set; }
-    }
+    public string SelectedResources { get; set; }
 }

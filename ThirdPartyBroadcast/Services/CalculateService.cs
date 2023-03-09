@@ -53,18 +53,14 @@ public class CalculateServiceImp : CalculateService
     private static int GetErrorCode(IReadOnlyCollection<Result> listResult)
     {
         var deployFlagError = listResult.Where(result => result.ErrorCode == DeployFlag);
-        var errorCode = 0;
+        var totalError = listResult.Count;
 
         if (deployFlagError.Any())
         {
-            errorCode = DeployFlag;
-        }
-        else if (listResult.Count > 0)
-        {
-            errorCode = listResult.Count;
+            return DeployFlag;
         }
 
-        return errorCode;
+        return totalError > 0 ? totalError : 0;
     }
 
     private static List<Result> ResultMessage(List<Result> results, string server, CalculateCriteria criteria)

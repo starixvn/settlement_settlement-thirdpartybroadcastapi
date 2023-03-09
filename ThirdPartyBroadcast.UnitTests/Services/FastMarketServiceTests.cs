@@ -1,65 +1,52 @@
-﻿using AutoMapper;
-using AutoMapper.Configuration;
-using Fanex.Settlement.ScaleOut.Models;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using NSubstitute;
-using System.Threading.Tasks;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Requests;
-using ThirdPartyBroadcast.Services;
-using Xunit;
+﻿using Fanex.Settlement.ScaleOut.Models;
 
-namespace ThirdPartyBroadcast.UnitTests.Services
+namespace ThirdPartyBroadcast.UnitTests.Services;
+
+public class FastMarketServiceTests
 {
-    public class FastMarketServiceTests
+    private readonly ScaleOutSettleService scaleOutSettleService;
+
+    private readonly CalculateService calculateService;
+
+    private readonly FastMarketService service;
+
+    public FastMarketServiceTests()
     {
-        private readonly ScaleOutSettleService scaleOutSettleService;
+        scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
+        calculateService = Substitute.For<CalculateService>();
+        var mapperConfig = new MapperConfigurationExpression();
+        mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
+        var config = new MapperConfiguration(mapperConfig);
+        var mapper = new Mapper(config);
+        service = new FastMarketServiceImp(scaleOutSettleService, mapper, calculateService);
+    }
 
-        private readonly IMapper mapper;
-
-        private readonly CalculateService calculateService;
-
-        private readonly FastMarketService service;
-
-        public FastMarketServiceTests()
+    [Fact]
+    public async Task Settle_ValidateFailed_StopProcess()
+    {
+        var resultFailed = new ResultMessage
         {
-            scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
-            calculateService = Substitute.For<CalculateService>();
-            var mapperConfig = new MapperConfigurationExpression();
-            mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
-            var config = new MapperConfiguration(mapperConfig);
-            mapper = new Mapper(config);
-            service = new FastMarketServiceImp(scaleOutSettleService, mapper, calculateService);
-        }
+            ErrorCode = 99,
+        };
 
-        [Fact]
-        public async Task Settle_ValidateFailed_StopProcess()
-        {
-            var resultFailed = new ResultMessage
-            {
-                ErrorCode = 99,
-            };
+        scaleOutSettleService.ValidateEventAndTicketFastMarket(Arg.Any<EventTicketFastMarketRequest>()).Returns(resultFailed);
 
-            scaleOutSettleService.ValidateEventAndTicketFastMarket(Arg.Any<EventTicketFastMarketRequest>()).Returns(resultFailed);
+        var result = await service.Settle(new AutoFastMarketRequest());
 
-            var result = await service.Settle(new AutoFastMarketRequest());
+        //Assert
+        Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
+        await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+    }
 
-            //Assert
-            Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
-            await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-        }
+    [Fact]
+    public async Task Settle_ValidatePassed_DoSettle()
+    {
+        scaleOutSettleService.ValidateEventAndTicketFastMarket(Arg.Any<EventTicketFastMarketRequest>()).Returns(new ResultMessage());
 
-        [Fact]
-        public async Task Settle_ValidatePassed_DoSettle()
-        {
-            scaleOutSettleService.ValidateEventAndTicketFastMarket(Arg.Any<EventTicketFastMarketRequest>()).Returns(new ResultMessage());
+        await service.Settle(new AutoFastMarketRequest());
 
-            await service.Settle(new AutoFastMarketRequest());
-
-            //Assert
-            await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-            await calculateService.Received().Execute(Arg.Any<FastMarketCriteria>());
-        }
+        //Assert
+        await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await calculateService.Received().Execute(Arg.Any<FastMarketCriteria>());
     }
 }

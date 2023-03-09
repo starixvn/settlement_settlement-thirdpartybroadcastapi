@@ -1,13 +1,12 @@
-﻿namespace ThirdPartyBroadcast.Criteria.OutRight
+﻿namespace ThirdPartyBroadcast.Criteria.OutRight;
+
+public class OutRightCriteria : CalculateCriteria
 {
-    public class OutRightCriteria : CalculateCriteria
-    {
-        public float DeadHeat { get; set; }
+    public float DeadHeat { get; set; }
 
-        public string Status { get; set; }
+    public string Status { get; set; }
 
-        public string EventDate { get; set; }
+    public string EventDate { get; set; }
 
-        public override string GetSettingKey() => $"Dot_Admin_SettleOutright_Trans_{DbServer}";
-    }
+    public override string GetSettingKey() => $"Dot_Admin_SettleOutright_Trans_{DbServer}";
 }

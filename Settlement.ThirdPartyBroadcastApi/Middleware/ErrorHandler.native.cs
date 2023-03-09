@@ -2,13 +2,13 @@
 using Fanex.Logging.Extensions.Database;
 using ILogger = Fanex.Logging.ILogger;
 
-namespace Settlement.ThirdPartyBroadcastApi;
+namespace Settlement.ThirdPartyBroadcastApi.Middleware;
 
 public class ErrorHandler
 {
     private readonly RequestDelegate next;
     private readonly ILogger logger;
-    public IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
     public ErrorHandler(RequestDelegate next, ILogger logger, IConfiguration configuration)
     {

@@ -1,0 +1,13 @@
+﻿global using AutoMapper;
+global using Fanex.Data.Repository;
+global using Fanex.Settlement.ScaleOut.Request;
+global using Fanex.Settlement.ScaleOut.Services;
+global using Kaden.XmlConverter;
+global using NSubstitute;
+global using ThirdPartyBroadcast.Constants;
+global using ThirdPartyBroadcast.Criteria;
+global using ThirdPartyBroadcast.Criteria.BetBuilder;
+global using ThirdPartyBroadcast.Models;
+global using ThirdPartyBroadcast.Requests;
+global using ThirdPartyBroadcast.Services;
+global using Xunit;

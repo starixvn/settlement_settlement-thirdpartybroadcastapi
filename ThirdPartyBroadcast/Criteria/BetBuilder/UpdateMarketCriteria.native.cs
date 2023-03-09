@@ -1,30 +1,26 @@
-﻿using Fanex.Data.Repository;
-using System;
+﻿namespace ThirdPartyBroadcast.Criteria.BetBuilder;
 
-namespace ThirdPartyBroadcast.Criteria.BetBuilder
+public class UpdateMarketCriteria : NonQueryCommand
 {
-    public class UpdateMarketCriteria : NonQueryCommand
+    public int MatchId { get; set; }
+
+    public int VendorId { get; set; }
+
+    public string Action { get; set; }
+
+    public bool IsAuto { get; set; }
+
+    public string Resources { get; set; }
+
+    public int ResultStatusId { get; set; } = 2;
+
+    public override string GetSettingKey()
     {
-        public int MatchId { get; set; }
+        return "NAP_Admin_ChangedMarket_Sel";
+    }
 
-        public int VendorId { get; set; }
-
-        public string Action { get; set; }
-
-        public bool IsAuto { get; set; }
-
-        public string Resources { get; set; }
-
-        public int ResultStatusId { get; set; } = 2;
-
-        public override string GetSettingKey()
-        {
-            return "NAP_Admin_ChangedMarket_Sel";
-        }
-
-        public override bool IsValid()
-        {
-            return MatchId > 0;
-        }
+    public override bool IsValid()
+    {
+        return MatchId > 0;
     }
 }

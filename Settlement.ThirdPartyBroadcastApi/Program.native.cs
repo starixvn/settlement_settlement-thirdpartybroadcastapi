@@ -1,4 +1,5 @@
 using Settlement.ThirdPartyBroadcastApi;
+using Settlement.ThirdPartyBroadcastApi.Middleware;
 using ThirdPartyBroadcast.Models;
 
 var builder = WebApplication.CreateBuilder(args);

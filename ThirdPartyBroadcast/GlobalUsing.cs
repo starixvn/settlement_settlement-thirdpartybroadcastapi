@@ -4,6 +4,7 @@ global using Fanex.Settlement.ScaleOut.Constants;
 global using Fanex.Settlement.ScaleOut.Request;
 global using Fanex.Settlement.ScaleOut.Services;
 global using Kaden.XmlConverter;
+global using MediatR;
 global using ThirdPartyBroadcast.Constants;
 global using ThirdPartyBroadcast.Criteria;
 global using ThirdPartyBroadcast.Criteria.BetBuilder;

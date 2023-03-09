@@ -1,16 +1,4 @@
-﻿using AutoMapper;
-using Fanex.Data.Repository;
-using Fanex.Settlement.ScaleOut.Constants;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using Kaden.XmlConverter;
-using ThirdPartyBroadcast.Constants;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Criteria.BetBuilder;
-using ThirdPartyBroadcast.Models;
-using ThirdPartyBroadcast.Requests;
-
-namespace ThirdPartyBroadcast.Services;
+﻿namespace ThirdPartyBroadcast.Services;
 
 public interface BetBuilderService
 {
@@ -88,7 +76,7 @@ public class BetBuilderServiceImp : BetBuilderService
             const int existInvalidMarketErrorCode = 1_000_007;
             const string logMessage = "MarketIDs cannot be auto settled since they have been settled already:";
             var marketIds = invalidMarketIds.Length > MaxLength
-                ? $"{invalidMarketIds[0..MaxLength]}..."
+                ? $"{invalidMarketIds[..MaxLength]}..."
                 : invalidMarketIds;
 
             var actionId = request.Action.ToLowerInvariant() == ActionType.Calculate

@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+﻿namespace ThirdPartyBroadcast.Models;
 
-namespace ThirdPartyBroadcast.Models
+public class AppSettingsKey
 {
-    public class AppSettingsKey
-    {
-        public List<string> SiteDbServer { get; set; }
+    public List<string> SiteDbServer { get; set; }
 
-        public bool EnableLogRequest { get; set; }
-    }
+    public bool EnableLogRequest { get; set; }
 }

@@ -1,40 +1,32 @@
-﻿using Fanex.Data.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 
-namespace ThirdPartyBroadcast.Criteria.VirtualBetRadar
+public class BetRadarUpdateMatchCriteria : NonQueryCommand
 {
-    public class BetRadarUpdateMatchCriteria : NonQueryCommand
+    public int MatchId { get; set; }
+
+    public string Action { get; set; }
+
+    public int AdminId { get; set; }
+
+    public bool IsAuto { get; set; }
+
+    public int Hth { get; set; }
+
+    public int Hta { get; set; }
+
+    public int Fth { get; set; }
+
+    public int Fta { get; set; }
+
+    public string ResourceResult { get; set; }
+
+    public override string GetSettingKey()
     {
-        public int MatchId { get; set; }
+        return "NAP_Admin_Match_s193_Upd";
+    }
 
-        public string Action { get; set; }
-
-        public int AdminId { get; set; }
-
-        public bool IsAuto { get; set; }
-
-        public int Hth { get; set; }
-
-        public int Hta { get; set; }
-
-        public int Fth { get; set; }
-
-        public int Fta { get; set; }
-
-        public string ResourceResult { get; set; }
-
-        public override string GetSettingKey()
-        {
-            return "NAP_Admin_Match_s193_Upd";
-        }
-
-        public override bool IsValid()
-        {
-            return MatchId > 0;
-        }
+    public override bool IsValid()
+    {
+        return MatchId > 0;
     }
 }

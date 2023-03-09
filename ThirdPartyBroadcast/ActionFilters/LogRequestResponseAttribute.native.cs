@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
-using ThirdPartyBroadcast.Models;
 using ILogger = Fanex.Logging.ILogger;
 
 namespace ThirdPartyBroadcast.ActionFilters;

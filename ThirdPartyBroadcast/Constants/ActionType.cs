@@ -1,10 +1,8 @@
-﻿namespace ThirdPartyBroadcast.Constants
+﻿namespace ThirdPartyBroadcast.Constants;
+
+public static class ActionType
 {
-    public static class ActionType
-    {
-        public const string Calculate = "cal";
+    public const string Calculate = "cal";
 
-        public const string Refund = "refund";
-
-    }
+    public const string Refund = "refund";
 }

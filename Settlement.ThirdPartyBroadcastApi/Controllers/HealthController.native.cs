@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ThirdPartyBroadcastApi.Controllers
+namespace Settlement.ThirdPartyBroadcastApi.Controllers;
+
+public class HealthController : ControllerBase
 {
-    public class HealthController : ControllerBase
+    [HttpGet]
+    public IActionResult Index()
     {
-        [HttpGet]
-        public IActionResult Index()
-        {
-            return Content("OK");
-        }
+        return Content("OK");
     }
 }

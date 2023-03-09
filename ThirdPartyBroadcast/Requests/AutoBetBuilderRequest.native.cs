@@ -1,22 +1,18 @@
-﻿using MediatR;
-using ThirdPartyBroadcast.Models;
+﻿namespace ThirdPartyBroadcast.Requests;
 
-namespace ThirdPartyBroadcast.Requests
+public class AutoBetBuilderRequest : IRequest<Result>
 {
-    public class AutoBetBuilderRequest : IRequest<Result>
-    {
-        public int MatchId { get; set; }
+    public int MatchId { get; set; }
 
-        public int AdminId { get; set; } = 148;
+    public int AdminId { get; set; } = 148;
 
-        public string Action { get; set; } = "CAL";
+    public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; } = string.Empty;
+    public string Ip { get; set; } = string.Empty;
 
-        public bool IsAuto { get; set; } = true;
+    public bool IsAuto { get; set; } = true;
 
-        public int VendorId { get; set; } = 34;
+    public int VendorId { get; set; } = 34;
 
-        public string Resources { get; set; } = string.Empty;
-    }
+    public string Resources { get; set; } = string.Empty;
 }

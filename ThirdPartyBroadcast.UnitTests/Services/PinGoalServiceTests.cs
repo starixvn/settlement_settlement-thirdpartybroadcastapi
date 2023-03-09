@@ -1,65 +1,52 @@
-﻿using AutoMapper;
-using AutoMapper.Configuration;
-using Fanex.Settlement.ScaleOut.Models;
-using Fanex.Settlement.ScaleOut.Request;
-using Fanex.Settlement.ScaleOut.Services;
-using NSubstitute;
-using System.Threading.Tasks;
-using ThirdPartyBroadcast.Criteria;
-using ThirdPartyBroadcast.Requests;
-using ThirdPartyBroadcast.Services;
-using Xunit;
+﻿using Fanex.Settlement.ScaleOut.Models;
 
-namespace ThirdPartyBroadcast.UnitTests.Services
+namespace ThirdPartyBroadcast.UnitTests.Services;
+
+public class PinGoalServiceTests
 {
-    public class PinGoalServiceTests
+    private readonly CalculateService calculateService;
+
+    private readonly ScaleOutSettleService scaleOutSettleService;
+
+    private readonly PinGoalService service;
+
+    public PinGoalServiceTests()
     {
-        private readonly IMapper mapper;
+        calculateService = Substitute.For<CalculateService>();
+        scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
+        var mapperConfig = new MapperConfigurationExpression();
+        mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
+        var config = new MapperConfiguration(mapperConfig);
+        var mapper = new Mapper(config);
+        service = new PinGoalServiceImp(scaleOutSettleService, mapper, calculateService);
+    }
 
-        private readonly CalculateService calculateService;
-
-        private readonly ScaleOutSettleService scaleOutSettleService;
-
-        private readonly PinGoalService service;
-
-        public PinGoalServiceTests()
+    [Fact]
+    public async Task Settle_ValidateFailed_StopProcess()
+    {
+        var resultFailed = new ResultMessage()
         {
-            calculateService = Substitute.For<CalculateService>();
-            scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
-            var mapperConfig = new MapperConfigurationExpression();
-            mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
-            var config = new MapperConfiguration(mapperConfig);
-            mapper = new Mapper(config);
-            service = new PinGoalServiceImp(scaleOutSettleService, mapper, calculateService);
-        }
+            ErrorCode = 99,
+        };
 
-        [Fact]
-        public async Task Settle_ValidateFailed_StopProcess()
-        {
-            var resultFailed = new ResultMessage()
-            {
-                ErrorCode = 99,
-            };
+        scaleOutSettleService.ValidateEventAndTicket(Arg.Any<EventTicketRequest>()).Returns(resultFailed);
 
-            scaleOutSettleService.ValidateEventAndTicket(Arg.Any<EventTicketRequest>()).Returns(resultFailed);
+        var result = await service.Settle(new AutoPinGoalRequest());
 
-            var result = await service.Settle(new AutoPinGoalRequest());
+        //Assert
+        Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
+        await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+    }
 
-            //Assert
-            Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
-            await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-        }
+    [Fact]
+    public async Task Settle_ValidatePassed_DoSettle()
+    {
+        scaleOutSettleService.ValidateEventAndTicket(Arg.Any<EventTicketRequest>()).Returns(new ResultMessage());
 
-        [Fact]
-        public async Task Settle_ValidatePassed_DoSettle()
-        {
-            scaleOutSettleService.ValidateEventAndTicket(Arg.Any<EventTicketRequest>()).Returns(new ResultMessage());
+        await service.Settle(new AutoPinGoalRequest());
 
-            await service.Settle(new AutoPinGoalRequest());
-
-            //Assert
-            await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-            await calculateService.Received().Execute(Arg.Any<PinGoalCriteria>());
-        }
+        //Assert
+        await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await calculateService.Received().Execute(Arg.Any<PinGoalCriteria>());
     }
 }

@@ -1,18 +1,14 @@
-﻿using MediatR;
-using ThirdPartyBroadcast.Models;
+﻿namespace ThirdPartyBroadcast.Requests;
 
-namespace ThirdPartyBroadcast.Requests
+public class AutoHappyFiveRequest : IRequest<Result>
 {
-    public class AutoHappyFiveRequest : IRequest<Result>
-    {
-        public int MatchId { get; set; }
+    public int MatchId { get; set; }
 
-        public int AdminId { get; set; }
+    public int AdminId { get; set; }
 
-        public string Action { get; set; } = "CAL";
+    public string Action { get; set; } = "CAL";
 
-        public string Ip { get; set; } = string.Empty;
+    public string Ip { get; set; } = string.Empty;
 
-        public bool IsAuto { get; set; } = true;
-    }
+    public bool IsAuto { get; set; } = true;
 }
