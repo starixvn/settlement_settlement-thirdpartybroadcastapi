@@ -10,15 +10,19 @@ public class FastMarketServiceTests
 
     private readonly FastMarketService service;
 
+    private readonly LogDirectlyService logDirectlyService;
+
     public FastMarketServiceTests()
     {
         scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
         calculateService = Substitute.For<CalculateService>();
+        logDirectlyService = Substitute.For<LogDirectlyService>();
+
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new FastMarketServiceImp(scaleOutSettleService, mapper, calculateService);
+        service = new FastMarketServiceImp(scaleOutSettleService, mapper, calculateService, logDirectlyService);
     }
 
     [Fact]

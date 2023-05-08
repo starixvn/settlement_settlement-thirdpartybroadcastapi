@@ -10,15 +10,19 @@ public class BitCoinServiceTests
 
     private readonly BitCoinService service;
 
+    private readonly LogDirectlyService logDirectlyService;
+
     public BitCoinServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         calculateService = Substitute.For<CalculateService>();
+        logDirectlyService = Substitute.For<LogDirectlyService>();
+
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new BitCoinServiceImp(repository, mapper, calculateService);
+        service = new BitCoinServiceImp(repository, mapper, calculateService, logDirectlyService);
     }
 
     [Fact]

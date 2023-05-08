@@ -12,17 +12,20 @@ public class HappyFiveServiceTests
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
     private readonly HappyFiveService service;
+    private readonly LogDirectlyService logDirectlyService;
 
     public HappyFiveServiceTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         calculateService = Substitute.For<CalculateService>();
         scaleOutSettleThirdPartyService = Substitute.For<ScaleOutSettleThirdPartyService>();
+        logDirectlyService = Substitute.For<LogDirectlyService>();
+
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new HappyFiveServiceImp(mapper, calculateService, repository, scaleOutSettleThirdPartyService);
+        service = new HappyFiveServiceImp(mapper, calculateService, repository, scaleOutSettleThirdPartyService, logDirectlyService);
     }
 
     [Theory]
