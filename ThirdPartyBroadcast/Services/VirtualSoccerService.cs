@@ -22,7 +22,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
         IDynamicRepository repository,
         IMapper mapper,
         CalculateService calculateService,
-        LogDirectlyService logDirectlyService = null)
+        LogDirectlyService logDirectlyService)
     {
         this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         this.repository = repository;

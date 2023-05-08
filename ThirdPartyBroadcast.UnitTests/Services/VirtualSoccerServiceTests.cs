@@ -11,17 +11,19 @@ public class VirtualSoccerServiceTests
     private readonly IDynamicRepository repository;
 
     private readonly VirtualSoccerService service;
+    private readonly LogDirectlyService logDirectlyService;
 
     public VirtualSoccerServiceTests()
     {
         calculateService = Substitute.For<CalculateService>();
         scaleOutSettleThirdPartyService = Substitute.For<ScaleOutSettleThirdPartyService>();
         repository = Substitute.For<IDynamicRepository>();
+        logDirectlyService = Substitute.For<LogDirectlyService>();
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new VirtualSoccerServiceImp(scaleOutSettleThirdPartyService, repository, mapper, calculateService);
+        service = new VirtualSoccerServiceImp(scaleOutSettleThirdPartyService, repository, mapper, calculateService, logDirectlyService);
     }
 
     [Fact]
