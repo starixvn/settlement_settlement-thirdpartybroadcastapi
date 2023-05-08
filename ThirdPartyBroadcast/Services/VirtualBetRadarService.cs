@@ -14,15 +14,18 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+    private readonly LogDirectlyService logDirectlyService;
 
     public VirtualBetRadarServiceImp(
         IDynamicRepository repository,
         IMapper mapper,
-        CalculateService calculateService)
+        CalculateService calculateService,
+        LogDirectlyService logDirectlyService)
     {
         this.repository = repository;
         this.mapper = mapper;
         this.calculateService = calculateService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoVirtualBetRadarRequest request)
@@ -33,13 +36,22 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         if (validation.ErrorCode == 0)
         {
             await UpdateMatchInfo(request);
+
+            logDirectlyService.WriteLog(criteria.MatchId, GenerateMessageLog(criteria));
+
             var settleResult = await calculateService.Execute(criteria);
+
             HandleAfterSettle(request, settleResult);
             return settleResult;
         }
 
         return validation;
     }
+
+    private string GenerateMessageLog(VirtualBetRadarCriteria criteria)
+        => $@"NAP: VS BetRadar - Calculate {criteria.Action} for matchid: {criteria.MatchId} 
+              Scores: FT=[{criteria.Fth}-{criteria.Fta}]; HT=[{criteria.Hth}-{criteria.Hta}] 
+              Resource Results: {criteria.ResourceResult}";
 
     private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
     {

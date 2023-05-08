@@ -12,14 +12,17 @@ public class FastMarketServiceImp : FastMarketService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+    private readonly LogDirectlyService logDirectlyService;
 
     public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
             IMapper mapper,
-            CalculateService calculateService)
+            CalculateService calculateService,
+            LogDirectlyService logDirectlyService)
     {
         this.scaleOutSettleService = scaleOutSettleService;
         this.mapper = mapper;
         this.calculateService = calculateService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoFastMarketRequest request)
@@ -30,6 +33,7 @@ public class FastMarketServiceImp : FastMarketService
         if (validationResult.ErrorCode == 0)
         {
             await UpdateMatchInfo(criteria);
+
             return await calculateService.Execute(criteria);
         }
 
@@ -39,6 +43,9 @@ public class FastMarketServiceImp : FastMarketService
             ErrorMessage = validationResult.ErrorMessage
         };
     }
+
+    private string GenerateLogMessage(FastMarketCriteria criteria)
+        => $"NAP: Fast Market {criteria.Action} for matchid: {criteria.MatchId}";
 
     private async Task UpdateMatchInfo(FastMarketCriteria criteria)
     {

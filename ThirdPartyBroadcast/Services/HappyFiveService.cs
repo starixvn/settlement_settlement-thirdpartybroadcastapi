@@ -16,17 +16,20 @@ public class HappyFiveServiceImp : HappyFiveService
     private readonly IDynamicRepository repository;
 
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+    private readonly LogDirectlyService logDirectlyService;
 
     public HappyFiveServiceImp(
         IMapper mapper,
         CalculateService calculateService,
         IDynamicRepository repository,
-        ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
+        ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
+        LogDirectlyService logDirectlyService)
     {
         this.mapper = mapper;
         this.calculateService = calculateService;
         this.repository = repository;
         this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoHappyFiveRequest request)
@@ -37,6 +40,9 @@ public class HappyFiveServiceImp : HappyFiveService
         {
             await UpdateMatchInfo(request);
             var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
+
+            logDirectlyService.WriteLog(criteria.MatchId);
+
             return await calculateService.Execute(criteria);
         }
 

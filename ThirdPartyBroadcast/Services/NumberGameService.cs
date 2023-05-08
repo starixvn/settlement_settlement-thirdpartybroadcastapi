@@ -12,15 +12,18 @@ public class NumberGameServiceImp : NumberGameService
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
     private readonly CalculateService calculateService;
+    private readonly LogDirectlyService logDirectlyService;
 
     public NumberGameServiceImp(
         IMapper mapper,
         ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
-        CalculateService calculateService)
+        CalculateService calculateService,
+        LogDirectlyService logDirectlyService)
     {
         this.mapper = mapper;
         this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         this.calculateService = calculateService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoNumberGameRequest request)
@@ -30,11 +33,30 @@ public class NumberGameServiceImp : NumberGameService
         if (resultValidation.ErrorCode == 0)
         {
             await UpdateMatchInfo(request);
+
             var criteria = mapper.Map<AutoNumberGameRequest, NumberGameCriteria>(request);
+
+            logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria));
+
             return await calculateService.Execute(criteria);
         }
 
         return resultValidation;
+    }
+
+    private string GenerateLogMessage(NumberGameCriteria criteria)
+    {
+        if (criteria.IsLive)
+        {
+            return $"Calculate Number Game for matchid: {criteria.MatchId}- [LIVE] - Sequence number: {criteria.DrawSeq}";
+        }
+
+        if (criteria.Action.Equals("CAL"))
+        {
+            return $"Calculate Number Game for matchid:{criteria.MatchId}";
+        }
+
+        return string.Empty;
     }
 
     private async Task UpdateMatchInfo(AutoNumberGameRequest request)
