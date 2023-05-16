@@ -30,9 +30,12 @@ public class FastMarketServiceImp : FastMarketService
         var criteria = mapper.Map<AutoFastMarketRequest, FastMarketCriteria>(request);
         var requestValidation = mapper.Map<FastMarketCriteria, EventTicketFastMarketRequest>(criteria);
         var validationResult = await scaleOutSettleService.ValidateEventAndTicketFastMarket(requestValidation);
+
         if (validationResult.ErrorCode == 0)
         {
             await UpdateMatchInfo(criteria);
+
+            logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria));
 
             return await calculateService.Execute(criteria);
         }

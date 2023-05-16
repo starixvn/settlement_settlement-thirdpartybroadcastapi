@@ -13,13 +13,16 @@ public class PinGoalServiceImp : PinGoalService
 
     private readonly CalculateService calculateService;
 
+    private readonly LogDirectlyService logDirectlyService;
+
     public PinGoalServiceImp(ScaleOutSettleService scaleOutSettleService,
         IMapper mapper,
-        CalculateService calculateService)
+        CalculateService calculateService, LogDirectlyService logDirectlyService)
     {
         this.scaleOutSettleService = scaleOutSettleService;
         this.mapper = mapper;
         this.calculateService = calculateService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoPinGoalRequest request)
@@ -29,6 +32,10 @@ public class PinGoalServiceImp : PinGoalService
         if (validationResult.ErrorCode == 0)
         {
             await UpdateMatchInfo(request);
+
+            logDirectlyService.WriteLog(request.MatchId,
+                $"NAP: Calculate {criteria.Action} for matchid: {criteria.MatchId} Result: {request.SelectedResources} <br/> Betstatus ({criteria.BetStatus})");
+
             return await calculateService.Execute(criteria);
         }
 
