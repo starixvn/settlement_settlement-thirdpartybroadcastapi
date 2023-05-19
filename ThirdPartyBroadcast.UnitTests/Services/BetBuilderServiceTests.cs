@@ -15,6 +15,7 @@ public class BetBuilderServiceTests
     private readonly IDynamicRepository repository;
 
     private readonly BetBuilderService service;
+    private readonly LogDirectlyService logDirectlyService;
 
     public BetBuilderServiceTests()
     {
@@ -23,12 +24,13 @@ public class BetBuilderServiceTests
         calculateService = Substitute.For<CalculateService>();
         xmlConvertService = Substitute.For<XmlConvertService>();
         repository = Substitute.For<IDynamicRepository>();
+        logDirectlyService = Substitute.For<LogDirectlyService>();
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
         service = new BetBuilderServiceImp(scaleOutSettleThirdPartyService, scaleOutSettleService, calculateService,
-            mapper, xmlConvertService, repository);
+            mapper, xmlConvertService, repository, logDirectlyService);
     }
 
     [Fact]

@@ -20,13 +20,15 @@ public class BetBuilderServiceImp : BetBuilderService
     private readonly IDynamicRepository repository;
 
     private const int MaxLength = 115;
+    private readonly LogDirectlyService logDirectlyService;
 
     public BetBuilderServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
             ScaleOutSettleService scaleOutSettleService,
             CalculateService calculateService,
             IMapper mapper,
             XmlConvertService xmlConvertService,
-            IDynamicRepository repository)
+            IDynamicRepository repository,
+            LogDirectlyService logDirectlyService)
     {
         this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
         this.scaleOutSettleService = scaleOutSettleService;
@@ -34,6 +36,7 @@ public class BetBuilderServiceImp : BetBuilderService
         this.mapper = mapper;
         this.xmlConvertService = xmlConvertService;
         this.repository = repository;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoBetBuilderRequest request)
@@ -52,11 +55,20 @@ public class BetBuilderServiceImp : BetBuilderService
     private async Task<Result> UpdateAndSettle(AutoBetBuilderRequest request, string selectedMarket, Result validateResult)
     {
         await UpdateMatchInfo(request, selectedMarket);
+
         var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
         criteria.SelectedMarket = selectedMarket;
+
+        logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria, request));
+
         var settleResult = await calculateService.Execute(criteria);
+
         return HandleError(validateResult, settleResult);
     }
+
+    private string GenerateLogMessage(BetBuilderCriteria criteria, AutoBetBuilderRequest request)
+        => $"NAP: Calculate {criteria.Action} for matchid: {criteria.MatchId} {(!string.IsNullOrEmpty(request.Resources) ? request.Resources + "<br/>" : "")}; IsAuto:{criteria.IsAuto}; Bettype:38";
+
 
     private static Result HandleError(Result validateResult, Result settleResult)
     {

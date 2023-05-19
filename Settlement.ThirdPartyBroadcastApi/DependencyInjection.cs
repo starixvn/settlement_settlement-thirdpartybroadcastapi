@@ -7,12 +7,12 @@ using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry;
+using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using Kaden.XmlConverter;
 using MediatR;
 using Sentry;
 using System.Reflection;
-using Fanex.Settlement.ScaleOut;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -115,6 +115,8 @@ public static class DependencyInjection
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
+        services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
+
         services.AddScoped<LogRequestAttribute>();
     }
 }

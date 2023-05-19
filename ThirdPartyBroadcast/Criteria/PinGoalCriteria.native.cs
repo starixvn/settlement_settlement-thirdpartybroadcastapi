@@ -1,17 +1,16 @@
-﻿namespace ThirdPartyBroadcast.Criteria
+﻿namespace ThirdPartyBroadcast.Criteria;
+
+public class PinGoalCriteria : CalculateCriteria
 {
-    public class PinGoalCriteria : CalculateCriteria
-    {
-        public string BetStatus { get; set; }
+    public string BetStatus { get; set; }
 
-        public bool IsReSettledTickets { get; set; }
+    public bool IsReSettledTickets { get; set; }
 
-        public string SelectedResources { get; set; }
+    public string SelectedResources { get; set; }
 
-        public bool IsAuto { get; set; }
+    public bool IsAuto { get; set; }
 
-        public string Action { get; set; }
+    public string Action { get; set; }
 
-        public override string GetSettingKey() => $"NAP_Admin_Settlement_Profile_Push_{DbServer}";
-    }
+    public override string GetSettingKey() => $"NAP_Admin_Settlement_Profile_Push_{DbServer}";
 }

@@ -14,15 +14,18 @@ public class BitCoinServiceImp : BitCoinService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+    private readonly LogDirectlyService logDirectlyService;
 
     public BitCoinServiceImp(
         IDynamicRepository repository,
         IMapper mapper,
-        CalculateService calculateService)
+        CalculateService calculateService,
+        LogDirectlyService logDirectlyService)
     {
         this.repository = repository;
         this.mapper = mapper;
         this.calculateService = calculateService;
+        this.logDirectlyService = logDirectlyService;
     }
 
     public async Task<Result> Settle(AutoBitCoinRequest request)
@@ -31,10 +34,17 @@ public class BitCoinServiceImp : BitCoinService
         if (validationResult.ErrorCode == 0)
         {
             var eventStatus = await GetEventStatus(request.MatchId);
+
             await UpdateMatchInfo(request);
+
             var criteria = mapper.Map<AutoBitCoinRequest, BitCoinCriteria>(request);
+
+            logDirectlyService.WriteLog(criteria.MatchId);
+
             var result = await calculateService.Execute(criteria);
+
             await Notification(result, request, eventStatus);
+
             return result;
         }
 

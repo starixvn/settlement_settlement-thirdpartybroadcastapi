@@ -9,16 +9,18 @@ public class VirtualBetRadarServiceTests
     private readonly IDynamicRepository repository;
 
     private readonly VirtualBetRadarService service;
-
+    private readonly LogDirectlyService logService;
     public VirtualBetRadarServiceTests()
     {
         calculateService = Substitute.For<CalculateService>();
         repository = Substitute.For<IDynamicRepository>();
+        logService = Substitute.For<LogDirectlyService>();
+
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new VirtualBetRadarServiceImp(repository, mapper, calculateService);
+        service = new VirtualBetRadarServiceImp(repository, mapper, calculateService, logService);
     }
 
     [Theory]
@@ -59,7 +61,7 @@ public class VirtualBetRadarServiceTests
         };
 
         IMapper mapperMock = Substitute.For<IMapper>();
-        var serviceMock = new VirtualBetRadarServiceImp(repository, mapperMock, calculateService);
+        var serviceMock = new VirtualBetRadarServiceImp(repository, mapperMock, calculateService, logService);
         calculateService.ValidationDeployFlag(SpName.VirtualBetRadar).Returns(new Result());
         calculateService.ExecuteValidationMultiServer(Arg.Any<BetRadarValidationCriteria>()).Returns(new Result());
         await repository.ExecuteAsync(Arg.Any<BetRadarUpdateMatchCriteria>());
