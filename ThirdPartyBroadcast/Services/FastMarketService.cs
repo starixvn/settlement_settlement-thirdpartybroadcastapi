@@ -12,6 +12,7 @@ public class FastMarketServiceImp : FastMarketService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public FastMarketServiceImp(ScaleOutSettleService scaleOutSettleService,
@@ -35,7 +36,8 @@ public class FastMarketServiceImp : FastMarketService
         {
             await UpdateMatchInfo(criteria);
 
-            logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria));
+            var message = GenerateLogMessage(criteria);
+            logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }
@@ -47,8 +49,8 @@ public class FastMarketServiceImp : FastMarketService
         };
     }
 
-    private string GenerateLogMessage(FastMarketCriteria criteria)
-        => $"NAP: Fast Market {criteria.Action} for matchid: {criteria.MatchId}";
+    private static string GenerateLogMessage(FastMarketCriteria criteria)
+        => $"NAP: Fast Market {criteria.Action} for matchId: {criteria.MatchId}";
 
     private async Task UpdateMatchInfo(FastMarketCriteria criteria)
     {

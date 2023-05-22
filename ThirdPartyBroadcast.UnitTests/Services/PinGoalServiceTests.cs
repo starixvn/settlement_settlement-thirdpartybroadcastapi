@@ -12,13 +12,14 @@ public class PinGoalServiceTests
 
     public PinGoalServiceTests()
     {
+        var logDirectlyService = Substitute.For<LogDirectlyService>();
         calculateService = Substitute.For<CalculateService>();
         scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
-        service = new PinGoalServiceImp(scaleOutSettleService, mapper, calculateService);
+        service = new PinGoalServiceImp(scaleOutSettleService, mapper, calculateService, logDirectlyService);
     }
 
     [Fact]

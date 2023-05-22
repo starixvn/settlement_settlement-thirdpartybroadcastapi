@@ -14,6 +14,7 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public VirtualBetRadarServiceImp(
@@ -37,7 +38,8 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         {
             await UpdateMatchInfo(request);
 
-            logDirectlyService.WriteLog(criteria.MatchId, GenerateMessageLog(criteria));
+            var message = GenerateMessageLog(criteria);
+            logDirectlyService.WriteLog(criteria.MatchId, message);
 
             var settleResult = await calculateService.Execute(criteria);
 
@@ -48,9 +50,9 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         return validation;
     }
 
-    private string GenerateMessageLog(VirtualBetRadarCriteria criteria)
-        => $@"NAP: VS BetRadar - Calculate {criteria.Action} for matchid: {criteria.MatchId} 
-              Scores: FT=[{criteria.Fth}-{criteria.Fta}]; HT=[{criteria.Hth}-{criteria.Hta}] 
+    private static string GenerateMessageLog(VirtualBetRadarCriteria criteria)
+        => $@"NAP: VS BetRadar - Calculate {criteria.Action} for matchId: {criteria.MatchId}
+              Scores: FT=[{criteria.Fth}-{criteria.Fta}]; HT=[{criteria.Hth}-{criteria.Hta}]
               Resource Results: {criteria.ResourceResult}";
 
     private void HandleAfterSettle(AutoVirtualBetRadarRequest request, Result settleResult)
@@ -93,11 +95,9 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         {
             return validateDeployFlag;
         }
-        else
-        {
-            var criteriaValidation = mapper.Map<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>(request);
-            return await calculateService.ExecuteValidationMultiServer(criteriaValidation);
-        }
+
+        var criteriaValidation = mapper.Map<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>(request);
+        return await calculateService.ExecuteValidationMultiServer(criteriaValidation);
     }
 
     private async Task UpdateMatchInfo(AutoVirtualBetRadarRequest request)
@@ -114,13 +114,11 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         {
             return notifyRefund;
         }
-        else
-        {
-            var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
-            var matchStatus = await repository.GetAsync<VsBetRadarMatchStatus>(criteria);
-            var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
-            return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
-        }
+
+        var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
+        var matchStatus = await repository.GetAsync<VsBetRadarMatchStatus>(criteria);
+        var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
+        return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
     }
 
     private static int ParlayNotify(VsBetRadarMatchStatus matchStatus)

@@ -16,6 +16,7 @@ public class HappyFiveServiceImp : HappyFiveService
     private readonly IDynamicRepository repository;
 
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public HappyFiveServiceImp(

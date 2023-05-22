@@ -12,6 +12,7 @@ public class NumberGameServiceImp : NumberGameService
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
     private readonly CalculateService calculateService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public NumberGameServiceImp(
@@ -36,7 +37,8 @@ public class NumberGameServiceImp : NumberGameService
 
             var criteria = mapper.Map<AutoNumberGameRequest, NumberGameCriteria>(request);
 
-            logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria));
+            var message = GenerateLogMessage(criteria);
+            logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }
@@ -44,19 +46,14 @@ public class NumberGameServiceImp : NumberGameService
         return resultValidation;
     }
 
-    private string GenerateLogMessage(NumberGameCriteria criteria)
+    private static string GenerateLogMessage(NumberGameCriteria criteria)
     {
         if (criteria.IsLive)
         {
-            return $"Calculate Number Game for matchid: {criteria.MatchId}- [LIVE] - Sequence number: {criteria.DrawSeq}";
+            return $"Calculate Number Game for matchId: {criteria.MatchId}- [LIVE] - Sequence number: {criteria.DrawSeq}";
         }
 
-        if (criteria.Action.Equals("CAL"))
-        {
-            return $"Calculate Number Game for matchid:{criteria.MatchId}";
-        }
-
-        return string.Empty;
+        return criteria.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? $"Calculate Number Game for matchId: {criteria.MatchId}" : string.Empty;
     }
 
     private async Task UpdateMatchInfo(AutoNumberGameRequest request)

@@ -14,6 +14,7 @@ public class BitCoinServiceImp : BitCoinService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public BitCoinServiceImp(

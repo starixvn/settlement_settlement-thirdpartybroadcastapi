@@ -7,6 +7,8 @@ public interface BetBuilderService
 
 public class BetBuilderServiceImp : BetBuilderService
 {
+    private const int MaxLength = 115;
+
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
 
     private readonly ScaleOutSettleService scaleOutSettleService;
@@ -19,7 +21,6 @@ public class BetBuilderServiceImp : BetBuilderService
 
     private readonly IDynamicRepository repository;
 
-    private const int MaxLength = 115;
     private readonly LogDirectlyService logDirectlyService;
 
     public BetBuilderServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
@@ -59,16 +60,16 @@ public class BetBuilderServiceImp : BetBuilderService
         var criteria = mapper.Map<AutoBetBuilderRequest, BetBuilderCriteria>(request);
         criteria.SelectedMarket = selectedMarket;
 
-        logDirectlyService.WriteLog(criteria.MatchId, GenerateLogMessage(criteria, request));
+        var message = GenerateLogMessage(criteria, request.Resources);
+        logDirectlyService.WriteLog(criteria.MatchId, message);
 
         var settleResult = await calculateService.Execute(criteria);
 
         return HandleError(validateResult, settleResult);
     }
 
-    private string GenerateLogMessage(BetBuilderCriteria criteria, AutoBetBuilderRequest request)
-        => $"NAP: Calculate {criteria.Action} for matchid: {criteria.MatchId} {(!string.IsNullOrEmpty(request.Resources) ? request.Resources + "<br/>" : "")}; IsAuto:{criteria.IsAuto}; Bettype:38";
-
+    private static string GenerateLogMessage(BetBuilderCriteria criteria, string resources)
+        => $"NAP: Calculate {criteria.Action} for matchId: {criteria.MatchId} {(!string.IsNullOrEmpty(resources) ? resources + "<br/>" : string.Empty)}; IsAuto:{criteria.IsAuto}; BetType:38";
 
     private static Result HandleError(Result validateResult, Result settleResult)
     {

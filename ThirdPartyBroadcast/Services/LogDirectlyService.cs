@@ -21,7 +21,7 @@ public class LogDirectlyServiceImp : LogDirectlyService
             var criteria = new LogDirectlyCriteria
             {
                 Extend = matchId,
-                Doing = string.IsNullOrEmpty(message) ? $"Settlement for matchid: {matchId}" : message
+                Doing = string.IsNullOrEmpty(message) ? $"Settlement for matchId: {matchId}" : message
             };
 
             dynamicRepository.Execute(criteria);

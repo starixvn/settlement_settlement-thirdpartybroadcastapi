@@ -16,6 +16,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
     private readonly IMapper mapper;
 
     private readonly CalculateService calculateService;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public VirtualSoccerServiceImp(ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService,
@@ -39,8 +40,8 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
         if (validationResult.ErrorCode == 0)
         {
             await UpdateMatchInfo(request);
-
-            logDirectlyService.WriteLog(criteria.MatchId, GenerateMessageLog(criteria));
+            var message = GenerateMessageLog(criteria);
+            logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }
@@ -48,8 +49,8 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
         return validationResult;
     }
 
-    private string GenerateMessageLog(VirtualSoccerCriteria criteria)
-        => $"NAP: Calculate {criteria.Action} for matchid: {criteria.MatchId} score: {criteria.Fth}-{criteria.Fta}";
+    private static string GenerateMessageLog(VirtualSoccerCriteria criteria)
+        => $"NAP: Calculate {criteria.Action} for matchId: {criteria.MatchId} score: {criteria.Fth}-{criteria.Fta}";
 
     private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
     {
