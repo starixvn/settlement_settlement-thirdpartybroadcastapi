@@ -1,4 +1,6 @@
-﻿namespace ThirdPartyBroadcast.Services;
+﻿using ThirdPartyBroadcast.Criteria.NumberGame;
+
+namespace ThirdPartyBroadcast.Services;
 
 public interface NumberGameService
 {

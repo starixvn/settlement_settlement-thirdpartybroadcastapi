@@ -95,7 +95,7 @@ public class BetBuilderServiceTests
             MatchId = 1234
         };
 
-        const string message = $"MarketIDs cannot be auto settled since they have been settled already: 123";
+        const string message = "MarketIDs cannot be auto settled since they have been settled already: 123";
 
         scaleOutSettleThirdPartyService.ValidateBetBuilder(Arg.Any<BetBuilderRequest>())
             .Returns((new ResultMessage(), "123"));
@@ -148,6 +148,8 @@ public class BetBuilderServiceTests
         //Assert
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
         await calculateService.Received().Execute(Arg.Any<BetBuilderCriteria>());
+        logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
+
         Assert.Equal(message, result.ErrorMessage);
     }
 }

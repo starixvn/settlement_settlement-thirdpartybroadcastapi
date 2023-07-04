@@ -19,20 +19,9 @@ public class VirtualBetRadarCriteria : CalculateCriteria
 
     public int NotifyFlag
     {
-        get
-        {
-            if (DbServer != "DBTXN")
-            {
-                return 0;
-            }
+        get => DbServer != "DBTXN" ? 0 : notifyFlag;
 
-            return notifyFlag;
-        }
-
-        set
-        {
-            notifyFlag = value;
-        }
+        set => notifyFlag = value;
     }
 
     public override string GetSettingKey() => $"NAP_Admin_Settlement_VS_BetRadar_Push_{DbServer}";

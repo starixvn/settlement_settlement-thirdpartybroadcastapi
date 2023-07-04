@@ -48,12 +48,12 @@ public class ErrorHandler
 
         await context.Response.WriteAsync(exception.Message);
 
-        var env = Configuration.GetSection("Environment").Value;
+        var env = Configuration.GetSection("Environment").Value ?? "LOCAL";
 
         if (!env.Equals("LIVE", StringComparison.CurrentCultureIgnoreCase))
         {
             await context.Response.WriteAsync(Environment.NewLine);
-            await context.Response.WriteAsync(exception.StackTrace);
+            await context.Response.WriteAsync(exception.StackTrace ?? string.Empty);
         }
     }
 }

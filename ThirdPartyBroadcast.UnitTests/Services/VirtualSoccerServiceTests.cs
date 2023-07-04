@@ -63,5 +63,6 @@ public class VirtualSoccerServiceTests
         await repository.Received().ExecuteAsync(Arg.Any<VRSoccerUpdateMatchCriteria>());
         await scaleOutSettleThirdPartyService.Received()
             .UpdateMatchInfo3rd(Arg.Is<UpdateMatchInfo3rdRequest>(item => item.Command == command && item.FTAway == away && item.FTHome == home));
+        logDirectlyService.Received().WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 }

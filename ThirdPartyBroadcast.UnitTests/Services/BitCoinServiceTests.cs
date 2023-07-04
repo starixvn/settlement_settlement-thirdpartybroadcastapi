@@ -76,5 +76,6 @@ public class BitCoinServiceTests
         await repository.Received().ExecuteAsync(Arg.Any<UpdateEventStatusCriteria>());
         await calculateService.Received().Execute(Arg.Any<BitCoinCriteria>());
         await repository.Received().ExecuteAsync(Arg.Any<NotifyCriteria>());
+        logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 }

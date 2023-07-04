@@ -1,4 +1,6 @@
-﻿namespace ThirdPartyBroadcast;
+﻿using ThirdPartyBroadcast.Criteria.NumberGame;
+
+namespace ThirdPartyBroadcast;
 
 using Criteria.BitCoin;
 using Criteria.HappyFive;
