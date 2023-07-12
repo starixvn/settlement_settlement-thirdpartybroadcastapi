@@ -49,4 +49,8 @@ public class ThirdPartyBroadcastController : ControllerBase
     [Route("outright"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> OutrightSettle(AutoOutrightRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("leap-gaming"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> LeapGaming(LeapGamingRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 }

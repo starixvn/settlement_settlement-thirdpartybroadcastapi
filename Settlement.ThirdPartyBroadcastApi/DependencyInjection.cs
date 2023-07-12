@@ -116,6 +116,7 @@ public static class DependencyInjection
         services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
         services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
+        services.AddTransient<LeapGamingService, LeapGamingServiceImp>();
 
         services.AddScoped<LogRequestAttribute>();
     }

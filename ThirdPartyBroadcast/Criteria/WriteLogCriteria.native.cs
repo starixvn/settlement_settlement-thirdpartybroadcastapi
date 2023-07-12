@@ -8,7 +8,7 @@ public class WriteLogCriteria : NonQueryCommand
         Remark = errorMessage;
         ActionId = actionId;
         UserId = userId;
-        IP = ip;
+        Ip = ip;
     }
 
     public int UserId { get; }
@@ -17,7 +17,7 @@ public class WriteLogCriteria : NonQueryCommand
 
     public string Remark { get; set; }
 
-    public string IP { get; set; }
+    public string Ip { get; set; }
 
     public int ActionId { get; }
 

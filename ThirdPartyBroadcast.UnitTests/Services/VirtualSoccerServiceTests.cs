@@ -60,7 +60,7 @@ public class VirtualSoccerServiceTests
 
         //Assert
         await calculateService.Received().Execute(Arg.Any<VirtualSoccerCriteria>());
-        await repository.Received().ExecuteAsync(Arg.Any<VRSoccerUpdateMatchCriteria>());
+        await repository.Received().ExecuteAsync(Arg.Any<VrSoccerUpdateMatchCriteria>());
         await scaleOutSettleThirdPartyService.Received()
             .UpdateMatchInfo3rd(Arg.Is<UpdateMatchInfo3rdRequest>(item => item.Command == command && item.FTAway == away && item.FTHome == home));
         logDirectlyService.Received().WriteLog(Arg.Any<int>(), Arg.Any<string>());
