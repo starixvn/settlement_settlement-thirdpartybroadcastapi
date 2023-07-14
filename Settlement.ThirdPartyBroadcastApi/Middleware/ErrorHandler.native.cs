@@ -31,7 +31,7 @@ public class ErrorHandler
 
     private async Task HandleException(HttpContext context, Exception exception)
     {
-        var logMessage = new LogMessage(exception.Message)
+        var logMessage = new LogMessage($"Error from broad cast api: {exception.Message}")
                     .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(exception))
                     .AddSection("Server Info", CommonInfoGetters.GetServerInfo())
                     .AddSection("Exception Info", CommonInfoGetters.GetExceptionInfo(exception))

@@ -7,6 +7,6 @@ public class HealthController : ControllerBase
     [HttpGet]
     public IActionResult Index()
     {
-        return Content("OK");
+        return Content("Swarm");
     }
 }
