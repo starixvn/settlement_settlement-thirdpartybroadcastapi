@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Models;
 
-public class VsBetRadarMatchStatus
+public class MatchStatus
 {
     public bool Calculate { get; set; }
 

@@ -52,7 +52,7 @@ public class VirtualBetRadarServiceTests
         {
             Action = action,
         };
-        var matchStatus = new VsBetRadarMatchStatus
+        var matchStatus = new MatchStatus
         {
             Refund = refund,
             Multiple = multiple,
@@ -66,7 +66,7 @@ public class VirtualBetRadarServiceTests
         calculateService.ExecuteValidationMultiServer(Arg.Any<BetRadarValidationCriteria>()).Returns(new Result());
         await repository.ExecuteAsync(Arg.Any<BetRadarUpdateMatchCriteria>());
         calculateService.Execute(Arg.Any<VirtualBetRadarCriteria>()).Returns(new Result());
-        repository.GetAsync<VsBetRadarMatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(matchStatus);
+        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(matchStatus);
         mapperMock.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request).Returns(new VirtualBetRadarCriteria { DbServer = "DBTXN" });
 
         //Action

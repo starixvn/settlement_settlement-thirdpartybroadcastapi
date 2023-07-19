@@ -116,12 +116,12 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         }
 
         var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
-        var matchStatus = await repository.GetAsync<VsBetRadarMatchStatus>(criteria);
+        var matchStatus = await repository.GetAsync<MatchStatus>(criteria);
         var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
         return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
     }
 
-    private static int ParlayNotify(VsBetRadarMatchStatus matchStatus)
+    private static int ParlayNotify(MatchStatus matchStatus)
     {
         const int notifyParlayValue = 8;
         return matchStatus.Multiple || matchStatus.Refund ? notifyParlayValue : 0;

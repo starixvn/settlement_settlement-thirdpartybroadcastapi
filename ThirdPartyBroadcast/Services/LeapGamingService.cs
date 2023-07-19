@@ -1,4 +1,5 @@
 ﻿using ThirdPartyBroadcast.Criteria.LeapGaming;
+using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 
 namespace ThirdPartyBroadcast.Services;
@@ -39,13 +40,20 @@ public class LeapGamingServiceImp : LeapGamingService
         {
             return validationResult;
         }
+
+        var matchStatus = await MatchStatus(request.MatchId);
+
         await UpdateMatchInfo(request);
 
         await UpdateMatchRemark(request.MatchId, request.Action);
 
         logDirectlyService.WriteLog(request.MatchId);
 
-        return await calculateService.Execute(criteria);
+        var result = await calculateService.Execute(criteria);
+
+        await SendMail(request.Action, matchStatus ?? new MatchStatus(), request.MatchId);
+
+        return result;
     }
 
     private async Task UpdateMatchRemark(int matchId, string action)
@@ -83,5 +91,20 @@ public class LeapGamingServiceImp : LeapGamingService
 
         var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.LeapGaming);
         return validateDeployFlag.ErrorCode > 0 ? validateDeployFlag : new Result();
+    }
+
+    private async Task<MatchStatus> MatchStatus(int matchId)
+    {
+        var criteria = new GetMatchStatusCriteria { MatchId = matchId };
+        return await repository.GetAsync<MatchStatus>(criteria);
+    }
+
+    private async Task SendMail(string action, MatchStatus matchStatus, int matchId)
+    {
+        if (action.ToLowerInvariant().Equals(ActionType.Refund) || matchStatus.Calculate || matchStatus.CalRefund)
+        {
+            var criteria = new LeapGamingSendMailCriteria() { MatchId = matchId, Action = action };
+            await repository.ExecuteAsync(criteria);
+        }
     }
 }

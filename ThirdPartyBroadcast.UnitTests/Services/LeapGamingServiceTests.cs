@@ -1,5 +1,6 @@
 ﻿using Fanex.Settlement.ScaleOut.Models;
 using ThirdPartyBroadcast.Criteria.LeapGaming;
+using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 
 namespace ThirdPartyBroadcast.UnitTests.Services;
@@ -68,17 +69,38 @@ public class LeapGamingServiceTests
     [Theory]
     [InlineData("CAL", "C")]
     [InlineData("REFUND", "F")]
-    public async Task Settle_ValidationPassed_UpdateAndSettleMatch(string action, string commamd)
+    public async Task Settle_ValidationPassed_UpdateAndSettleMatch(string action, string command)
     {
         await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
 
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
+        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus());
 
         await service.Settle(new LeapGamingRequest { Action = action, MatchId = 1 });
 
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-        await repository.Received().ExecuteAsync(Arg.Is<VrSoccerUpdateMatchCriteria>(c => c.Command == commamd));
+        await repository.Received().ExecuteAsync(Arg.Is<VrSoccerUpdateMatchCriteria>(c => c.Command == command));
         logDirectlyService.Received().WriteLog(1);
         await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
+    }
+
+    [Theory]
+    [InlineData("CAL", true, false)]
+    [InlineData("CAL", false, true)]
+    [InlineData("REFUND", false, false)]
+    public async Task Settle_ActionReCalOrRefund_SendMail(string action, bool calculate, bool calRefund)
+    {
+        await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
+
+        calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
+        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus { CalRefund = calRefund, Calculate = calculate });
+
+        await service.Settle(new LeapGamingRequest { Action = action, MatchId = 1 });
+
+        await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await repository.Received().ExecuteAsync(Arg.Any<VrSoccerUpdateMatchCriteria>());
+        logDirectlyService.Received().WriteLog(1);
+        await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
+        await repository.Received().ExecuteAsync(Arg.Any<LeapGamingSendMailCriteria>());
     }
 }
