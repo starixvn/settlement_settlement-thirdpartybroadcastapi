@@ -148,7 +148,7 @@ public class BetBuilderServiceTests
         //Assert
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
         await calculateService.Received().Execute(Arg.Any<BetBuilderCriteria>());
-        logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
+        await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
 
         Assert.Equal(message, result.ErrorMessage);
     }

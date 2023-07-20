@@ -39,7 +39,7 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
             await UpdateMatchInfo(request);
 
             var message = GenerateMessageLog(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             var settleResult = await calculateService.Execute(criteria);
 

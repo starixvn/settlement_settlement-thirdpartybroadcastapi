@@ -61,7 +61,7 @@ public class BetBuilderServiceImp : BetBuilderService
         criteria.SelectedMarket = selectedMarket;
 
         var message = GenerateLogMessage(criteria, request.Resources);
-        logDirectlyService.WriteLog(criteria.MatchId, message);
+        await logDirectlyService.WriteLog(criteria.MatchId, message);
 
         var settleResult = await calculateService.Execute(criteria);
 

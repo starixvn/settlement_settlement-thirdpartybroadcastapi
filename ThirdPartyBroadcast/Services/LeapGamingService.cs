@@ -47,7 +47,7 @@ public class LeapGamingServiceImp : LeapGamingService
 
         await UpdateMatchRemark(request.MatchId, request.Action);
 
-        logDirectlyService.WriteLog(request.MatchId);
+        await logDirectlyService.WriteLog(request.MatchId);
 
         var result = await calculateService.Execute(criteria);
 

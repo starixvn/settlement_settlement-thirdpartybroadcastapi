@@ -41,7 +41,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
         {
             await UpdateMatchInfo(request);
             var message = GenerateMessageLog(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }

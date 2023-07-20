@@ -37,7 +37,7 @@ public class FastMarketServiceImp : FastMarketService
             await UpdateMatchInfo(criteria);
 
             var message = GenerateLogMessage(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }

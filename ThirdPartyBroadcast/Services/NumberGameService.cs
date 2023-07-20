@@ -40,7 +40,7 @@ public class NumberGameServiceImp : NumberGameService
             var criteria = mapper.Map<AutoNumberGameRequest, NumberGameCriteria>(request);
 
             var message = GenerateLogMessage(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }

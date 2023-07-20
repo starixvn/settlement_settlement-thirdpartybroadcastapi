@@ -42,7 +42,7 @@ public class HappyFiveServiceImp : HappyFiveService
             await UpdateMatchInfo(request);
             var criteria = mapper.Map<AutoHappyFiveRequest, HappyFiveCriteria>(request);
 
-            logDirectlyService.WriteLog(criteria.MatchId);
+            await logDirectlyService.WriteLog(criteria.MatchId);
 
             return await calculateService.Execute(criteria);
         }

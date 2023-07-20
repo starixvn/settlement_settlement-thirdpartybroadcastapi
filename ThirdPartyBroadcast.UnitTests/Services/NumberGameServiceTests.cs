@@ -51,7 +51,7 @@ public class NumberGameServiceTests
         //Assert
         await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
         await calculateService.Received().Execute(Arg.Any<NumberGameCriteria>());
-        logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
+        await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 
     [Fact]

@@ -80,7 +80,7 @@ public class LeapGamingServiceTests
 
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
         await repository.Received().ExecuteAsync(Arg.Is<VrSoccerUpdateMatchCriteria>(c => c.Command == command));
-        logDirectlyService.Received().WriteLog(1);
+        await logDirectlyService.Received().WriteLog(1);
         await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
     }
 
@@ -99,7 +99,7 @@ public class LeapGamingServiceTests
 
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
         await repository.Received().ExecuteAsync(Arg.Any<VrSoccerUpdateMatchCriteria>());
-        logDirectlyService.Received().WriteLog(1);
+        await logDirectlyService.Received().WriteLog(1);
         await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
         await repository.Received().ExecuteAsync(Arg.Any<LeapGamingSendMailCriteria>());
     }
