@@ -35,15 +35,15 @@ public class LeapGamingServiceImp : LeapGamingService
     public async Task<Result> Settle(LeapGamingRequest request)
     {
         var criteria = mapper.Map<LeapGamingRequest, LeapGamingCriteria>(request);
-        var validationResult = await ValidationMatch(request);
-        if (validationResult.ErrorCode > 0)
-        {
-            return validationResult;
-        }
+        //  var validationResult = await ValidationMatch(request);
+        // if (validationResult.ErrorCode > 0)
+        // {
+        //     return validationResult;
+        //   }
 
         var matchStatus = await MatchStatus(request.MatchId);
 
-        await UpdateMatchInfo(request);
+        //   await UpdateMatchInfo(request);
 
         await UpdateMatchRemark(request.MatchId, request.Action);
 
@@ -51,7 +51,7 @@ public class LeapGamingServiceImp : LeapGamingService
 
         var result = await calculateService.Execute(criteria);
 
-        await SendMail(request.Action, matchStatus ?? new MatchStatus(), request.MatchId);
+        await HandleAfterSettle(request, matchStatus);
 
         return result;
     }
@@ -65,6 +65,17 @@ public class LeapGamingServiceImp : LeapGamingService
         };
 
         await repository.ExecuteAsync(criteria);
+    }
+
+    private async Task HandleAfterSettle(LeapGamingRequest request, MatchStatus matchStatus)
+    {
+        var message = $"VS 3 - Calculate({request.Action})";
+        var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.LeapGamingCalc : ActionId.LeapGamingRefund;
+        var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
+
+        await repository.ExecuteAsync(criteria);
+
+        await SendMail(request.Action, matchStatus ?? new MatchStatus(), request.MatchId);
     }
 
     private async Task UpdateMatchInfo(LeapGamingRequest request)
@@ -103,7 +114,7 @@ public class LeapGamingServiceImp : LeapGamingService
     {
         if (action.ToLowerInvariant().Equals(ActionType.Refund) || matchStatus.Calculate || matchStatus.CalRefund)
         {
-            var criteria = new LeapGamingSendMailCriteria() { MatchId = matchId, Action = action };
+            var criteria = new LeapGamingSendMailCriteria() { MatchId = matchId };
             await repository.ExecuteAsync(criteria);
         }
     }

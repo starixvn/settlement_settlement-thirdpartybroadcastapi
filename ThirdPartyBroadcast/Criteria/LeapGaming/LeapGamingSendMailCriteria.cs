@@ -4,12 +4,6 @@ public class LeapGamingSendMailCriteria : NonQueryCommand
 {
     public int MatchId { get; set; }
 
-    public string Action { get; set; }
-
-    public int ErrCode { get; set; }
-
-    public string ErrMsg { get; set; }
-
     public override string GetSettingKey()
     {
         return "NAP_Admin_SendNotify_s178";

@@ -10,11 +10,9 @@ public class LeapGamingRequest : IRequest<Result>
 
     public string Ip { get; set; } = string.Empty;
 
-    public string BetStatus { get; set; }
-
     public string Action { get; set; } = "CAL";
 
     public int SportType { get; set; } = 178;
 
-    public bool IsReSettledTickets { get; set; }
+    public bool IsReSettledTickets { get; set; } = true;
 }

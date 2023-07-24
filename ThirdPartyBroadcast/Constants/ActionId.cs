@@ -13,4 +13,8 @@ public static class ActionId
     public const int VirtualBetRadarCalc = 187;
 
     public const int VirtualBetRadarRefund = 188;
+
+    public const int LeapGamingCalc = 81043;
+
+    public const int LeapGamingRefund = 81044;
 }
