@@ -162,6 +162,7 @@
         <Setting Key="NAP_Admin_Settlement_s178_DBTXN" SpName="NAP_Admin_Settlement_s178" DbName="DBTXN.bodb02.bodbAdminNet" />
         <Setting Key="NAP_Admin_Settlement_s178_DBSID01" SpName="NAP_Admin_Settlement_s178" DbName="DBSID01.bodb02.bodbAdminNet" />
         <Setting Key="NAP_Admin_Settlement_s178_DBSID02" SpName="NAP_Admin_Settlement_s178" DbName="DBSID02.bodb02.bodbAdminNet" />
+        <Setting Key="NAP_Admin_Settlement_s178_DBSID03" SpName="NAP_Admin_Settlement_s178" DbName="DBSID03.bodb02.bodbAdminNet" />
       </Function>
     </Function>
   </Function>

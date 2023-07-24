@@ -41,19 +41,19 @@ public class LeapGamingServiceImp : LeapGamingService
         //     return validationResult;
         //   }
 
-        var matchStatus = await MatchStatus(request.MatchId);
+        //     var matchStatus = await MatchStatus(request.MatchId);
 
         //   await UpdateMatchInfo(request);
 
-        await UpdateMatchRemark(request.MatchId, request.Action);
+        //   await UpdateMatchRemark(request.MatchId, request.Action);
 
-        await logDirectlyService.WriteLog(request.MatchId);
+        //  await logDirectlyService.WriteLog(request.MatchId);
 
-        var result = await calculateService.Execute(criteria);
+        //  var result = await calculateService.Execute(criteria);
 
-        await HandleAfterSettle(request, matchStatus);
+        //  await HandleAfterSettle(request, matchStatus);
 
-        return result;
+        return new Result();
     }
 
     private async Task UpdateMatchRemark(int matchId, string action)
