@@ -121,7 +121,7 @@ public class BetBuilderServiceImp : BetBuilderService
 
     private string RemoveInvalidMarket(string invalidMarketIds, string selectionMarket)
     {
-        var listMarket = xmlConvertService.Deserialize<ResourcesModel>(selectionMarket);
+        var listMarket = xmlConvertService.Deserialize<ResourcesMarketModel>(selectionMarket);
         var listInvalidMarket = invalidMarketIds.Split(',').ToList();
         listInvalidMarket.ForEach(item =>
         {

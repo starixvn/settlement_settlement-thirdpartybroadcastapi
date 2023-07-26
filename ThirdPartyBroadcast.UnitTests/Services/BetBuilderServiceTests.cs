@@ -54,17 +54,17 @@ public class BetBuilderServiceTests
     [Fact]
     public void Settle_ValidatePassedAndNotExistInvalidResult_SettleResult()
     {
-        var resources = new ResourcesModel
+        var resources = new ResourcesMarketModel
         {
-            Items = new List<ResourceItemModel>
+            Items = new List<ResourceMarketItemModel>
                 {
                     new() { MarketId = "1" }
                 }
         };
         scaleOutSettleThirdPartyService.ValidateBetBuilder(Arg.Any<BetBuilderRequest>())
             .Returns((new ResultMessage(), null));
-        xmlConvertService.Deserialize<ResourcesModel>(Arg.Any<string>()).Returns(resources);
-        xmlConvertService.Serialize(Arg.Any<ResourcesModel>()).Returns("test");
+        xmlConvertService.Deserialize<ResourcesMarketModel>(Arg.Any<string>()).Returns(resources);
+        xmlConvertService.Serialize(Arg.Any<ResourcesMarketModel>()).Returns("test");
 
         service.Settle(new AutoBetBuilderRequest());
 
@@ -78,9 +78,9 @@ public class BetBuilderServiceTests
     [InlineData(ActionType.Refund, ActionId.BetBuilderRefund)]
     public void Settle_ValidatePassedAndExistInvalidResult_SettleCorrectResult(string action, int actionId)
     {
-        var resources = new ResourcesModel
+        var resources = new ResourcesMarketModel
         {
-            Items = new List<ResourceItemModel>
+            Items = new List<ResourceMarketItemModel>
                 {
                     new() { MarketId = "123" },
                     new() { MarketId = "234" }
@@ -99,8 +99,8 @@ public class BetBuilderServiceTests
 
         scaleOutSettleThirdPartyService.ValidateBetBuilder(Arg.Any<BetBuilderRequest>())
             .Returns((new ResultMessage(), "123"));
-        xmlConvertService.Deserialize<ResourcesModel>(Arg.Any<string>()).Returns(resources);
-        xmlConvertService.Serialize(Arg.Any<ResourcesModel>()).Returns("2");
+        xmlConvertService.Deserialize<ResourcesMarketModel>(Arg.Any<string>()).Returns(resources);
+        xmlConvertService.Serialize(Arg.Any<ResourcesMarketModel>()).Returns("2");
 
         service.Settle(request);
 
@@ -113,9 +113,9 @@ public class BetBuilderServiceTests
     [Fact]
     public async Task Settle_ValidatePassedButAllStepAfterReturnError_SettleCorrectResult()
     {
-        var resources = new ResourcesModel
+        var resources = new ResourcesMarketModel
         {
-            Items = new List<ResourceItemModel>
+            Items = new List<ResourceMarketItemModel>
                 {
                     new() { MarketId = "123" },
                     new() { MarketId = "234" }
@@ -139,8 +139,8 @@ public class BetBuilderServiceTests
 
         scaleOutSettleThirdPartyService.ValidateBetBuilder(Arg.Any<BetBuilderRequest>())
             .Returns((new ResultMessage(), "123"));
-        xmlConvertService.Deserialize<ResourcesModel>(Arg.Any<string>()).Returns(resources);
-        xmlConvertService.Serialize(Arg.Any<ResourcesModel>()).Returns("2");
+        xmlConvertService.Deserialize<ResourcesMarketModel>(Arg.Any<string>()).Returns(resources);
+        xmlConvertService.Serialize(Arg.Any<ResourcesMarketModel>()).Returns("2");
         calculateService.Execute(Arg.Any<BetBuilderCriteria>()).Returns(resultFailed);
 
         var result = await service.Settle(request);

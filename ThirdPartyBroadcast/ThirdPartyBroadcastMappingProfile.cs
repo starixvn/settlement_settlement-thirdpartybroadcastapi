@@ -33,6 +33,6 @@ public class ThirdPartyBroadcastMappingProfile : Profile
         CreateMap<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>();
         CreateMap<LeapGamingRequest, LeapGamingCriteria>();
         CreateMap<LeapGamingRequest, UpdateMatchInfoRequest>();
-        CreateMap<LeapGamingRequest, LeapGamingValidationCriteria>();
+        CreateMap<LeapGamingRequest, UpdateMatchCriteria>();
     }
 }

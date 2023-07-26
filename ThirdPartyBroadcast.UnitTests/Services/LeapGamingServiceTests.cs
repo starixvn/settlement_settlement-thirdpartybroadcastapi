@@ -17,19 +17,21 @@ public class LeapGamingServiceTests
 
     private readonly LeapGamingService service;
 
+    private readonly SendMailService sendMailService;
+
     public LeapGamingServiceTests()
     {
         scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
         calculateService = Substitute.For<CalculateService>();
         logDirectlyService = Substitute.For<LogDirectlyService>();
         repository = Substitute.For<IDynamicRepository>();
+        sendMailService = Substitute.For<SendMailService>();
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
 
-        service =
-            new LeapGamingServiceImp(scaleOutSettleService, mapper, calculateService, logDirectlyService, repository);
+        service = new LeapGamingServiceImp(scaleOutSettleService, mapper, calculateService, logDirectlyService, repository, sendMailService);
     }
 
     [Fact]
@@ -39,7 +41,7 @@ public class LeapGamingServiceTests
         {
             ErrorCode = 1
         };
-        await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 1));
+        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 1));
 
         var result = await service.Settle(new LeapGamingRequest());
 
@@ -56,7 +58,7 @@ public class LeapGamingServiceTests
             ErrorCode = 1
         };
 
-        await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
+        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
 
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(resultFailed);
 
@@ -71,7 +73,7 @@ public class LeapGamingServiceTests
     [InlineData("REFUND", "F")]
     public async Task Settle_ValidationPassed_UpdateAndSettleMatch(string action, string command)
     {
-        await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
+        // await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
 
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
         repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus());
@@ -90,7 +92,7 @@ public class LeapGamingServiceTests
     [InlineData("REFUND", false, false)]
     public async Task Settle_ActionReCalOrRefund_SendMail(string action, bool calculate, bool calRefund)
     {
-        await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
+        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
 
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
         repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus { CalRefund = calRefund, Calculate = calculate });

@@ -39,4 +39,8 @@
     <ProjectReference Include="..\ThirdPartyBroadcast\ThirdPartyBroadcast.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\email-templates\credit-template.html" />
+  </ItemGroup>
+
 </Project>

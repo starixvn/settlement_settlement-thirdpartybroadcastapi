@@ -4,15 +4,16 @@ using Fanex.Data.Repository;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
+using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
+using Fanex.Logging.Sentry.RavenClient;
+using Fanex.MailDeliver.MailClient;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using Kaden.XmlConverter;
 using MediatR;
-using System.Reflection;
-using Fanex.Logging.Extensions.AspNetCore;
-using Fanex.Logging.Sentry.RavenClient;
 using SharpRaven;
+using System.Reflection;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -82,6 +83,9 @@ public static class DependencyInjection
         ExceptionHandler
             .UseConfig(new LoggingConfiguration())
             .UseGetDbExceptionInfo(DatabaseInfoGetters.GetDbExceptionInfo);
+
+        AppSettings.AppMailId = configuration.GetSection("MailServer:Id").Value;
+        AppSettings.AppMailAddress = configuration.GetSection("MailServer:Address").Value;
     }
 
     private static void ConfigureAutoMapper(IServiceCollection services)
@@ -117,6 +121,7 @@ public static class DependencyInjection
         services.AddTransient<GeneralService, GeneralServiceImp>();
         services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
         services.AddTransient<LeapGamingService, LeapGamingServiceImp>();
+        services.AddTransient<SendMailService, SendMailServiceImp>();
 
         services.AddScoped<LogRequestAttribute>();
     }
