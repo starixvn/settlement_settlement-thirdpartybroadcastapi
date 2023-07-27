@@ -1,5 +1,4 @@
-﻿using Fanex.Settlement.ScaleOut.Models;
-using ThirdPartyBroadcast.Criteria.LeapGaming;
+﻿using ThirdPartyBroadcast.Criteria.LeapGaming;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 
@@ -7,8 +6,6 @@ namespace ThirdPartyBroadcast.UnitTests.Services;
 
 public class LeapGamingServiceTests
 {
-    private readonly ScaleOutSettleService scaleOutSettleService;
-
     private readonly CalculateService calculateService;
 
     private readonly LogDirectlyService logDirectlyService;
@@ -21,7 +18,6 @@ public class LeapGamingServiceTests
 
     public LeapGamingServiceTests()
     {
-        scaleOutSettleService = Substitute.For<ScaleOutSettleService>();
         calculateService = Substitute.For<CalculateService>();
         logDirectlyService = Substitute.For<LogDirectlyService>();
         repository = Substitute.For<IDynamicRepository>();
@@ -31,23 +27,41 @@ public class LeapGamingServiceTests
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
 
-        service = new LeapGamingServiceImp(scaleOutSettleService, mapper, calculateService, logDirectlyService, repository, sendMailService);
+        service = new LeapGamingServiceImp(mapper, calculateService, logDirectlyService, repository, sendMailService);
     }
 
     [Fact]
-    public async Task Settle_ValidateFailed_StopProcessAndReturn()
+    public async Task Settle_ValidateMatchFailed_StopProcessAndReturn()
     {
-        var resultFailed = new ResultMessage
-        {
-            ErrorCode = 1
-        };
-        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 1));
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(0));
 
         var result = await service.Settle(new LeapGamingRequest());
 
-        Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
+        Assert.True(result.ErrorCode > 0);
 
-        await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await repository.DidNotReceive().ExecuteAsync(Arg.Any<UpdateMatchCriteria>());
+    }
+
+    [Fact]
+    public async Task Settle_ValidateScoreFail_StopProcessAndReturn()
+    {
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(178));
+
+        var result = await service.Settle(new LeapGamingRequest { SelectedResources = string.Empty });
+
+        Assert.True(result.ErrorCode > 0);
+        await repository.DidNotReceive().ExecuteAsync(Arg.Any<UpdateMatchCriteria>());
+    }
+
+    [Fact]
+    public async Task Settle_ScoreIncorrectFormat_StopProcessAndReturn()
+    {
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(178));
+
+        var result = await service.Settle(new LeapGamingRequest { SelectedResources = "<Resources> <score Id=\"00\" Home=\"1\" Away=\"1\"/> <score Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>" });
+
+        Assert.True(result.ErrorCode > 0);
+        await repository.DidNotReceive().ExecuteAsync(Arg.Any<UpdateMatchCriteria>());
     }
 
     [Fact]
@@ -58,51 +72,77 @@ public class LeapGamingServiceTests
             ErrorCode = 1
         };
 
-        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(178));
 
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(resultFailed);
 
-        var result = await service.Settle(new LeapGamingRequest());
+        var result = await service.Settle(new LeapGamingRequest { SelectedResources = "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>" });
 
         Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
-        await scaleOutSettleService.DidNotReceive().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await repository.DidNotReceive().ExecuteAsync(Arg.Any<UpdateMatchCriteria>());
     }
 
     [Theory]
-    [InlineData("CAL", "C")]
-    [InlineData("REFUND", "F")]
-    public async Task Settle_ValidationPassed_UpdateAndSettleMatch(string action, string command)
+    [InlineData("CAL", "C",
+        "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>")]
+    [InlineData("REFUND", "F",
+        "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>")]
+    public async Task Settle_ValidationPassed_UpdateAndSettleMatch(string action, string command,
+        string selectedResources)
     {
-        // await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
-
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(178));
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
         repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus());
+        calculateService.Execute(Arg.Any<LeapGamingCriteria>()).Returns(new Result());
 
-        await service.Settle(new LeapGamingRequest { Action = action, MatchId = 1 });
+        var fakeData = new IEnumerable<object>[3];
+        fakeData[0] = new List<MatchInfo> { new() };
+        fakeData[1] = new List<TicketInfo> { new() { CustId = 1 } };
+        fakeData[2] = new List<TicketInfo> { new() { CustId = 1 } };
+        repository
+            .FetchMultipleAsync(Arg.Any<LeapGamingSendMailCriteria>(),
+                Arg.Any<Type[]>()).Returns(fakeData);
 
-        await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
+        await service.Settle(new LeapGamingRequest
+        {
+            Action = action,
+            MatchId = 1,
+            SelectedResources = selectedResources
+        });
+
+        await repository.Received().ExecuteAsync(Arg.Any<UpdateMatchCriteria>());
         await repository.Received().ExecuteAsync(Arg.Is<VrSoccerUpdateMatchCriteria>(c => c.Command == command));
         await logDirectlyService.Received().WriteLog(1);
         await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
     }
 
     [Theory]
-    [InlineData("CAL", true, false)]
-    [InlineData("CAL", false, true)]
-    [InlineData("REFUND", false, false)]
-    public async Task Settle_ActionReCalOrRefund_SendMail(string action, bool calculate, bool calRefund)
+    [InlineData("CAL", true, false, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
+    [InlineData("CAL", false, true, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
+    [InlineData("CAL", false, false, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 0)]
+    [InlineData("REFUND", false, false, "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>", 2)]
+    public async Task Settle_ActionReCalOrRefund_SendMail(string action, bool calculate, bool calRefund, string selectedResources, int mailCount)
     {
-        //  await repository.ExecuteAsync(Arg.Do<LeapGamingValidationCriteria>(criteria => criteria.ErrCode = 0));
-
+        repository.GetAsync<Match>(Arg.Any<LeapGamingMatchCriteria>()).Returns(new Match(178));
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
-        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus { CalRefund = calRefund, Calculate = calculate });
+        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus { Calculate = calculate, CalRefund = calRefund });
+        calculateService.Execute(Arg.Any<LeapGamingCriteria>()).Returns(new Result());
 
-        await service.Settle(new LeapGamingRequest { Action = action, MatchId = 1 });
+        var fakeData = new IEnumerable<object>[3];
+        fakeData[0] = new List<MatchInfo> { new() };
+        fakeData[1] = new List<TicketInfo> { new() { CustId = 1 } };
+        fakeData[2] = new List<TicketInfo> { new() { CustId = 1 } };
+        repository
+            .FetchMultipleAsync(Arg.Any<LeapGamingSendMailCriteria>(),
+                Arg.Any<Type[]>()).Returns(fakeData);
 
-        await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
-        await repository.Received().ExecuteAsync(Arg.Any<VrSoccerUpdateMatchCriteria>());
-        await logDirectlyService.Received().WriteLog(1);
-        await calculateService.Received().Execute(Arg.Any<LeapGamingCriteria>());
-        await repository.Received().ExecuteAsync(Arg.Any<LeapGamingSendMailCriteria>());
+        await service.Settle(new LeapGamingRequest
+        {
+            Action = action,
+            MatchId = 1,
+            SelectedResources = selectedResources
+        });
+
+        sendMailService.Received(mailCount).SendMail(Arg.Any<NotificationModel>());
     }
 }

@@ -12,7 +12,5 @@ public class LeapGamingRequest : IRequest<Result>
 
     public string Action { get; set; } = "CAL";
 
-    public int SportType { get; set; } = 178;
-
     public bool IsReSettledTickets { get; set; } = true;
 }
