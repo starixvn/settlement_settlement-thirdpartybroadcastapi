@@ -49,4 +49,8 @@ public class ThirdPartyBroadcastController : ControllerBase
     [Route("outright"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> OutrightSettle(AutoOutrightRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("move-tickets"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 }

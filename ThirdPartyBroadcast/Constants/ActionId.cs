@@ -13,4 +13,6 @@ public static class ActionId
     public const int VirtualBetRadarCalc = 187;
 
     public const int VirtualBetRadarRefund = 188;
+
+    public const int MoveTicket = 81026;
 }

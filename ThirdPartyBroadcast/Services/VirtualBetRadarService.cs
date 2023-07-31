@@ -34,20 +34,20 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
         var validation = await ValidateBeforeSettle(request);
         criteria.NotifyFlag = await ValidateMatchStatus(request);
-        if (validation.ErrorCode == 0)
+        if (validation.ErrorCode > 0)
         {
-            await UpdateMatchInfo(request);
-
-            var message = GenerateMessageLog(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
-
-            var settleResult = await calculateService.Execute(criteria);
-
-            HandleAfterSettle(request, settleResult);
-            return settleResult;
+            return validation;
         }
 
-        return validation;
+        await UpdateMatchInfo(request);
+
+        var message = GenerateMessageLog(criteria);
+        logDirectlyService.WriteLog(criteria.MatchId, message);
+
+        var settleResult = await calculateService.Execute(criteria);
+
+        HandleAfterSettle(request, settleResult);
+        return settleResult;
     }
 
     private static string GenerateMessageLog(VirtualBetRadarCriteria criteria)
