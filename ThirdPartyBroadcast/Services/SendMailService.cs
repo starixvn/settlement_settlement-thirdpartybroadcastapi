@@ -38,7 +38,7 @@ public class SendMailServiceImp : SendMailService
     private static string Subject(NotificationModel item)
     {
         var to = item.Type == EmailType.Credit ? "MBC" : "Licensee";
-        return $"[Virtual Sports 3] {item.Action} Ticket Numbers ({to}) -- Resettle MatchID: {item.MatchId} ({item.MatchInfo.SportName})";
+        return $"[Virtual Sports 3] {item.Action} Ticket Numbers ({to}) -- {item.Action} MatchID: {item.MatchId} ({item.MatchInfo.SportName})";
     }
 
     private string MailBody(NotificationModel item)

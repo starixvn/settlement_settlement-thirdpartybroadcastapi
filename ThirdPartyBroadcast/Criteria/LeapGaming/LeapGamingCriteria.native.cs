@@ -8,7 +8,5 @@ public class LeapGamingCriteria : CalculateCriteria
 
     public bool IsReSettledTickets { get; set; }
 
-    public int SportType { get; set; }
-
     public override string GetSettingKey() => $"NAP_Admin_Settlement_s178_{DbServer}";
 }

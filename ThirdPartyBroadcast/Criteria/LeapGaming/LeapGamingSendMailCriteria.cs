@@ -4,11 +4,11 @@ public class LeapGamingSendMailCriteria : NonQueryCommand
 {
     public int MatchId { get; set; }
 
-    public string Credit_Recipients { get; set; }
+    public string CreditRecipients { get; set; }
 
-    public string Deposit_Recipients { get; set; }
+    public string DepositRecipients { get; set; }
 
-    public string Copy_recipients { get; set; }
+    public string CopyRecipients { get; set; }
 
     public override string GetSettingKey()
     {

@@ -1,11 +1,8 @@
 ﻿using System.Xml.Serialization;
 using ThirdPartyBroadcast.Criteria.LeapGaming;
 using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
-using ThirdPartyBroadcast.Criteria.VirtualSoccer;
 
 namespace ThirdPartyBroadcast.Services;
-
-public record struct Match(int SportType);
 
 public interface LeapGamingService
 {
@@ -26,13 +23,7 @@ public class LeapGamingServiceImp : LeapGamingService
 
     private const int ErrorCodeNotExistValue = 1_000_003;
 
-    private const int ErrorCodeNotExistMatch = 1_000_002;
-
     private const string ErrorMsgNotExistValue = "The input score values are not valid!";
-
-    private const string ErrorMsgMatchNoValid = "Match does not exist or the sport type is not valid!";
-
-    private const int SportType = 178;
 
     public LeapGamingServiceImp(IMapper mapper,
         CalculateService calculateService, LogDirectlyService logDirectlyService, IDynamicRepository repository, SendMailService sendMailService)
@@ -47,7 +38,7 @@ public class LeapGamingServiceImp : LeapGamingService
     public async Task<Result> Settle(LeapGamingRequest request)
     {
         var criteria = mapper.Map<LeapGamingRequest, LeapGamingCriteria>(request);
-        var validationResult = await ValidationMatch(request, criteria);
+        var validationResult = await ValidationMatch(request);
         if (validationResult.ErrorCode > 0)
         {
             return validationResult;
@@ -57,7 +48,6 @@ public class LeapGamingServiceImp : LeapGamingService
 
         await UpdateMatchInfo(request);
 
-        await UpdateMatchRemark(request.MatchId, request.Action);
         await logDirectlyService.WriteLog(request.MatchId);
 
         var result = await calculateService.Execute(criteria);
@@ -67,26 +57,30 @@ public class LeapGamingServiceImp : LeapGamingService
         return result;
     }
 
-    private async Task UpdateMatchRemark(int matchId, string action)
-    {
-        var criteria = new VrSoccerUpdateMatchCriteria
-        {
-            MatchId = matchId,
-            Command = action.ToLowerInvariant() == ActionType.Calculate ? "C" : "F"
-        };
-
-        await repository.ExecuteAsync(criteria);
-    }
-
     private async Task HandleAfterSettle(LeapGamingRequest request, MatchStatus matchStatus, Result resultSettle)
     {
-        var message = $"VS 3 - Calculate({request.Action}) {(resultSettle.ErrorCode > 0 ? resultSettle.ErrorMessage : string.Empty)}";
-        var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.LeapGamingCalc : ActionId.LeapGamingRefund;
-        var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
+        var criteria = CreateWriteLogCriteria(request, resultSettle);
 
         await repository.ExecuteAsync(criteria);
 
         await SendMail(request.Action, matchStatus ?? new MatchStatus(), request.MatchId);
+    }
+
+    private static WriteLogCriteria CreateWriteLogCriteria(LeapGamingRequest request, Result resultSettle)
+    {
+        var resources = DeserializeResources(request.SelectedResources);
+        var message = $"VS 3 - Calculate({request.Action}) {(resultSettle.ErrorCode > 0 ? resultSettle.ErrorMessage : string.Empty)}";
+        var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.LeapGamingCalc : ActionId.LeapGamingRefund;
+        var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
+        var htResult = resources.Items.FirstOrDefault(i => i.Id == ResourceId.HalfTimeResourceId);
+        var ftResult = resources.Items.FirstOrDefault(i => i.Id == ResourceId.FullTimeResourceId);
+
+        criteria.FinalAwayScore = int.TryParse(ftResult!.Away, out var away) ? away : 0;
+        criteria.FinalHomeScore = int.TryParse(ftResult!.Home, out var home) ? home : 0;
+        criteria.HtAwayScore = int.TryParse(htResult!.Away, out var htAway) ? htAway : 0;
+        criteria.HtHomeScore = int.TryParse(htResult!.Home, out var htHome) ? htHome : 0;
+
+        return criteria;
     }
 
     private async Task UpdateMatchInfo(LeapGamingRequest request)
@@ -96,13 +90,8 @@ public class LeapGamingServiceImp : LeapGamingService
         await repository.ExecuteAsync(requestUpdate);
     }
 
-    private async Task<Result> ValidationMatch(LeapGamingRequest request, LeapGamingCriteria criteria)
+    private async Task<Result> ValidationMatch(LeapGamingRequest request)
     {
-        var resultValidateMatchInfo = await ValidateMatchInfo(request.MatchId, criteria);
-        if (resultValidateMatchInfo.ErrorCode > 0)
-        {
-            return resultValidateMatchInfo;
-        }
         var resultValidateMatchScore = ValidateMatchScore(request);
 
         if (resultValidateMatchScore.ErrorCode > 0)
@@ -118,10 +107,7 @@ public class LeapGamingServiceImp : LeapGamingService
     {
         try
         {
-            var serializer = new XmlSerializer(typeof(ResourcesModel));
-            using var sr = new StringReader(request.SelectedResources);
-
-            var resources = (ResourcesModel)serializer.Deserialize(sr);
+            var resources = DeserializeResources(request.SelectedResources);
 
             if (resources == null || resources.Items.Count == 0 || !ValidateResult(resources.Items, request.Action))
             {
@@ -144,23 +130,12 @@ public class LeapGamingServiceImp : LeapGamingService
         return new Result();
     }
 
-    private async Task<Result> ValidateMatchInfo(int matchId, LeapGamingCriteria criteriaSettle)
+    private static ResourcesModel DeserializeResources(string selectedResourced)
     {
-        var criteria = new LeapGamingMatchCriteria { MatchId = matchId };
-        var match = await repository.GetAsync<Match>(criteria);
+        var serializer = new XmlSerializer(typeof(ResourcesModel));
+        using var sr = new StringReader(selectedResourced);
 
-        if (match is not { SportType: SportType })
-        {
-            return new Result
-            {
-                ErrorCode = ErrorCodeNotExistMatch,
-                ErrorMessage = ErrorMsgMatchNoValid
-            };
-        }
-
-        criteriaSettle.SportType = match.SportType;
-
-        return new Result();
+        return (ResourcesModel)serializer.Deserialize(sr);
     }
 
     private async Task<MatchStatus> MatchStatus(int matchId)
@@ -182,14 +157,14 @@ public class LeapGamingServiceImp : LeapGamingService
             SendMailForType(EmailType.Credit,
                 action,
                 fetched[creditPosition].Cast<TicketInfo>().ToList(),
-                criteria.Credit_Recipients, criteria.Copy_recipients,
+                criteria.CreditRecipients, criteria.CopyRecipients,
                 matchId,
                 fetched.First().Cast<MatchInfo>().FirstOrDefault());
             SendMailForType(EmailType.Deposit,
                 action,
                 fetched[depositPosition].Cast<TicketInfo>().ToList(),
-                criteria.Deposit_Recipients,
-                criteria.Copy_recipients, matchId,
+                criteria.DepositRecipients,
+                criteria.CopyRecipients, matchId,
                 fetched.First().Cast<MatchInfo>().FirstOrDefault());
         }
     }
