@@ -1,6 +1,5 @@
 ﻿using System.Xml.Serialization;
 using ThirdPartyBroadcast.Criteria.LeapGaming;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 
 namespace ThirdPartyBroadcast.Services;
 
@@ -44,7 +43,7 @@ public class LeapGamingServiceImp : LeapGamingService
             return validationResult;
         }
 
-        var matchStatus = await MatchStatus(request.MatchId);
+        var eventStatus = await MatchStatus(request.MatchId);
 
         await UpdateMatchInfo(request);
 
@@ -52,18 +51,18 @@ public class LeapGamingServiceImp : LeapGamingService
 
         var result = await calculateService.Execute(criteria);
 
-        await HandleAfterSettle(request, matchStatus, result);
+        await HandleAfterSettle(request, eventStatus, result);
 
         return result;
     }
 
-    private async Task HandleAfterSettle(LeapGamingRequest request, MatchStatus matchStatus, Result resultSettle)
+    private async Task HandleAfterSettle(LeapGamingRequest request, string eventStatus, Result resultSettle)
     {
         var criteria = CreateWriteLogCriteria(request, resultSettle);
 
         await repository.ExecuteAsync(criteria);
 
-        await SendMail(request.Action, matchStatus ?? new MatchStatus(), request.MatchId);
+        await SendMail(request.Action, eventStatus, request.MatchId);
     }
 
     private static WriteLogCriteria CreateWriteLogCriteria(LeapGamingRequest request, Result resultSettle)
@@ -138,15 +137,15 @@ public class LeapGamingServiceImp : LeapGamingService
         return (ResourcesModel)serializer.Deserialize(sr);
     }
 
-    private async Task<MatchStatus> MatchStatus(int matchId)
+    private async Task<string> MatchStatus(int matchId)
     {
-        var criteria = new GetMatchStatusCriteria { MatchId = matchId };
-        return await repository.GetAsync<MatchStatus>(criteria);
+        var criteria = new LeapGamingGetMatchStatusCriteria { MatchId = matchId };
+        return await repository.GetAsync<string>(criteria);
     }
 
-    private async Task SendMail(string action, MatchStatus matchStatus, int matchId)
+    private async Task SendMail(string action, string eventStatus, int matchId)
     {
-        if (action.ToLowerInvariant().Equals(ActionType.Refund) || matchStatus.Calculate || matchStatus.CalRefund)
+        if (action.ToLowerInvariant().Equals(ActionType.Refund) || string.Equals(eventStatus.ToLowerInvariant(), EventStatus.Completed))
         {
             const int depositPosition = 2;
             const int creditPosition = 1;
