@@ -22,8 +22,5 @@ public class CalculateCriteria : NonQueryCommand
         throw new NotImplementedException();
     }
 
-    public override bool IsValid()
-    {
-        return MatchId > 0;
-    }
+    public override bool IsValid() => MatchId > 0;
 }

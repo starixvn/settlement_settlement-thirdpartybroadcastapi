@@ -15,4 +15,5 @@ public static class SpName
     public const string OutRight = "Dot_Admin_SettleOutright_Trans";
 
     public const string LeapGaming = "NAP_Admin_Settlement_s178";
+    public const string MoveTicket = "NAP_Admin_Settlement_50_MoveTicket";
 }
