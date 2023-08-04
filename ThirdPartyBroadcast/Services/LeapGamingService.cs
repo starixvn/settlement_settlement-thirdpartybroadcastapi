@@ -43,7 +43,7 @@ public class LeapGamingServiceImp : LeapGamingService
             return validationResult;
         }
 
-        var eventStatus = await MatchStatus(request.MatchId);
+        var currentEventStatus = await MatchStatus(request.MatchId);
 
         await UpdateMatchInfo(request);
 
@@ -51,18 +51,18 @@ public class LeapGamingServiceImp : LeapGamingService
 
         var result = await calculateService.Execute(criteria);
 
-        await HandleAfterSettle(request, eventStatus, result);
+        await HandleAfterSettle(request, currentEventStatus, result);
 
         return result;
     }
 
-    private async Task HandleAfterSettle(LeapGamingRequest request, string eventStatus, Result resultSettle)
+    private async Task HandleAfterSettle(LeapGamingRequest request, string currentEventStatus, Result resultSettle)
     {
         var criteria = CreateWriteLogCriteria(request, resultSettle);
 
         await repository.ExecuteAsync(criteria);
 
-        await SendMail(request.Action, eventStatus, request.MatchId);
+        await SendMail(request.Action, currentEventStatus, request.MatchId);
     }
 
     private static WriteLogCriteria CreateWriteLogCriteria(LeapGamingRequest request, Result resultSettle)
@@ -145,7 +145,10 @@ public class LeapGamingServiceImp : LeapGamingService
 
     private async Task SendMail(string action, string eventStatus, int matchId)
     {
-        if (action.ToLowerInvariant().Equals(ActionType.Refund) || string.Equals(eventStatus.ToLowerInvariant(), EventStatus.Completed))
+        var eventStatusChecking = !string.IsNullOrWhiteSpace(eventStatus) &&
+                                  string.Equals(eventStatus.ToLowerInvariant(), EventStatus.Completed);
+
+        if (action.ToLowerInvariant().Equals(ActionType.Refund) || eventStatusChecking)
         {
             const int depositPosition = 2;
             const int creditPosition = 1;
@@ -174,6 +177,7 @@ public class LeapGamingServiceImp : LeapGamingService
         {
             return;
         }
+
         var mailModel = new NotificationModel
         {
             MatchInfo = matchInfos,
@@ -186,7 +190,7 @@ public class LeapGamingServiceImp : LeapGamingService
 
         mailModel.Ticket = type switch
         {
-            EmailType.Credit => new List<TicketModel> { new TicketModel { TicketInfos = ticketInfos.ToList() } },
+            EmailType.Credit => new List<TicketModel> { new() { TicketInfos = ticketInfos.ToList() } },
             EmailType.Deposit => SplitTicketByLicensee(ticketInfos.ToList()),
             _ => mailModel.Ticket
         };
