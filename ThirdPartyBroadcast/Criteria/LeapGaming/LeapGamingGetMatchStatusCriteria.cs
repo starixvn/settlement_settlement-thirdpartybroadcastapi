@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Criteria.LeapGaming;
 
-public class LeapGamingGetMatchStatusCriteria : CriteriaBase
+public class LeapGamingGetMatchInfoCriteria : CriteriaBase
 {
     public int MatchId { get; set; }
 

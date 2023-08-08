@@ -43,7 +43,7 @@ public class LeapGamingServiceImp : LeapGamingService
             return validationResult;
         }
 
-        var currentEventStatus = await MatchStatus(request.MatchId);
+        var currentMatchInfo = await MatchStatus(request.MatchId);
 
         await UpdateMatchInfo(request);
 
@@ -51,18 +51,18 @@ public class LeapGamingServiceImp : LeapGamingService
 
         var result = await calculateService.Execute(criteria);
 
-        await HandleAfterSettle(request, currentEventStatus, result);
+        await HandleAfterSettle(request, currentMatchInfo, result);
 
         return result;
     }
 
-    private async Task HandleAfterSettle(LeapGamingRequest request, string currentEventStatus, Result resultSettle)
+    private async Task HandleAfterSettle(LeapGamingRequest request, MatchInfo matchInfo, Result resultSettle)
     {
         var criteria = CreateWriteLogCriteria(request, resultSettle);
 
         await repository.ExecuteAsync(criteria);
 
-        await SendMail(request.Action, currentEventStatus, request.MatchId);
+        await SendMail(request.Action, matchInfo, request.MatchId);
     }
 
     private static WriteLogCriteria CreateWriteLogCriteria(LeapGamingRequest request, Result resultSettle)
@@ -137,38 +137,43 @@ public class LeapGamingServiceImp : LeapGamingService
         return (ResourcesModel)serializer.Deserialize(sr);
     }
 
-    private async Task<string> MatchStatus(int matchId)
+    private async Task<MatchInfo> MatchStatus(int matchId)
     {
-        var criteria = new LeapGamingGetMatchStatusCriteria { MatchId = matchId };
-        return await repository.GetAsync<string>(criteria);
+        var criteria = new LeapGamingGetMatchInfoCriteria { MatchId = matchId };
+        return await repository.GetAsync<MatchInfo>(criteria);
     }
 
-    private async Task SendMail(string action, string eventStatus, int matchId)
+    private async Task SendMail(string action, MatchInfo matchInfo, int matchId)
     {
-        var eventStatusChecking = !string.IsNullOrWhiteSpace(eventStatus) &&
-                                  string.Equals(eventStatus.ToLowerInvariant(), EventStatus.Completed);
+        var eventStatusChecking = !string.IsNullOrWhiteSpace(matchInfo.EventStatus) &&
+                                  string.Equals(matchInfo.EventStatus.ToLowerInvariant(), EventStatus.Completed);
 
         if (action.ToLowerInvariant().Equals(ActionType.Refund) || eventStatusChecking)
         {
-            const int depositPosition = 2;
-            const int creditPosition = 1;
-            var mappingTypes = new[] { typeof(MatchInfo), typeof(TicketInfo), typeof(TicketInfo) };
-            var criteria = new LeapGamingSendMailCriteria { MatchId = matchId };
-            var fetched = await repository.FetchMultipleAsync(criteria, mappingTypes);
+            var criteria = new LeapGamingTicketCriteria { MatchId = matchId };
+            var (creditTickets, depositTickets) = await repository.FetchMultipleAsync<TicketInfo, TicketInfo>(criteria);
+
+            var recipients = await GetRecipients();
 
             SendMailForType(EmailType.Credit,
                 action,
-                fetched[creditPosition].Cast<TicketInfo>().ToList(),
-                criteria.CreditRecipients, criteria.CopyRecipients,
+                creditTickets.ToList(),
+                recipients.CreditRecipients, recipients.CopyRecipients,
                 matchId,
-                fetched.First().Cast<MatchInfo>().FirstOrDefault());
+                matchInfo);
             SendMailForType(EmailType.Deposit,
                 action,
-                fetched[depositPosition].Cast<TicketInfo>().ToList(),
-                criteria.DepositRecipients,
-                criteria.CopyRecipients, matchId,
-                fetched.First().Cast<MatchInfo>().FirstOrDefault());
+                depositTickets.ToList(),
+                recipients.DepositRecipients,
+                recipients.CopyRecipients, matchId,
+                matchInfo);
         }
+    }
+
+    private async Task<Recipient> GetRecipients()
+    {
+        var criteria = new MailRecipientsCriteria();
+        return await repository.GetAsync<Recipient>(criteria); ;
     }
 
     private void SendMailForType(string type, string action, IReadOnlyCollection<TicketInfo> ticketInfos, string toRecipients, string copyRecipients, int matchId, MatchInfo matchInfos)

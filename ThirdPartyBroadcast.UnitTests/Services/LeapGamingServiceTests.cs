@@ -1,5 +1,4 @@
 ﻿using ThirdPartyBroadcast.Criteria.LeapGaming;
-using ThirdPartyBroadcast.Criteria.VirtualBetRadar;
 
 namespace ThirdPartyBroadcast.UnitTests.Services;
 
@@ -58,7 +57,7 @@ public class LeapGamingServiceTests
     public async Task Settle_ValidationPassed_UpdateAndSettleMatch()
     {
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
-        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus());
+        repository.GetAsync<MatchInfo>(Arg.Any<LeapGamingGetMatchInfoCriteria>()).Returns(new MatchInfo());
         calculateService.Execute(Arg.Any<LeapGamingCriteria>()).Returns(new Result());
 
         var fakeData = new IEnumerable<object>[3];
@@ -66,7 +65,7 @@ public class LeapGamingServiceTests
         fakeData[1] = new List<TicketInfo> { new() { CustId = 1 } };
         fakeData[2] = new List<TicketInfo> { new() { CustId = 1 } };
         repository
-            .FetchMultipleAsync(Arg.Any<LeapGamingSendMailCriteria>(),
+            .FetchMultipleAsync(Arg.Any<LeapGamingTicketCriteria>(),
                 Arg.Any<Type[]>()).Returns(fakeData);
 
         await service.Settle(new LeapGamingRequest
@@ -82,23 +81,19 @@ public class LeapGamingServiceTests
     }
 
     [Theory]
-    [InlineData("CAL", true, false, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
-    [InlineData("CAL", false, true, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
-    [InlineData("CAL", false, false, "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 0)]
-    [InlineData("REFUND", false, false, "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>", 2)]
-    public async Task Settle_ActionReCalOrRefund_SendMail(string action, bool calculate, bool calRefund, string selectedResources, int mailCount)
+    [InlineData("CAL", "Completed", "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
+    [InlineData("CAL", "Running", "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 0)]
+    [InlineData("REFUND", "Running", "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>", 2)]
+    public async Task Settle_ActionReCalOrRefund_SendMail(string action, string eventStatus, string selectedResources, int mailCount)
     {
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
-        repository.GetAsync<MatchStatus>(Arg.Any<GetMatchStatusCriteria>()).Returns(new MatchStatus { Calculate = calculate, CalRefund = calRefund });
+        repository.GetAsync<MatchInfo>(Arg.Any<LeapGamingGetMatchInfoCriteria>()).Returns(new MatchInfo() { EventStatus = eventStatus });
         calculateService.Execute(Arg.Any<LeapGamingCriteria>()).Returns(new Result());
 
-        var fakeData = new IEnumerable<object>[3];
-        fakeData[0] = new List<MatchInfo> { new() };
-        fakeData[1] = new List<TicketInfo> { new() { CustId = 1 } };
-        fakeData[2] = new List<TicketInfo> { new() { CustId = 1 } };
+        var credit = new List<TicketInfo> { new() { CustId = 1 } };
+        var deposit = new List<TicketInfo> { new() { CustId = 1 } };
         repository
-            .FetchMultipleAsync(Arg.Any<LeapGamingSendMailCriteria>(),
-                Arg.Any<Type[]>()).Returns(fakeData);
+            .FetchMultipleAsync<TicketInfo, TicketInfo>(Arg.Any<LeapGamingTicketCriteria>()).Returns((credit, deposit));
 
         await service.Settle(new LeapGamingRequest
         {
