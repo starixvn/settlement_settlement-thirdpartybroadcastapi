@@ -2,8 +2,6 @@
 
 public class NotificationModel
 {
-    public int MatchId { get; set; }
-
     public string Type { get; set; }
 
     public string Action { get; set; }

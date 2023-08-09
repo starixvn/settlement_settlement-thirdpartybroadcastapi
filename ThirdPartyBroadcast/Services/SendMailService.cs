@@ -38,25 +38,21 @@ public class SendMailServiceImp : SendMailService
     private static string Subject(NotificationModel item)
     {
         var to = item.Type == EmailType.Credit ? "MBC" : "Licensee";
-        return $"[Virtual Sports 3] {item.Action} Ticket Numbers ({to}) -- {item.Action} MatchID: {item.MatchId} ({item.MatchInfo.SportName})";
+        return $"[Virtual Sports 3] {item.Action} Ticket Numbers ({to}) -- {item.Action} MatchID: {item.MatchInfo.MatchId} ({item.MatchInfo.SportName})";
     }
 
     private string MailBody(NotificationModel item)
     {
         var filePath = environment.WebRootPath;
-        string templateKey;
-        string template;
+        var templateKey = "deposit-key";
+        var template = $"{Path.Combine(filePath, "email-templates", "deposit-template.html")}";
 
-        if (item.Type == EmailType.Credit)
+        if (item.Type.Equals(EmailType.Credit))
         {
             templateKey = "credit-key";
             template = $"{Path.Combine(filePath, "email-templates", "credit-template.html")}";
         }
-        else
-        {
-            templateKey = "deposit-key";
-            template = $"{Path.Combine(filePath, "email-templates", "deposit-template.html")}";
-        }
+
         return Engine.Razor.RunCompile(File.ReadAllText(template), templateKey, null, item);
     }
 }

@@ -123,6 +123,7 @@ public static class DependencyInjection
         services.AddTransient<LeapGamingService, LeapGamingServiceImp>();
         services.AddTransient<MoveTicketService, MoveTicketServiceImp>();
         services.AddTransient<SendMailService, SendMailServiceImp>();
+        services.AddTransient<RecipientTicketsService, RecipientTicketsServiceImp>();
 
         services.AddScoped<LogRequestAttribute>();
     }

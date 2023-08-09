@@ -1,4 +1,5 @@
 ﻿using ThirdPartyBroadcast.Criteria.MoveTicket;
+using ActionName = ThirdPartyBroadcast.Constants.ActionName;
 
 namespace ThirdPartyBroadcast.Services;
 
@@ -9,7 +10,6 @@ public interface MoveTicketService
 
 public class MoveTicketServiceImp : MoveTicketService
 {
-    private const string ActionMoveTicket = "MoveTicket";
     private readonly IDynamicRepository repository;
     private readonly LogDirectlyService logDirectlyService;
     private readonly ScaleOutSettleService scaleOutSettleService;
@@ -97,7 +97,7 @@ public class MoveTicketServiceImp : MoveTicketService
         var validateRequest = new EventTicketRequest
         {
             MatchId = matchId,
-            Action = ActionMoveTicket,
+            Action = ActionName.MoveTicket,
             SpName = SpName.MoveTicket,
             Mode = "50"
         };

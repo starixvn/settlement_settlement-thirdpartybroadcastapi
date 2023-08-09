@@ -2,6 +2,8 @@
 
 public class MatchInfo
 {
+    public int MatchId { get; set; }
+
     public string EventStatus { get; set; }
 
     public int SportType { get; set; }

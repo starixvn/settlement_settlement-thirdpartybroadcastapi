@@ -12,20 +12,20 @@ public class LeapGamingServiceTests
 
     private readonly LeapGamingService service;
 
-    private readonly SendMailService sendMailService;
+    private readonly RecipientTicketsService recipientTicketsService;
 
     public LeapGamingServiceTests()
     {
         calculateService = Substitute.For<CalculateService>();
         logDirectlyService = Substitute.For<LogDirectlyService>();
         repository = Substitute.For<IDynamicRepository>();
-        sendMailService = Substitute.For<SendMailService>();
+        recipientTicketsService = Substitute.For<RecipientTicketsService>();
         var mapperConfig = new MapperConfigurationExpression();
         mapperConfig.AddProfile<ThirdPartyBroadcastMappingProfile>();
         var config = new MapperConfiguration(mapperConfig);
         var mapper = new Mapper(config);
 
-        service = new LeapGamingServiceImp(mapper, calculateService, logDirectlyService, repository, sendMailService);
+        service = new LeapGamingServiceImp(mapper, calculateService, logDirectlyService, repository, recipientTicketsService);
     }
 
     [Fact]
@@ -81,9 +81,9 @@ public class LeapGamingServiceTests
     }
 
     [Theory]
-    [InlineData("CAL", "Completed", "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 2)]
+    [InlineData("CAL", "Completed", "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 1)]
     [InlineData("CAL", "Running", "<Resources> <Resource Id=\"00\" Home=\"1\" Away=\"1\"/> <Resource Id=\"01\" Home=\"1\" Away=\"1\"/></Resources>", 0)]
-    [InlineData("REFUND", "Running", "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>", 2)]
+    [InlineData("REFUND", "Running", "<Resources> <Resource Id=\"00\" Home=\"\" Away=\"\"/> <Resource Id=\"01\" Home=\"\" Away=\"\"/></Resources>", 1)]
     public async Task Settle_ActionReCalOrRefund_SendMail(string action, string eventStatus, string selectedResources, int mailCount)
     {
         calculateService.ValidationDeployFlag(SpName.LeapGaming).Returns(new Result());
@@ -102,6 +102,7 @@ public class LeapGamingServiceTests
             SelectedResources = selectedResources
         });
 
-        sendMailService.Received(mailCount).SendMail(Arg.Any<NotificationModel>());
+        recipientTicketsService.Received(mailCount).CreditTickets(Arg.Any<string>(), Arg.Any<IReadOnlyCollection<TicketInfo>>(), Arg.Any<Recipient>(), Arg.Any<MatchInfo>());
+        recipientTicketsService.Received(mailCount).DepositTickets(Arg.Any<string>(), Arg.Any<IReadOnlyCollection<TicketInfo>>(), Arg.Any<Recipient>(), Arg.Any<MatchInfo>());
     }
 }

@@ -18,20 +18,24 @@ public class LeapGamingServiceImp : LeapGamingService
 
     private readonly IDynamicRepository repository;
 
-    private readonly SendMailService sendMailService;
+    private readonly RecipientTicketsService recipientTicketsService;
 
     private const int ErrorCodeNotExistValue = 1_000_003;
 
     private const string ErrorMsgNotExistValue = "The input score values are not valid!";
 
-    public LeapGamingServiceImp(IMapper mapper,
-        CalculateService calculateService, LogDirectlyService logDirectlyService, IDynamicRepository repository, SendMailService sendMailService)
+    public LeapGamingServiceImp(
+        IMapper mapper,
+        CalculateService calculateService,
+        LogDirectlyService logDirectlyService,
+        IDynamicRepository repository,
+        RecipientTicketsService recipientTicketsService)
     {
         this.mapper = mapper;
         this.calculateService = calculateService;
         this.logDirectlyService = logDirectlyService;
         this.repository = repository;
-        this.sendMailService = sendMailService;
+        this.recipientTicketsService = recipientTicketsService;
     }
 
     public async Task<Result> Settle(LeapGamingRequest request)
@@ -62,7 +66,7 @@ public class LeapGamingServiceImp : LeapGamingService
 
         await repository.ExecuteAsync(criteria);
 
-        await SendMail(request.Action, matchInfo, request.MatchId);
+        await SendMail(request.Action, matchInfo);
     }
 
     private static WriteLogCriteria CreateWriteLogCriteria(LeapGamingRequest request, Result resultSettle)
@@ -71,8 +75,8 @@ public class LeapGamingServiceImp : LeapGamingService
         var message = $"VS 3 - Calculate({request.Action}) {(resultSettle.ErrorCode > 0 ? resultSettle.ErrorMessage : string.Empty)}";
         var actionId = request.Action.ToLowerInvariant().Equals(ActionType.Calculate) ? ActionId.LeapGamingCalc : ActionId.LeapGamingRefund;
         var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
-        var htResult = resources.Items.FirstOrDefault(i => i.Id == ResourceId.HalfTimeResourceId);
-        var ftResult = resources.Items.FirstOrDefault(i => i.Id == ResourceId.FullTimeResourceId);
+        var htResult = resources.Items.Find(i => i.Id == ResourceId.HalfTimeResourceId);
+        var ftResult = resources.Items.Find(i => i.Id == ResourceId.FullTimeResourceId);
 
         criteria.FinalAwayScore = int.TryParse(ftResult!.Away, out var away) ? away : 0;
         criteria.FinalHomeScore = int.TryParse(ftResult!.Home, out var home) ? home : 0;
@@ -140,79 +144,36 @@ public class LeapGamingServiceImp : LeapGamingService
     private async Task<MatchInfo> MatchStatus(int matchId)
     {
         var criteria = new LeapGamingGetMatchInfoCriteria { MatchId = matchId };
-        return await repository.GetAsync<MatchInfo>(criteria);
+        var match = await repository.GetAsync<MatchInfo>(criteria);
+        match.MatchId = matchId;
+
+        return match;
     }
 
-    private async Task SendMail(string action, MatchInfo matchInfo, int matchId)
+    private async Task SendMail(string action, MatchInfo matchInfo)
     {
         var eventStatusChecking = !string.IsNullOrWhiteSpace(matchInfo.EventStatus) &&
                                   string.Equals(matchInfo.EventStatus.ToLowerInvariant(), EventStatus.Completed);
 
         if (action.ToLowerInvariant().Equals(ActionType.Refund) || eventStatusChecking)
         {
-            var criteria = new LeapGamingTicketCriteria { MatchId = matchId };
+            var criteria = new LeapGamingTicketCriteria { MatchId = matchInfo.MatchId };
             var (creditTickets, depositTickets) = await repository.FetchMultipleAsync<TicketInfo, TicketInfo>(criteria);
 
             var recipients = await GetRecipients();
+            var actionName = string.Equals(action, ActionType.Refund, StringComparison.OrdinalIgnoreCase)
+                ? Constants.ActionName.Refund
+                : Constants.ActionName.ReSettle;
 
-            SendMailForType(EmailType.Credit,
-                action,
-                creditTickets.ToList(),
-                recipients.CreditRecipients, recipients.CopyRecipients,
-                matchId,
-                matchInfo);
-            SendMailForType(EmailType.Deposit,
-                action,
-                depositTickets.ToList(),
-                recipients.DepositRecipients,
-                recipients.CopyRecipients, matchId,
-                matchInfo);
+            recipientTicketsService.CreditTickets(actionName, creditTickets.ToList(), recipients, matchInfo);
+            recipientTicketsService.DepositTickets(actionName, depositTickets.ToList(), recipients, matchInfo);
         }
     }
 
     private async Task<Recipient> GetRecipients()
     {
         var criteria = new MailRecipientsCriteria();
-        return await repository.GetAsync<Recipient>(criteria); ;
-    }
-
-    private void SendMailForType(string type, string action, IReadOnlyCollection<TicketInfo> ticketInfos, string toRecipients, string copyRecipients, int matchId, MatchInfo matchInfos)
-    {
-        if (!ticketInfos.Any())
-        {
-            return;
-        }
-
-        var mailModel = new NotificationModel
-        {
-            MatchInfo = matchInfos,
-            MatchId = matchId,
-            Action = string.Equals(action, ActionType.Refund, StringComparison.OrdinalIgnoreCase) ? "Refund" : "ReSettle",
-            To = toRecipients,
-            Copy = copyRecipients,
-            Type = type
-        };
-
-        mailModel.Ticket = type switch
-        {
-            EmailType.Credit => new List<TicketModel> { new() { TicketInfos = ticketInfos.ToList() } },
-            EmailType.Deposit => SplitTicketByLicensee(ticketInfos.ToList()),
-            _ => mailModel.Ticket
-        };
-
-        mailModel.MatchInfo.TotalTickets = mailModel.Ticket.SelectMany(i => i.TicketInfos).Distinct().Count();
-
-        sendMailService.SendMail(mailModel);
-    }
-
-    private static IEnumerable<TicketModel> SplitTicketByLicensee(IReadOnlyCollection<TicketInfo> ticketInfos)
-    {
-        var distinctLicensees = ticketInfos.Select(ticket => ticket.SiteName).Distinct();
-
-        return distinctLicensees.Select(licensee => new TicketModel
-        {
-            TicketInfos = ticketInfos.Where(ticket => ticket.SiteName == licensee).ToList()
-        });
+        return await repository.GetAsync<Recipient>(criteria);
     }
 
     private static bool ValidateResult(IReadOnlyCollection<ResourceItemModel> items, string action)
