@@ -41,7 +41,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
         {
             await UpdateMatchInfo(request);
             var message = GenerateMessageLog(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }
@@ -55,7 +55,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
     private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
     {
         var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
-        var criteria = mapper.Map<AutoVirtualSoccerRequest, VRSoccerUpdateMatchCriteria>(request);
+        var criteria = mapper.Map<AutoVirtualSoccerRequest, VrSoccerUpdateMatchCriteria>(request);
 
         if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))
         {

@@ -1,4 +1,6 @@
-﻿namespace ThirdPartyBroadcast.Services;
+﻿using ThirdPartyBroadcast.Criteria.NumberGame;
+
+namespace ThirdPartyBroadcast.Services;
 
 public interface NumberGameService
 {
@@ -38,7 +40,7 @@ public class NumberGameServiceImp : NumberGameService
             var criteria = mapper.Map<AutoNumberGameRequest, NumberGameCriteria>(request);
 
             var message = GenerateLogMessage(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }

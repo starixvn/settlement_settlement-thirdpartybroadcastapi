@@ -1,18 +1,12 @@
 ﻿namespace ThirdPartyBroadcast.Criteria.VirtualSoccer;
 
-public class VRSoccerUpdateMatchCriteria : NonQueryCommand
+public class VrSoccerUpdateMatchCriteria : NonQueryCommand
 {
     public int MatchId { get; set; }
 
     public string Command { get; set; }
 
-    public override string GetSettingKey()
-    {
-        return "NAP_updateMatch_remark";
-    }
+    public override string GetSettingKey() => "NAP_UpdateMatch_Remark";
 
-    public override bool IsValid()
-    {
-        return MatchId > 0;
-    }
+    public override bool IsValid() => MatchId > 0;
 }

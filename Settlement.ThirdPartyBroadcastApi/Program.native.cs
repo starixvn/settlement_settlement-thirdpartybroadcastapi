@@ -18,13 +18,9 @@ app.UseRouting();
 
 app.UseCors(DependencyInjection.AllowOrigin);
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapControllerRoute(
-        "default",
-        "{controller=Home}/{action=Index}/{id?}");
-});
+app.MapControllerRoute(
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 
 #if DEBUG
 app.Run();

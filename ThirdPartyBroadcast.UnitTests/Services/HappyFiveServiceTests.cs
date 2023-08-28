@@ -6,7 +6,6 @@ public class HappyFiveServiceTests
 {
     private readonly IDynamicRepository repository;
 
-
     private readonly CalculateService calculateService;
 
     private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
@@ -55,5 +54,6 @@ public class HappyFiveServiceTests
         //Assert
         await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
         await calculateService.Received().Execute(Arg.Any<HappyFiveCriteria>());
+        await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 }

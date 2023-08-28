@@ -4,6 +4,12 @@ namespace ThirdPartyBroadcast.Models;
 
 public class ResourceItemModel
 {
-    [XmlAttribute("m")]
-    public string MarketId { get; set; }
+    [XmlAttribute("Id")]
+    public string Id { get; set; }
+
+    [XmlAttribute("Home")]
+    public string Home { get; set; }
+
+    [XmlAttribute("Away")]
+    public string Away { get; set; }
 }

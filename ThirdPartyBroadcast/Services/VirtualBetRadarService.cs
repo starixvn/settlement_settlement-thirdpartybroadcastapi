@@ -34,20 +34,20 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         var criteria = mapper.Map<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>(request);
         var validation = await ValidateBeforeSettle(request);
         criteria.NotifyFlag = await ValidateMatchStatus(request);
-        if (validation.ErrorCode == 0)
+        if (validation.ErrorCode > 0)
         {
-            await UpdateMatchInfo(request);
-
-            var message = GenerateMessageLog(criteria);
-            logDirectlyService.WriteLog(criteria.MatchId, message);
-
-            var settleResult = await calculateService.Execute(criteria);
-
-            HandleAfterSettle(request, settleResult);
-            return settleResult;
+            return validation;
         }
 
-        return validation;
+        await UpdateMatchInfo(request);
+
+        var message = GenerateMessageLog(criteria);
+            await logDirectlyService.WriteLog(criteria.MatchId, message);
+
+        var settleResult = await calculateService.Execute(criteria);
+
+        HandleAfterSettle(request, settleResult);
+        return settleResult;
     }
 
     private static string GenerateMessageLog(VirtualBetRadarCriteria criteria)
@@ -116,12 +116,12 @@ public class VirtualBetRadarServiceImp : VirtualBetRadarService
         }
 
         var criteria = new GetMatchStatusCriteria { MatchId = request.MatchId };
-        var matchStatus = await repository.GetAsync<VsBetRadarMatchStatus>(criteria);
+        var matchStatus = await repository.GetAsync<MatchStatus>(criteria);
         var hasNotify = matchStatus != null && (matchStatus.Calculate || matchStatus.CalRefund);
         return hasNotify ? notifySingleValue + ParlayNotify(matchStatus) : 0;
     }
 
-    private static int ParlayNotify(VsBetRadarMatchStatus matchStatus)
+    private static int ParlayNotify(MatchStatus matchStatus)
     {
         const int notifyParlayValue = 8;
         return matchStatus.Multiple || matchStatus.Refund ? notifyParlayValue : 0;

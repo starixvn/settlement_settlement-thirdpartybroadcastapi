@@ -33,14 +33,17 @@ public class PinGoalServiceImp : PinGoalService
         {
             await UpdateMatchInfo(request);
 
-            logDirectlyService.WriteLog(request.MatchId,
-                $"NAP: Calculate {criteria.Action} for matchid: {criteria.MatchId} Result: {request.SelectedResources} <br/> Betstatus ({criteria.BetStatus})");
+            var message = GenerateMessageLog(request);
+            await logDirectlyService.WriteLog(request.MatchId, message);
 
             return await calculateService.Execute(criteria);
         }
 
         return validationResult;
     }
+
+    private static string GenerateMessageLog(AutoPinGoalRequest request)
+        => $"NAP: Calculate {request.Action} for matchId: {request.MatchId} Result: {request.SelectedResources} <br/> BetStatus ({request.BetStatus})";
 
     private async Task<Result> ValidateBeforePush(AutoPinGoalRequest request)
     {

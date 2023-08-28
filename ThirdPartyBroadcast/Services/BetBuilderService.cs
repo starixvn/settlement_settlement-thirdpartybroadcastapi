@@ -61,7 +61,7 @@ public class BetBuilderServiceImp : BetBuilderService
         criteria.SelectedMarket = selectedMarket;
 
         var message = GenerateLogMessage(criteria, request.Resources);
-        logDirectlyService.WriteLog(criteria.MatchId, message);
+        await logDirectlyService.WriteLog(criteria.MatchId, message);
 
         var settleResult = await calculateService.Execute(criteria);
 
@@ -121,7 +121,7 @@ public class BetBuilderServiceImp : BetBuilderService
 
     private string RemoveInvalidMarket(string invalidMarketIds, string selectionMarket)
     {
-        var listMarket = xmlConvertService.Deserialize<ResourcesModel>(selectionMarket);
+        var listMarket = xmlConvertService.Deserialize<ResourcesMarketModel>(selectionMarket);
         var listInvalidMarket = invalidMarketIds.Split(',').ToList();
         listInvalidMarket.ForEach(item =>
         {

@@ -1,8 +1,10 @@
-﻿namespace ThirdPartyBroadcast.Services;
+﻿using Fanex.Logging;
+
+namespace ThirdPartyBroadcast.Services;
 
 public interface LogDirectlyService
 {
-    void WriteLog(int matchId, string message = null);
+    Task WriteLog(int matchId, string message = null);
 }
 
 public class LogDirectlyServiceImp : LogDirectlyService
@@ -14,21 +16,22 @@ public class LogDirectlyServiceImp : LogDirectlyService
         this.dynamicRepository = dynamicRepository;
     }
 
-    public void WriteLog(int matchId, string message = null)
+    public async Task WriteLog(int matchId, string message = null)
     {
         try
         {
+            var messageDoing = string.IsNullOrWhiteSpace(message) ? $"Settlement for matchId: {matchId}" : message;
             var criteria = new LogDirectlyCriteria
             {
                 Extend = matchId,
-                Doing = string.IsNullOrEmpty(message) ? $"Settlement for matchId: {matchId}" : message
+                Doing = messageDoing
             };
 
-            dynamicRepository.Execute(criteria);
+            await dynamicRepository.ExecuteAsync(criteria);
         }
         catch (Exception e)
         {
-            Fanex.Logging.LogService.Error("Settlement.ThirdPartyBroadcastAPI(Write Directly):", e);
+            await LogService.ErrorAsync("Settlement.ThirdPartyBroadcastAPI(Write Directly):", e);
         }
     }
 }

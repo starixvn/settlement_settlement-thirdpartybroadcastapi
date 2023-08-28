@@ -52,5 +52,6 @@ public class FastMarketServiceTests
         //Assert
         await scaleOutSettleService.Received().UpdateMatchInfo(Arg.Any<UpdateMatchInfoRequest>());
         await calculateService.Received().Execute(Arg.Any<FastMarketCriteria>());
+        await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 }

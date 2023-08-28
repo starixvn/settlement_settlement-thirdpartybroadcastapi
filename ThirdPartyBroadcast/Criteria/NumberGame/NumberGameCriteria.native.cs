@@ -1,4 +1,4 @@
-﻿namespace ThirdPartyBroadcast.Criteria;
+﻿namespace ThirdPartyBroadcast.Criteria.NumberGame;
 
 public class NumberGameCriteria : CalculateCriteria
 {

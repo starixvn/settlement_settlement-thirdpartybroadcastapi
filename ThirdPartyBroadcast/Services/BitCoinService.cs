@@ -40,7 +40,7 @@ public class BitCoinServiceImp : BitCoinService
 
             var criteria = mapper.Map<AutoBitCoinRequest, BitCoinCriteria>(request);
 
-            logDirectlyService.WriteLog(criteria.MatchId);
+            await logDirectlyService.WriteLog(criteria.MatchId);
 
             var result = await calculateService.Execute(criteria);
 
