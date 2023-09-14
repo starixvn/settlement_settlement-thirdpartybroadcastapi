@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Services;
 
-using Criteria.OutRight;
+using Newtonsoft.Json;
 
 public interface OutrightService
 {
@@ -9,52 +9,18 @@ public interface OutrightService
 
 public class OutrightServiceImp : OutrightService
 {
-    private readonly IMapper mapper;
+    private readonly PublishMessageService publishMessageService;
 
-    private readonly CalculateService calculateService;
-
-    private readonly ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService;
-
-    public OutrightServiceImp(
-        IMapper mapper,
-        CalculateService calculateService,
-        ScaleOutSettleThirdPartyService scaleOutSettleThirdPartyService)
+    public OutrightServiceImp(PublishMessageService publishMessageService)
     {
-        this.mapper = mapper;
-        this.calculateService = calculateService;
-        this.scaleOutSettleThirdPartyService = scaleOutSettleThirdPartyService;
+        this.publishMessageService = publishMessageService;
     }
 
     public async Task<Result> Settle(AutoOutrightRequest request)
     {
-        var validation = await ValidateBeforeSettle(request);
+        var data = JsonConvert.SerializeObject(request);
 
-        if (validation.ErrorCode == 0)
-        {
-            var criteria = mapper.Map<AutoOutrightRequest, OutRightCriteria>(request);
-            return await calculateService.Execute(criteria);
-        }
-
-        return validation;
-    }
-
-    private async Task<Result> ValidateBeforeSettle(AutoOutrightRequest request)
-    {
-        var validateDeployFlag = await calculateService.ValidationDeployFlag(SpName.OutRight);
-        if (validateDeployFlag.ErrorCode > 0)
-        {
-            return validateDeployFlag;
-        }
-        else
-        {
-            const string eventTable = "outright";
-            var criteriaValidation =
-                await scaleOutSettleThirdPartyService.ValidateMoveBetDay(request.MatchId.ToString(), eventTable);
-            return new Result
-            {
-                ErrorCode = criteriaValidation.ErrorCode,
-                ErrorMessage = criteriaValidation.ErrorMessage
-            };
-        }
+        await publishMessageService.Publisher(ProductType.Outright, data);
+        return new Result();
     }
 }

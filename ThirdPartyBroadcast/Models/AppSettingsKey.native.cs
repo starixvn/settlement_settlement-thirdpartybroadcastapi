@@ -5,4 +5,6 @@ public class AppSettingsKey
     public List<string> SiteDbServer { get; set; }
 
     public bool EnableLogRequest { get; set; }
+
+    public RabbitMq RabbitMq { get; set; }
 }

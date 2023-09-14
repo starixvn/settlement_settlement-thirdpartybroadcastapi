@@ -40,7 +40,7 @@ public class VirtualSoccerServiceTests
 
         //Assert
         Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
-        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
     }
 
     [Theory]
@@ -62,7 +62,7 @@ public class VirtualSoccerServiceTests
         await calculateService.Received().Execute(Arg.Any<VirtualSoccerCriteria>());
         await repository.Received().ExecuteAsync(Arg.Any<VrSoccerUpdateMatchCriteria>());
         await scaleOutSettleThirdPartyService.Received()
-            .UpdateMatchInfo3rd(Arg.Is<UpdateMatchInfo3rdRequest>(item => item.Command == command && item.FTAway == away && item.FTHome == home));
+            .UpdateMatchInfo3rd(Arg.Is<UpdateMatchInfo3RdRequest>(item => item.Command == command && item.FTAway == away && item.FTHome == home));
         await logDirectlyService.Received().WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
 }

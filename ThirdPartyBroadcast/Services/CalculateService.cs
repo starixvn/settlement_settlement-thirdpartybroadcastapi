@@ -101,7 +101,7 @@ public class CalculateServiceImp : CalculateService
     {
         var getDeploymentInfoRequest = new GetDeploymentInfoRequest
         {
-            SPName = spName
+            SpName = spName
         };
 
         var result = await scaleOutSettleThirdPartyService.GetDeploymentInfo(getDeploymentInfoRequest);
