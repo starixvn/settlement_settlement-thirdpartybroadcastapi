@@ -39,26 +39,36 @@ public class PublishMessageServiceImp : PublishMessageService
 
     private async Task PublishToWaiting(string productType, string data)
     {
-        await busControl.StartAsync();
-        await busControl.Publish<IBroadcastApiWaiting>(new
+        try
         {
-            productType,
-            data
-        });
-
-        await busControl.StopAsync();
+            await busControl.StartAsync();
+            await busControl.Publish<IBroadcastApiWaiting>(new
+            {
+                productType,
+                data
+            });
+        }
+        finally
+        {
+            await busControl.StopAsync();
+        }
     }
 
     private async Task PublishToProcessing(string productType, string data)
     {
-        await busControl.StartAsync();
-
-        await busControl.Publish<IBroadcastApiProcessing>(new
+        try
         {
-            productType,
-            data
-        });
+            await busControl.StartAsync();
 
-        await busControl.StopAsync();
+            await busControl.Publish<IBroadcastApiProcessing>(new
+            {
+                productType,
+                data
+            });
+        }
+        finally
+        {
+            await busControl.StopAsync();
+        }
     }
 }
