@@ -1,4 +1,6 @@
-﻿using ThirdPartyBroadcast.Criteria.MoveTicket;
+﻿using Fanex.Settlement.ScaleOut.Criteria.Normal;
+using Microsoft.Extensions.Options;
+using ThirdPartyBroadcast.Criteria.MoveTicket;
 using ActionName = ThirdPartyBroadcast.Constants.ActionName;
 
 namespace ThirdPartyBroadcast.Services;
@@ -12,19 +14,21 @@ public class MoveTicketServiceImp : MoveTicketService
 {
     private readonly IDynamicRepository repository;
     private readonly LogDirectlyService logDirectlyService;
-    private readonly ScaleOutSettleService scaleOutSettleService;
-    private readonly CalculateService calculateService;
+    private readonly AppSettingsKey appSettingsKey;
+
+    private const string NotExistValidTicketToMove =
+        "WARNING! Cannot continue due to current has no valid ticket to move.";
+
+    private const int NotExistValidTicketToMoveCode = 1_001_049;
 
     public MoveTicketServiceImp(
         IDynamicRepository repository,
         LogDirectlyService logDirectlyService,
-        ScaleOutSettleService scaleOutSettleService,
-        CalculateService calculateService)
+        IOptions<AppSettingsKey> options)
     {
         this.repository = repository;
         this.logDirectlyService = logDirectlyService;
-        this.scaleOutSettleService = scaleOutSettleService;
-        this.calculateService = calculateService;
+        appSettingsKey = options.Value;
     }
 
     public async Task<Result> MoveTicket(MoveTicketRequest request)
@@ -33,19 +37,36 @@ public class MoveTicketServiceImp : MoveTicketService
 
         if (result.ErrorCode > 0)
         {
-            await ActionLog(request, result.ErrorMessage);
+            await ActionLog(request, result.ErrorMessage, ActionId.MoveTicketFailed);
             return result;
         }
 
         var getTickets = await GetTickets(request.MatchId);
-        WriteLog(request.MatchId, getTickets.ChildMatchId, getTickets.Resources);
 
         return await ExecuteMoveTicket(request, getTickets);
     }
 
-    private async Task ActionLog(MoveTicketRequest request, string message)
+    private async Task<Result> VerifyBeforeMoveTickets(int matchId)
     {
-        var criteria = new WriteLogCriteria(request.MatchId, message, ActionId.MoveTicket, request.AdminId, request.Ip);
+        var validateCriteria = new ValidateEventCriteria
+        {
+            MatchId = matchId,
+            Action = ActionName.MoveTicket,
+            SpName = SpName.MoveTicket,
+            Mode = "50"
+        };
+
+        await repository.ExecuteAsync(validateCriteria);
+        return new Result
+        {
+            ErrorCode = validateCriteria.ErrCode,
+            ErrorMessage = validateCriteria.ErrMsg
+        };
+    }
+
+    private async Task ActionLog(MoveTicketRequest request, string message, int actionId)
+    {
+        var criteria = new WriteLogCriteria(request.MatchId, message, actionId, request.AdminId, request.Ip);
         await repository.ExecuteAsync(criteria);
     }
 
@@ -83,30 +104,55 @@ public class MoveTicketServiceImp : MoveTicketService
             Resources = getTickets.Resources
         };
 
-        var result = await calculateService.ExecuteValidationMultiServer(criteria);
-        if (result.ErrorCode == 0)
-        {
-            await UpdateChildMatchInfo(getTickets.ChildMatchId);
-        }
+        var tasks = appSettingsKey.SiteDbServer.Select(s => MoveTicket(s, criteria)).ToList();
+        var watch = new System.Diagnostics.Stopwatch();
+        watch.Start();
+        var results = await Task.WhenAll(tasks.ToArray());
+        watch.Stop();
 
-        return result;
-    }
+        var result = await HandleAfterMoveTicketAsync(results, watch.ElapsedMilliseconds.ToString(), request, getTickets);
 
-    private async Task<Result> VerifyBeforeMoveTickets(int matchId)
-    {
-        var validateRequest = new EventTicketRequest
-        {
-            MatchId = matchId,
-            Action = ActionName.MoveTicket,
-            SpName = SpName.MoveTicket,
-            Mode = "50"
-        };
-
-        var resultMessage = await scaleOutSettleService.ValidateEventAndTicket(validateRequest);
         return new Result
         {
-            ErrorCode = resultMessage.ErrorCode,
-            ErrorMessage = resultMessage.ErrorMessage
+            ErrorCode = result.ErrorCode,
+            ErrorMessage = result.ErrorMessage
         };
+    }
+
+    private async Task<ResultMoveTicket> MoveTicket(string dbServer, MoveTicketCriteria criteria)
+    {
+        criteria.DbServer = dbServer;
+        await repository.ExecuteAsync(criteria);
+
+        return new ResultMoveTicket
+        {
+            ErrorMessage = criteria.ErrMsg,
+            ErrorCode = criteria.ErrCode,
+            TicketCount = criteria.TicketCount
+        };
+    }
+
+    private async Task<Result> HandleAfterMoveTicketAsync(ResultMoveTicket[] results, string duration, MoveTicketRequest request, MoveTicketInfo getTickets)
+    {
+        var resultFailed = results.Where(r => r.ErrorCode > 0).ToList();
+        var notExistTicketMoved = !results.Any(r => r.TicketCount > 0);
+        if (resultFailed.Any())
+        {
+            await ActionLog(request, resultFailed.First().ErrorMessage, ActionId.MoveTicketFailed);
+            return resultFailed.First();
+        }
+
+        if (notExistTicketMoved)
+        {
+            await ActionLog(request, NotExistValidTicketToMove, ActionId.MoveTicketFailed);
+            return new Result { ErrorMessage = NotExistValidTicketToMove, ErrorCode = NotExistValidTicketToMoveCode };
+        }
+
+        var logMessage = $"{getTickets.ChildMatchId}<br/> ({getTickets.Resources})<br/>Duration:{duration}ms; TC:{results.Select(r => r.TicketCount).Sum()}";
+        WriteLog(request.MatchId, getTickets.ChildMatchId, getTickets.Resources);
+        await ActionLog(request, logMessage, ActionId.MoveTicket);
+        await UpdateChildMatchInfo(getTickets.ChildMatchId);
+
+        return results.First();
     }
 }

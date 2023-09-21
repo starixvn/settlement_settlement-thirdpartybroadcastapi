@@ -14,6 +14,8 @@ public class MoveTicketCriteria : BaseCriteria
 
     public string Resources { get; set; }
 
+    public int TicketCount { get; set; }
+
     public override string GetSettingKey() => $"NAP_Admin_Settlement_50_MoveTicket_{DbServer}";
 
     public override bool IsValid() => MatchId > 0;
