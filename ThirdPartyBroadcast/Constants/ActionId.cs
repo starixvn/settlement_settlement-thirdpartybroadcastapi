@@ -16,7 +16,9 @@ public static class ActionId
 
     public const int LeapGamingCalc = 81043;
 
-    public const int MoveTicket = 81026;
+    public const int MoveTicketFailed = 81026;
+
+    public const int MoveTicket = 81025;
 
     public const int LeapGamingRefund = 81044;
 }
