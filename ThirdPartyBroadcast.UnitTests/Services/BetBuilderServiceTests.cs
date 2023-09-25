@@ -1,4 +1,5 @@
-﻿using Fanex.Settlement.ScaleOut.Models;
+﻿using Fanex.Settlement.Converter.Services;
+using Fanex.Settlement.ScaleOut.Models;
 
 namespace ThirdPartyBroadcast.UnitTests.Services;
 

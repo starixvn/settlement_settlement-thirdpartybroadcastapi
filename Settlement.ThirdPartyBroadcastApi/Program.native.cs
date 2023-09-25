@@ -1,8 +1,11 @@
+using Fanex.Data.SqlServer;
 using Settlement.ThirdPartyBroadcastApi;
 using Settlement.ThirdPartyBroadcastApi.Middleware;
 using ThirdPartyBroadcast.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddFanexSql(builder.Configuration);
 
 builder.Services.Configure<AppSettingsKey>(builder.Configuration);
 

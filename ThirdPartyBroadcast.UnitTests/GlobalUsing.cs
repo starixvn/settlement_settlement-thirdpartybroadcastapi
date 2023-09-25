@@ -1,8 +1,8 @@
 ﻿global using AutoMapper;
 global using Fanex.Data.Repository;
+global using Fanex.Settlement.Converter.Services;
 global using Fanex.Settlement.ScaleOut.Request;
 global using Fanex.Settlement.ScaleOut.Services;
-global using Kaden.XmlConverter;
 global using NSubstitute;
 global using ThirdPartyBroadcast.Constants;
 global using ThirdPartyBroadcast.Criteria;

@@ -1,22 +1,18 @@
 ﻿using AutoMapper;
 using Fanex.Caching;
 using Fanex.Caching.Redis;
-using Fanex.Data;
 using Fanex.Data.Repository;
-using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry.RavenClient;
 using Fanex.MailDeliver.MailClient;
+using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
-using Kaden.XmlConverter;
 using MassTransit;
-using MediatR;
 using SharpRaven;
-using System.Reflection;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -40,7 +36,8 @@ public static class DependencyInjection
         ConfigRedisCache(services, configuration);
         ConfigureBus(services, configuration);
         services.AddControllers();
-        services.AddMediatR(typeof(ThirdPartyBroadcastController).GetTypeInfo().Assembly);
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
     }
 
     private static void ConfigureCors(IServiceCollection services)
@@ -59,21 +56,6 @@ public static class DependencyInjection
 
     private static void ConfigureFanex(IConfiguration configuration)
     {
-        var connections = configuration.GetSection("ConnectionStrings")
-            .GetChildren()
-            .AsEnumerable()
-            .ToDictionary(
-                x => x.GetValue<string>("Name"),
-                y => new ConnectionConfiguration(y.GetValue<string>("Name"), y.GetValue<string>("ConnectionString"), y.GetValue<string>("ProviderName"))
-            );
-
-        DbSettingProviderManager
-            .StartNewSession()
-            .Use(connections)
-            .WithSqlServer()
-            .UseDefaultDbSettingProvider(resourcePath: configuration.GetSection("StoredProcedurePath").Value)
-            .Run();
-
         LogManager
             .SetDefaultLogCategory(configuration.GetSection("LogCategory").Value)
             .Use(new List<ILogEngine>
