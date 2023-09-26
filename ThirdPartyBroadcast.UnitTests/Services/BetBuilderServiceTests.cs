@@ -1,5 +1,4 @@
-﻿using Fanex.Settlement.Converter.Services;
-using Fanex.Settlement.ScaleOut.Models;
+﻿using Fanex.Settlement.ScaleOut.Models;
 
 namespace ThirdPartyBroadcast.UnitTests.Services;
 
@@ -16,6 +15,7 @@ public class BetBuilderServiceTests
     private readonly IDynamicRepository repository;
 
     private readonly BetBuilderService service;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public BetBuilderServiceTests()
