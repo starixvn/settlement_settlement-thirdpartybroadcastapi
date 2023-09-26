@@ -39,7 +39,7 @@ public class HappyFiveServiceTests
         var result = await service.Settle(new AutoHappyFiveRequest());
 
         Assert.Equal(1, result.ErrorCode);
-        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class HappyFiveServiceTests
         await service.Settle(new AutoHappyFiveRequest());
 
         //Assert
-        await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
         await calculateService.Received().Execute(Arg.Any<HappyFiveCriteria>());
         await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }

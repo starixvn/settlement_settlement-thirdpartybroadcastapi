@@ -143,7 +143,7 @@ public class BetBuilderServiceImp : BetBuilderService
             Action = request.Action,
             IsAuto = request.IsAuto,
             SelectedMarket = request.Resources,
-            VendorID = request.VendorId
+            VendorId = request.VendorId
         };
 
         var (resultValidate, invalidMarketIds) = await scaleOutSettleThirdPartyService.ValidateBetBuilder(eventTicketThirdPartyRequest);

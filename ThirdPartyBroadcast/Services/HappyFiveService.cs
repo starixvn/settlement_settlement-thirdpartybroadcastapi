@@ -69,7 +69,7 @@ public class HappyFiveServiceImp : HappyFiveService
 
     private async Task UpdateMatchInfo(AutoHappyFiveRequest request)
     {
-        var updateRequest = new UpdateMatchInfo3rdRequest
+        var updateRequest = new UpdateMatchInfo3RdRequest
         {
             Command = EventStatus.Completed,
             MatchId = request.MatchId,

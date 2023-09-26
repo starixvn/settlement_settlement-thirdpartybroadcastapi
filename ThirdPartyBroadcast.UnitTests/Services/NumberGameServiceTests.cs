@@ -38,7 +38,7 @@ public class NumberGameServiceTests
 
         //Assert
         Assert.Equal(resultFailed.ErrorCode, result.ErrorCode);
-        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class NumberGameServiceTests
         await service.Settle(new AutoNumberGameRequest());
 
         //Assert
-        await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.Received().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
         await calculateService.Received().Execute(Arg.Any<NumberGameCriteria>());
         await logDirectlyService.WriteLog(Arg.Any<int>(), Arg.Any<string>());
     }
@@ -62,7 +62,7 @@ public class NumberGameServiceTests
         await service.Settle(new AutoNumberGameRequest { IsLive = true });
 
         //Assert
-        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3rdRequest>());
+        await scaleOutSettleThirdPartyService.DidNotReceive().UpdateMatchInfo3rd(Arg.Any<UpdateMatchInfo3RdRequest>());
         await calculateService.Received().Execute(Arg.Any<NumberGameCriteria>());
     }
 }

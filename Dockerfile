@@ -4,7 +4,7 @@ COPY ./Settlement.ThirdPartyBroadcastApi/Settlement.ThirdPartyBroadcastApi.cspro
 COPY ./ThirdPartyBroadcast ./ThirdPartyBroadcast
 
 WORKDIR ./Settlement.ThirdPartyBroadcastApi
-RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
+RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n
 
 COPY ./Settlement.ThirdPartyBroadcastApi .

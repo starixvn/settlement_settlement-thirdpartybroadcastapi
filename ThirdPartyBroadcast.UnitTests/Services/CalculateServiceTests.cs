@@ -96,6 +96,6 @@ public class CalculateServiceTests
         service.ValidationDeployFlag("Mock");
 
         scaleOutSettleThirdPartyService.Received()
-            .GetDeploymentInfo(Arg.Is<GetDeploymentInfoRequest>(item => item.SPName == "Mock"));
+            .GetDeploymentInfo(Arg.Is<GetDeploymentInfoRequest>(item => item.SpName == "Mock"));
     }
 }

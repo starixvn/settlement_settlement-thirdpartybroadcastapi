@@ -62,7 +62,7 @@ public class NumberGameServiceImp : NumberGameService
     {
         if (!request.IsLive)
         {
-            var updateRequest = new UpdateMatchInfo3rdRequest
+            var updateRequest = new UpdateMatchInfo3RdRequest
             {
                 Command = EventStatus.Completed,
                 MatchId = request.MatchId,

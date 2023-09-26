@@ -15,6 +15,7 @@ public class BetBuilderServiceTests
     private readonly IDynamicRepository repository;
 
     private readonly BetBuilderService service;
+
     private readonly LogDirectlyService logDirectlyService;
 
     public BetBuilderServiceTests()

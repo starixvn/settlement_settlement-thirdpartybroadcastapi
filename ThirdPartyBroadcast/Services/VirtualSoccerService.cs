@@ -54,7 +54,7 @@ public class VirtualSoccerServiceImp : VirtualSoccerService
 
     private async Task UpdateMatchInfo(AutoVirtualSoccerRequest request)
     {
-        var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3rdRequest>(request);
+        var updateInfoRequest = mapper.Map<AutoVirtualSoccerRequest, UpdateMatchInfo3RdRequest>(request);
         var criteria = mapper.Map<AutoVirtualSoccerRequest, VrSoccerUpdateMatchCriteria>(request);
 
         if (request.Action.ToLowerInvariant().Equals(ActionType.Calculate))

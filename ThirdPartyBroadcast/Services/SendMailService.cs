@@ -12,9 +12,9 @@ public interface SendMailService
 
 public class SendMailServiceImp : SendMailService
 {
-    private readonly IHostingEnvironment environment;
+    private readonly IWebHostEnvironment environment;
 
-    public SendMailServiceImp(IHostingEnvironment environment)
+    public SendMailServiceImp(IWebHostEnvironment environment)
     {
         this.environment = environment;
     }
