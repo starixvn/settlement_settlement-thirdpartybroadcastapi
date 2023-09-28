@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Options;
 
 namespace ThirdPartyBroadcast.Services;
 
@@ -9,18 +10,16 @@ public interface PublishMessageService
 
 public class PublishMessageServiceImp : PublishMessageService
 {
-    private const int DelayTimeStartBus = 4000;
-
-    private readonly IBusControl busControl;
+    private readonly AppSettingsKey appSettingsKey;
 
     private readonly FlagService flagService;
 
     public PublishMessageServiceImp(
         FlagService flagService,
-        IBusControl busControl)
+        IOptions<AppSettingsKey> appSettingsKey)
     {
         this.flagService = flagService;
-        this.busControl = busControl;
+        this.appSettingsKey = appSettingsKey.Value;
     }
 
     public async Task Publisher(string productType, string data)
@@ -41,15 +40,24 @@ public class PublishMessageServiceImp : PublishMessageService
 
     private async Task PublishToWaiting(string productType, string data)
     {
+        var rabbitMq = appSettingsKey.RabbitMq;
+        var busControl = Bus.Factory.CreateUsingRabbitMq(configure =>
+        {
+            configure.Host(rabbitMq.Hosting, rabbitMq.VirtualHost, h =>
+            {
+                h.Username(rabbitMq.Username);
+                h.Password(rabbitMq.Password);
+            });
+        });
+
         try
         {
-            var source = new CancellationTokenSource(DelayTimeStartBus);
-            await busControl.StartAsync(source.Token);
+            await busControl.StartAsync();
             await busControl.Publish<IBroadcastApiWaiting>(new
             {
                 productType,
                 data
-            }, source.Token);
+            });
         }
         finally
         {
@@ -59,15 +67,24 @@ public class PublishMessageServiceImp : PublishMessageService
 
     private async Task PublishToProcessing(string productType, string data)
     {
+        var rabbitMq = appSettingsKey.RabbitMq;
+        var busControl = Bus.Factory.CreateUsingRabbitMq(configure =>
+        {
+            configure.Host(rabbitMq.Hosting, rabbitMq.VirtualHost, h =>
+            {
+                h.Username(rabbitMq.Username);
+                h.Password(rabbitMq.Password);
+            });
+        });
+
         try
         {
-            var source = new CancellationTokenSource(DelayTimeStartBus);
-            await busControl.StartAsync(source.Token);
+            await busControl.StartAsync();
             await busControl.Publish<IBroadcastApiProcessing>(new
             {
                 productType,
                 data
-            }, source.Token);
+            });
         }
         finally
         {
