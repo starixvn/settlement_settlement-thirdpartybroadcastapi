@@ -9,6 +9,8 @@ public interface PublishMessageService
 
 public class PublishMessageServiceImp : PublishMessageService
 {
+    private const int DelayTimeStartBus = 4000;
+
     private readonly IBusControl busControl;
 
     private readonly FlagService flagService;
@@ -41,12 +43,13 @@ public class PublishMessageServiceImp : PublishMessageService
     {
         try
         {
-            await busControl.StartAsync();
+            var source = new CancellationTokenSource(DelayTimeStartBus);
+            await busControl.StartAsync(source.Token);
             await busControl.Publish<IBroadcastApiWaiting>(new
             {
                 productType,
                 data
-            });
+            }, source.Token);
         }
         finally
         {
@@ -58,13 +61,13 @@ public class PublishMessageServiceImp : PublishMessageService
     {
         try
         {
-            await busControl.StartAsync();
-
+            var source = new CancellationTokenSource(DelayTimeStartBus);
+            await busControl.StartAsync(source.Token);
             await busControl.Publish<IBroadcastApiProcessing>(new
             {
                 productType,
                 data
-            });
+            }, source.Token);
         }
         finally
         {

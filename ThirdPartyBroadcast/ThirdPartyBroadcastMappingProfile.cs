@@ -2,7 +2,6 @@
 
 namespace ThirdPartyBroadcast;
 
-using Criteria.BitCoin;
 using Criteria.HappyFive;
 using Criteria.LeapGaming;
 using Criteria.VirtualBetRadar;
@@ -17,8 +16,6 @@ public class ThirdPartyBroadcastMappingProfile : Profile
         CreateMap<AutoHappyFiveRequest, HappyFiveCriteria>();
         CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
         CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
-        CreateMap<AutoBitCoinRequest, BitCoinUpdateMatchCriteria>();
-        CreateMap<AutoBitCoinRequest, BitCoinCriteria>();
         CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>();
         CreateMap<AutoVirtualBetRadarRequest, BetRadarUpdateMatchCriteria>();
         CreateMap<AutoVirtualBetRadarRequest, VirtualBetRadarCriteria>();
