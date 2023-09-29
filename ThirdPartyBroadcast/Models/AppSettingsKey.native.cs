@@ -7,4 +7,6 @@ public class AppSettingsKey
     public bool EnableLogRequest { get; set; }
 
     public RabbitMq RabbitMq { get; set; }
+
+    public int RetryCount { get; set; }
 }

@@ -20,7 +20,6 @@ public class OutrightServiceImp : OutrightService
     {
         var data = JsonConvert.SerializeObject(request);
 
-        await publishMessageService.Publisher(ProductType.Outright, data);
-        return new Result();
+        return await publishMessageService.Publisher(ProductType.Outright, data);
     }
 }

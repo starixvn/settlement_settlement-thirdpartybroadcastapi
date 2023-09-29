@@ -110,6 +110,7 @@ public static class DependencyInjection
         services.AddTransient<RecipientTicketsService, RecipientTicketsServiceImp>();
         services.AddTransient<PublishMessageService, PublishMessageServiceImp>();
         services.AddTransient<FlagService, FlagServiceImp>();
+        services.AddTransient<ManageQueueService, ManageQueueServiceImp>();
         services.AddScoped<LogRequestAttribute>();
     }
 

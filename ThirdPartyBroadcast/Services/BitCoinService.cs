@@ -20,7 +20,6 @@ public class BitCoinServiceImp : BitCoinService
     {
         var data = JsonConvert.SerializeObject(request);
 
-        await publishMessageService.Publisher(ProductType.BitCoin, data);
-        return new Result();
+        return await publishMessageService.Publisher(ProductType.BitCoin, data);
     }
 }
