@@ -11,7 +11,6 @@ using Fanex.MailDeliver.MailClient;
 using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
-using MassTransit;
 using SharpRaven;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
@@ -34,7 +33,6 @@ public static class DependencyInjection
         ConfigureAutoMapper(services);
         ConfigInternalServices(services);
         ConfigRedisCache(services, configuration);
-        ConfigureBus(services, configuration);
         services.AddControllers();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
@@ -112,6 +110,7 @@ public static class DependencyInjection
         services.AddTransient<RecipientTicketsService, RecipientTicketsServiceImp>();
         services.AddTransient<PublishMessageService, PublishMessageServiceImp>();
         services.AddTransient<FlagService, FlagServiceImp>();
+        services.AddTransient<ManageQueueService, ManageQueueServiceImp>();
         services.AddScoped<LogRequestAttribute>();
     }
 
@@ -125,24 +124,5 @@ public static class DependencyInjection
             ApplicationName = applicationName,
         }));
         service.AddSingleton<ICacheService>(new CacheService());
-    }
-
-    private static void ConfigureBus(this IServiceCollection service, IConfiguration configuration)
-    {
-        var host = configuration.GetSection("RabbitMQ:Hosting").Value;
-        var virtualHost = configuration.GetSection("RabbitMQ:VirtualHost").Value;
-        var username = configuration.GetSection("RabbitMQ:Username").Value;
-        var password = configuration.GetSection("RabbitMQ:Password").Value;
-
-        var bus = Bus.Factory.CreateUsingRabbitMq(configure =>
-        {
-            configure.Host(host, virtualHost, h =>
-            {
-                h.Username(username);
-                h.Password(password);
-            });
-        });
-
-        service.AddSingleton(bus);
     }
 }

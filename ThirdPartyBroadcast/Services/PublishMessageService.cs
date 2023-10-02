@@ -1,27 +1,33 @@
-﻿using MassTransit;
+﻿using Microsoft.Extensions.Options;
 
 namespace ThirdPartyBroadcast.Services;
 
 public interface PublishMessageService
 {
-    Task Publisher(string productType, string data);
+    Task<Result> Publisher(string productType, string data);
 }
 
 public class PublishMessageServiceImp : PublishMessageService
 {
-    private readonly IBusControl busControl;
+    private readonly AppSettingsKey appSettingsKey;
 
     private readonly FlagService flagService;
 
+    private readonly ManageQueueService manageQueueService;
+
+    private const int DelayTime = 2000;
+
     public PublishMessageServiceImp(
         FlagService flagService,
-        IBusControl busControl)
+        ManageQueueService manageQueueService,
+        IOptions<AppSettingsKey> appSettingsKey)
     {
         this.flagService = flagService;
-        this.busControl = busControl;
+        this.manageQueueService = manageQueueService;
+        this.appSettingsKey = appSettingsKey.Value;
     }
 
-    public async Task Publisher(string productType, string data)
+    public async Task<Result> Publisher(string productType, string data)
     {
         var isDeployed = await flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey);
         var productTypeOnCache = await flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey);
@@ -29,46 +35,43 @@ public class PublishMessageServiceImp : PublishMessageService
 
         if (isDeployed && productTypeList.Contains(productType))
         {
-            await PublishToWaiting(productType, data);
+            return await RetryAndPublishToWaiting(productType, data);
         }
-        else
-        {
-            await PublishToProcessing(productType, data);
-        }
+
+        return await RetryAndPublishToProcessing(productType, data);
     }
 
-    private async Task PublishToWaiting(string productType, string data)
+    private async Task<Result> RetryAndPublishToWaiting(string productType, string data)
     {
-        try
+        var result = new Result();
+        for (var i = 1; i <= appSettingsKey.RetryCount; i++)
         {
-            await busControl.StartAsync();
-            await busControl.Publish<IBroadcastApiWaiting>(new
+            result = await manageQueueService.PublishToWaiting(productType, data, i);
+            if (result.IsSuccessful)
             {
-                productType,
-                data
-            });
+                return result;
+            }
+
+            await Task.Delay(DelayTime);
         }
-        finally
-        {
-            await busControl.StopAsync();
-        }
+
+        return result;
     }
 
-    private async Task PublishToProcessing(string productType, string data)
+    private async Task<Result> RetryAndPublishToProcessing(string productType, string data)
     {
-        try
+        var result = new Result();
+        for (var i = 1; i <= appSettingsKey.RetryCount; i++)
         {
-            await busControl.StartAsync();
-
-            await busControl.Publish<IBroadcastApiProcessing>(new
+            result = await manageQueueService.PublishToProcessing(productType, data, i);
+            if (result.IsSuccessful)
             {
-                productType,
-                data
-            });
+                return result;
+            }
+
+            await Task.Delay(DelayTime);
         }
-        finally
-        {
-            await busControl.StopAsync();
-        }
+
+        return result;
     }
 }
