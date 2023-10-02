@@ -11,6 +11,7 @@ using Fanex.MailDeliver.MailClient;
 using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
+using MassTransit;
 using SharpRaven;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
@@ -33,6 +34,7 @@ public static class DependencyInjection
         ConfigureAutoMapper(services);
         ConfigInternalServices(services);
         ConfigRedisCache(services, configuration);
+        ConfigureMassTransit(services, configuration);
         services.AddControllers();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
@@ -124,5 +126,25 @@ public static class DependencyInjection
             ApplicationName = applicationName,
         }));
         service.AddSingleton<ICacheService>(new CacheService());
+    }
+
+    private static void ConfigureMassTransit(this IServiceCollection service, IConfiguration configuration)
+    {
+        var host = configuration.GetSection("RabbitMQ:Hosting").Value;
+        var virtualHost = configuration.GetSection("RabbitMQ:VirtualHost").Value;
+        var username = configuration.GetSection("RabbitMQ:Username").Value;
+        var password = configuration.GetSection("RabbitMQ:Password").Value;
+
+        service.AddMassTransit(busConfigurator =>
+        {
+            busConfigurator.UsingRabbitMq((_, busFactoryConfigurator) =>
+            {
+                busFactoryConfigurator.Host(host, virtualHost, h =>
+                {
+                    h.Username(username);
+                    h.Password(password);
+                });
+            });
+        });
     }
 }

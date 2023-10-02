@@ -17,37 +17,23 @@ public class ManageQueueServiceImp : ManageQueueService
 {
     private readonly AppSettingsKey appSettingsKey;
 
-    public ManageQueueServiceImp(IOptions<AppSettingsKey> appSettingsKey)
+    private readonly IPublishEndpoint publishEndpoint;
+
+    public ManageQueueServiceImp(
+        IOptions<AppSettingsKey> appSettingsKey,
+        IPublishEndpoint publishEndpoint)
     {
         this.appSettingsKey = appSettingsKey.Value;
-    }
-
-    private IBusControl CreateRabbitMq
-    {
-        get
-        {
-            var rabbitMqSetting = appSettingsKey.RabbitMq;
-
-            return Bus.Factory.CreateUsingRabbitMq(configure =>
-            {
-                configure.Host(rabbitMqSetting.Hosting, rabbitMqSetting.VirtualHost, h =>
-                {
-                    h.Username(rabbitMqSetting.Username);
-                    h.Password(rabbitMqSetting.Password);
-                });
-            });
-        }
+        this.publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result> PublishToWaiting(string productType, string data, int index)
     {
         var result = new Result();
-        var busControl = CreateRabbitMq;
 
         try
         {
-            await busControl.StartAsync();
-            await busControl.Publish<IBroadcastApiWaiting>(new
+            await publishEndpoint.Publish<IBroadcastApiWaiting>(new
             {
                 productType,
                 data
@@ -61,10 +47,6 @@ public class ManageQueueServiceImp : ManageQueueService
             await WriteLog(exception, result.ErrorMessage, index);
 
             return result;
-        }
-        finally
-        {
-            await busControl.StopAsync();
         }
 
         return result;
@@ -73,12 +55,10 @@ public class ManageQueueServiceImp : ManageQueueService
     public async Task<Result> PublishToProcessing(string productType, string data, int index)
     {
         var result = new Result();
-        var busControl = CreateRabbitMq;
 
         try
         {
-            await busControl.StartAsync();
-            await busControl.Publish<IBroadcastApiProcessing>(new
+            await publishEndpoint.Publish<IBroadcastApiProcessing>(new
             {
                 productType,
                 data
@@ -91,10 +71,6 @@ public class ManageQueueServiceImp : ManageQueueService
             await WriteLog(exception, result.ErrorMessage, index);
 
             return result;
-        }
-        finally
-        {
-            await busControl.StopAsync();
         }
 
         return result;
