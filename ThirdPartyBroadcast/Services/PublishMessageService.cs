@@ -15,6 +15,8 @@ public class PublishMessageServiceImp : PublishMessageService
 
     private readonly ManageQueueService manageQueueService;
 
+    private const int DelayTime = 2000;
+
     public PublishMessageServiceImp(
         FlagService flagService,
         ManageQueueService manageQueueService,
@@ -50,7 +52,7 @@ public class PublishMessageServiceImp : PublishMessageService
                 return result;
             }
 
-            await Task.Delay(2000);
+            await Task.Delay(DelayTime);
         }
 
         return result;
@@ -67,7 +69,7 @@ public class PublishMessageServiceImp : PublishMessageService
                 return result;
             }
 
-            await Task.Delay(2000);
+            await Task.Delay(DelayTime);
         }
 
         return result;
