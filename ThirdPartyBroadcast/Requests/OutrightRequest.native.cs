@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoOutrightRequest : IRequest<Result>
+public class OutrightRequest
 {
     public int MatchId { get; set; }
 

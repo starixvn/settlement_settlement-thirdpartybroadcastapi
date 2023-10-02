@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ThirdPartyBroadcast.ActionFilters;
+using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Controllers;
 
@@ -9,9 +10,14 @@ public class ThirdPartyBroadcastController : ControllerBase
 {
     private readonly IMediator mediator;
 
-    public ThirdPartyBroadcastController(IMediator mediator)
+    private readonly PublishMessageService publishMessageService;
+
+    public ThirdPartyBroadcastController(
+        IMediator mediator,
+        PublishMessageService publishMessageService)
     {
         this.mediator = mediator;
+        this.publishMessageService = publishMessageService;
     }
 
     [Route("happy-five"), HttpPost]
@@ -24,7 +30,12 @@ public class ThirdPartyBroadcastController : ControllerBase
 
     [Route("bit-coin"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> BitCoinSettle(AutoBitCoinRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> BitCoinSettle(BitcoinRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.BitCoin, data);
+        return Ok(result);
+    }
 
     [Route("pin-goal"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
@@ -48,11 +59,21 @@ public class ThirdPartyBroadcastController : ControllerBase
 
     [Route("outright"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> OutrightSettle(AutoOutrightRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> OutrightSettle(OutrightRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.Outright, data);
+        return Ok(result);
+    }
 
     [Route("leap-gaming"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> LeapGaming(LeapGamingRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> LeapGaming(LeapGamingRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.LeapGaming, data);
+        return Ok(result);
+    }
 
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]

@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoBitCoinRequest : IRequest<Result>
+public class BitcoinRequest
 {
     public int MatchId { get; set; }
 

@@ -100,16 +100,11 @@ public static class DependencyInjection
         services.AddTransient<VirtualBetRadarService, VirtualBetRadarServiceImp>();
         services.AddTransient<VirtualSoccerService, VirtualSoccerServiceImp>();
         services.AddTransient<PinGoalService, PinGoalServiceImp>();
-        services.AddTransient<BitCoinService, BitCoinServiceImp>();
-        services.AddTransient<OutrightService, OutrightServiceImp>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
         services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
-        services.AddTransient<LeapGamingService, LeapGamingServiceImp>();
         services.AddTransient<MoveTicketService, MoveTicketServiceImp>();
-        services.AddTransient<SendMailService, SendMailServiceImp>();
-        services.AddTransient<RecipientTicketsService, RecipientTicketsServiceImp>();
         services.AddTransient<PublishMessageService, PublishMessageServiceImp>();
         services.AddTransient<FlagService, FlagServiceImp>();
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();

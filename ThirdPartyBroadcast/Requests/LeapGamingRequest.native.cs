@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class LeapGamingRequest : IRequest<Result>
+public class LeapGamingRequest
 {
     public int MatchId { get; set; }
 

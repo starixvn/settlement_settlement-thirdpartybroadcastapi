@@ -6,6 +6,7 @@ global using Fanex.Settlement.ScaleOut.Request;
 global using Fanex.Settlement.ScaleOut.Services;
 global using Fanex.Settlement.ThirdPartyBroadcast.Shared;
 global using MediatR;
+global using Newtonsoft.Json;
 global using ThirdPartyBroadcast.Constants;
 global using ThirdPartyBroadcast.Criteria;
 global using ThirdPartyBroadcast.Criteria.BetBuilder;

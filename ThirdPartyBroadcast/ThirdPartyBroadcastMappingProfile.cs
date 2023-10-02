@@ -3,7 +3,6 @@
 namespace ThirdPartyBroadcast;
 
 using Criteria.HappyFive;
-using Criteria.LeapGaming;
 using Criteria.VirtualBetRadar;
 using Criteria.VirtualSoccer;
 
@@ -26,7 +25,6 @@ public class ThirdPartyBroadcastMappingProfile : Profile
         CreateMap<WriteLogCriteria, SendMailCriteria>().ForMember(dest => dest.AdminId, opt => opt.MapFrom(src => src.UserId));
         CreateMap<AutoVirtualSoccerRequest, UpdateMatchInfo3RdRequest>().ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.AdminId));
         CreateMap<AutoVirtualBetRadarRequest, BetRadarValidationCriteria>();
-        CreateMap<LeapGamingRequest, LeapGamingCriteria>();
         CreateMap<LeapGamingRequest, UpdateMatchInfoRequest>();
         CreateMap<LeapGamingRequest, UpdateMatchCriteria>();
     }
