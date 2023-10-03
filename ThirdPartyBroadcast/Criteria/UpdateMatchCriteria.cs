@@ -10,13 +10,7 @@ public class UpdateMatchCriteria : INonQueryCommand
 
     public string SelectedResources { get; set; }
 
-    public string GetSettingKey()
-    {
-        return "NAP_Admin_Match_Update";
-    }
+    public string GetSettingKey() => "NAP_Admin_Match_Update";
 
-    public bool IsValid()
-    {
-        return MatchId > 0;
-    }
+    public bool IsValid() => MatchId > 0;
 }

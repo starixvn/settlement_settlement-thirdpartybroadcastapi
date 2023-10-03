@@ -19,6 +19,10 @@ public class ManageQueueServiceImp : ManageQueueService
 
     private readonly IPublishEndpoint publishEndpoint;
 
+    private const int ErrorCode = 1000;
+
+    private const string ErrorMessage = "Error from broad cast api: Match info";
+
     public ManageQueueServiceImp(
         IOptions<AppSettingsKey> appSettingsKey,
         IPublishEndpoint publishEndpoint)
@@ -41,8 +45,8 @@ public class ManageQueueServiceImp : ManageQueueService
         }
         catch (Exception exception)
         {
-            result.ErrorCode = 1000;
-            result.ErrorMessage = $"Error from broad cast api: Match info {data}\n {exception.Message}";
+            result.ErrorCode = ErrorCode;
+            result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
 
             await WriteLog(exception, result.ErrorMessage, index);
 
@@ -66,8 +70,8 @@ public class ManageQueueServiceImp : ManageQueueService
         }
         catch (Exception exception)
         {
-            result.ErrorCode = 1000;
-            result.ErrorMessage = $"Error from broad cast api: Match info {data}\n {exception.Message}";
+            result.ErrorCode = ErrorCode;
+            result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
             await WriteLog(exception, result.ErrorMessage, index);
 
             return result;

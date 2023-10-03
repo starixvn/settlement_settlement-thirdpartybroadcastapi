@@ -20,13 +20,7 @@ public class SendMailCriteria : NonQueryCommand
 
     public string GroupName { get; set; } = "ERROR";
 
-    public override string GetSettingKey()
-    {
-        return "NAP_Admin_SendMail";
-    }
+    public override string GetSettingKey() => "NAP_Admin_SendMail";
 
-    public override bool IsValid()
-    {
-        return MatchId > 0;
-    }
+    public override bool IsValid() => MatchId > 0;
 }
