@@ -41,4 +41,8 @@
     <ProjectReference Include="..\ThirdPartyBroadcast\ThirdPartyBroadcast.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>
