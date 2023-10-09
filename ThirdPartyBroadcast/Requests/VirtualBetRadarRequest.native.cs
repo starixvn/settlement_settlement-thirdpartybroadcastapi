@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoVirtualBetRadarRequest : IRequest<Result>
+public class VirtualBetRadarRequest
 {
     public int MatchId { get; set; }
 

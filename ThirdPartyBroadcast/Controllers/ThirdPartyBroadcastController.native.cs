@@ -43,7 +43,12 @@ public class ThirdPartyBroadcastController : ControllerBase
 
     [Route("virtual-bet-radar"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> VirtualBetRadarSettle(AutoVirtualBetRadarRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> VirtualBetRadarSettle(VirtualBetRadarRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.VirtualBetRadar, data);
+        return Ok(result);
+    }
 
     [Route("virtual-soccer"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
