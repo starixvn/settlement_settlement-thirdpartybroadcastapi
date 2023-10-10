@@ -3,7 +3,6 @@
 namespace ThirdPartyBroadcast;
 
 using Criteria.HappyFive;
-using Criteria.VirtualSoccer;
 
 public class ThirdPartyBroadcastMappingProfile : Profile
 {
@@ -15,8 +14,6 @@ public class ThirdPartyBroadcastMappingProfile : Profile
         CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
         CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
         CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>();
-        CreateMap<AutoVirtualSoccerRequest, VirtualSoccerCriteria>();
-        CreateMap<AutoVirtualSoccerRequest, VrSoccerUpdateMatchCriteria>();
         CreateMap<AutoBetBuilderRequest, UpdateMarketCriteria>();
         CreateMap<AutoBetBuilderRequest, BetBuilderCriteria>();
         CreateMap<AutoVirtualSoccerRequest, UpdateMatchInfo3RdRequest>().ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.AdminId));

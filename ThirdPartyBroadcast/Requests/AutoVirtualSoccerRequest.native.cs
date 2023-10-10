@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoVirtualSoccerRequest : IRequest<Result>
+public class AutoVirtualSoccerRequest
 {
     public int MatchId { get; set; }
 
