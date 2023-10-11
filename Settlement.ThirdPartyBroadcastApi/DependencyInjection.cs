@@ -97,7 +97,6 @@ public static class DependencyInjection
         services.AddTransient<NumberGameService, NumberGameServiceImp>();
         services.AddTransient<FastMarketService, FastMarketServiceImp>();
         services.AddTransient<BetBuilderService, BetBuilderServiceImp>();
-        services.AddTransient<VirtualSoccerService, VirtualSoccerServiceImp>();
         services.AddTransient<PinGoalService, PinGoalServiceImp>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<CalculateService, CalculateServiceImp>();

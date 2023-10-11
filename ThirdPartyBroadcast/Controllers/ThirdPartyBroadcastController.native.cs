@@ -28,18 +28,21 @@ public class ThirdPartyBroadcastController : ControllerBase
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> NumberGameSettle(AutoNumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 
-    [Route("bit-coin"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> BitCoinSettle(BitcoinRequest request)
-    {
-        var data = JsonConvert.SerializeObject(request);
-        var result = await publishMessageService.Publisher(ProductType.BitCoin, data);
-        return Ok(result);
-    }
-
     [Route("pin-goal"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> PinGoalSettle(AutoPinGoalRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("fast-market"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> FastMarketSettle(AutoFastMarketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("bet-builder"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> BetBuilderSettle(AutoBetBuilderRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("move-tickets"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 
     [Route("virtual-bet-radar"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
@@ -52,15 +55,12 @@ public class ThirdPartyBroadcastController : ControllerBase
 
     [Route("virtual-soccer"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> VirtualSoccerSettle(AutoVirtualSoccerRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
-    [Route("fast-market"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> FastMarketSettle(AutoFastMarketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
-    [Route("bet-builder"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> BetBuilderSettle(AutoBetBuilderRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> VirtualSoccerSettle(AutoVirtualSoccerRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.VirtualSports, data);
+        return Ok(result);
+    }
 
     [Route("outright"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
@@ -80,7 +80,12 @@ public class ThirdPartyBroadcastController : ControllerBase
         return Ok(result);
     }
 
-    [Route("move-tickets"), HttpPost]
+    [Route("bit-coin"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> BitCoinSettle(BitcoinRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.BitCoin, data);
+        return Ok(result);
+    }
 }
