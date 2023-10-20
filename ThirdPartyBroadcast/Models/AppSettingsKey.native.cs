@@ -8,5 +8,7 @@ public class AppSettingsKey
 
     public RabbitMq RabbitMq { get; set; }
 
+    public string WaitingRequestList { get; set; }
+
     public int RetryCount { get; set; }
 }

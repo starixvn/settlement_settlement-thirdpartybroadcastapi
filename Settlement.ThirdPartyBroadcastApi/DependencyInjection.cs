@@ -12,7 +12,12 @@ using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using MassTransit;
+using ONEbook.UM;
+using ONEbook.UM.AspNetCore;
+using ONEbook.UM.Configurations;
+using ONEbook.UM.Transport;
 using SharpRaven;
+using StackExchange.Redis;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -25,7 +30,7 @@ public static class DependencyInjection
 {
     public const string AllowOrigin = "AllowOrigin";
 
-    public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration)
+    public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
         services.Configure<IConfiguration>(configuration);
 
@@ -33,8 +38,9 @@ public static class DependencyInjection
         ConfigureFanex(configuration);
         ConfigureAutoMapper(services);
         ConfigInternalServices(services);
-        ConfigRedisCache(services, configuration);
+        ConfigRedisCache(services, configuration, env);
         ConfigureMassTransit(services, configuration);
+        StartUmSetting(configuration);
         services.AddControllers();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
@@ -107,12 +113,15 @@ public static class DependencyInjection
         services.AddTransient<FlagService, FlagServiceImp>();
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();
         services.AddScoped<LogRequestAttribute>();
+        services.AddSingleton<WriteLogService, WriteLogServiceImp>();
+        services.AddSingleton<IMaintenanceService, MaintenanceServiceImp>();
     }
 
-    private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration)
+    private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration, IHostEnvironment env)
     {
         var redisConfig = configuration.GetSection("AuthSettings:RedisConfig").Value;
         var applicationName = configuration.GetSection("AuthSettings:ChannelPrefix").Value;
+        service.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect($"{redisConfig},ssl={!env.IsDevelopment()},ChannelPrefix={applicationName}"));
         service.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
         {
             ConnectionString = redisConfig,
@@ -139,5 +148,15 @@ public static class DependencyInjection
                 });
             });
         });
+    }
+
+    private static void StartUmSetting(IConfiguration configuration)
+    {
+        var umConfig = new UMClientConfiguration().Initialize(configuration);
+
+        UMClientManager
+            .UseConfig(umConfig)
+            .UseCacheService(new UMCacheService(new CacheService()))
+            .UseRestClient(new UMRestClient(umConfig));
     }
 }

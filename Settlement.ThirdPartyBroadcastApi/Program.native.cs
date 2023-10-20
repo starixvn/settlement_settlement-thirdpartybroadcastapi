@@ -9,7 +9,7 @@ builder.Services.AddFanexSql(builder.Configuration);
 
 builder.Services.Configure<AppSettingsKey>(builder.Configuration);
 
-builder.Services.AddBroadcastServices(builder.Configuration);
+builder.Services.AddBroadcastServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
