@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace ThirdPartyBroadcast.Services;
@@ -10,17 +9,17 @@ public interface ManageQueueService
 
     Task<Result> PublishToProcessing(string productType, string data, int index);
 
-    Task ProcessWaitingQueue();
+    Task ProcessWaitingQueue(string key);
 
-    bool ExistItemInWaitingQueue();
+    bool IsExistedItemInWaitingQueue(string key);
 }
 
 public class ManageQueueServiceImp : ManageQueueService
 {
-    private readonly AppSettingsKey appSettingsKey;
-
     private readonly IPublishEndpoint publishEndpoint;
-    private readonly IDatabase redisDatabase;
+
+    private readonly IConnectionMultiplexer connectionMultiplexer;
+
     private readonly WriteLogService writeLogService;
 
     private const int ErrorCode = 1000;
@@ -31,19 +30,19 @@ public class ManageQueueServiceImp : ManageQueueService
 
     private const string SpecifiedWord = ":space:";
 
-    private static readonly SemaphoreSlim specialRequestSemaphore = new(1, 1);
+    private static readonly SemaphoreSlim SpecialRequestSemaphore = new(1, 1);
 
     public ManageQueueServiceImp(
-        IOptions<AppSettingsKey> appSettingsKey,
         IPublishEndpoint publishEndpoint,
         IConnectionMultiplexer connectionMultiplexer,
         WriteLogService writeLogService)
     {
-        this.appSettingsKey = appSettingsKey.Value;
         this.publishEndpoint = publishEndpoint;
-        redisDatabase = connectionMultiplexer.GetDatabase();
+        this.connectionMultiplexer = connectionMultiplexer;
         this.writeLogService = writeLogService;
     }
+
+    private IDatabase Database => connectionMultiplexer.GetDatabase();
 
     public async Task<Result> PublishToWaiting(string productType, string data, int index)
     {
@@ -51,7 +50,7 @@ public class ManageQueueServiceImp : ManageQueueService
 
         try
         {
-            redisDatabase.ListRightPush(appSettingsKey.WaitingRequestList, $"{productType}{SpecifiedWord}{data}");
+            await Database.ListRightPushAsync(CacheKeys.BroadcastApiProductWaitingCacheKey, $"{productType}{SpecifiedWord}{data}");
         }
         catch (Exception exception)
         {
@@ -91,15 +90,15 @@ public class ManageQueueServiceImp : ManageQueueService
         return result;
     }
 
-    public async Task ProcessWaitingQueue()
+    public async Task ProcessWaitingQueue(string key)
     {
-        await specialRequestSemaphore.WaitAsync();
+        await SpecialRequestSemaphore.WaitAsync();
 
         try
         {
-            while (redisDatabase.ListLength(appSettingsKey.WaitingRequestList) > 0)
+            while (IsExistedItemInWaitingQueue(key))
             {
-                await PushWaitingItemBackToQueue();
+                await PushWaitingItemBackToQueue(key);
             }
         }
         catch (Exception e)
@@ -107,27 +106,30 @@ public class ManageQueueServiceImp : ManageQueueService
             await writeLogService.WriteLog(e, ErrorProcessWaitingQueue, 0, true);
         }
 
-        specialRequestSemaphore.Release();
+        SpecialRequestSemaphore.Release();
     }
 
-    private async Task PushWaitingItemBackToQueue()
+    private async Task PushWaitingItemBackToQueue(string key)
     {
-        var item = redisDatabase.ListRange(appSettingsKey.WaitingRequestList, 0, 0)[0];
+        var item = (await Database.ListRangeAsync(key))[0];
         var value = ((string)item)?.Split(SpecifiedWord);
         if (value is { Length: 2 })
         {
+            var productType = value[0];
+            var data = value[1];
+
             await publishEndpoint.Publish<IBroadcastApiProcessing>(new
             {
-                productype = value[0],
-                data = value[1]
+                productType,
+                data
             });
         }
 
-        redisDatabase.ListLeftPop(appSettingsKey.WaitingRequestList);
+        await Database.ListLeftPopAsync(key);
     }
 
-    public bool ExistItemInWaitingQueue()
+    public bool IsExistedItemInWaitingQueue(string key)
     {
-        return redisDatabase.ListLength(appSettingsKey.WaitingRequestList) > 0;
+        return Database.ListLengthAsync(key).Result > 0;
     }
 }

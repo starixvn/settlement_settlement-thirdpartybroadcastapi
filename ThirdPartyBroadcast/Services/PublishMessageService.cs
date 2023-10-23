@@ -5,6 +5,8 @@ namespace ThirdPartyBroadcast.Services;
 public interface PublishMessageService
 {
     Task<Result> Publisher(string productType, string data);
+
+    Task ProcessWaitingQueue();
 }
 
 public class PublishMessageServiceImp : PublishMessageService
@@ -42,9 +44,25 @@ public class PublishMessageServiceImp : PublishMessageService
             return await RetryAndPublishToWaiting(productType, data);
         }
 
-        await ProcessWaitingQueue(isDeployed);
+        if (!isDeployed)
+        {
+            await ProcessWaitingQueue();
+        }
 
         return await RetryAndPublishToProcessing(productType, data);
+    }
+
+    public async Task ProcessWaitingQueue()
+    {
+        if (manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastServiceProductWaitingCacheKey))
+        {
+            await manageQueueService.ProcessWaitingQueue(CacheKeys.BroadcastServiceProductWaitingCacheKey);
+        }
+
+        if (manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastApiProductWaitingCacheKey))
+        {
+            await manageQueueService.ProcessWaitingQueue(CacheKeys.BroadcastApiProductWaitingCacheKey);
+        }
     }
 
     private async Task<Result> RetryAndPublishToWaiting(string productType, string data)
@@ -80,13 +98,5 @@ public class PublishMessageServiceImp : PublishMessageService
         }
 
         return result;
-    }
-
-    private async Task ProcessWaitingQueue(bool isDeployed)
-    {
-        if (!isDeployed && manageQueueService.ExistItemInWaitingQueue())
-        {
-            await manageQueueService.ProcessWaitingQueue();
-        }
     }
 }

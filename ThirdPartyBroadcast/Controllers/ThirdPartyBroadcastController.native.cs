@@ -88,4 +88,12 @@ public class ThirdPartyBroadcastController : ControllerBase
         var result = await publishMessageService.Publisher(ProductType.BitCoin, data);
         return Ok(result);
     }
+
+    [Route("test-push-to-queue"), HttpGet]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> PushToProcessingQueue()
+    {
+        await publishMessageService.ProcessWaitingQueue();
+        return Ok("Ok");
+    }
 }

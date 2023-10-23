@@ -32,21 +32,19 @@ public static class DependencyInjection
 
     public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
-        services.Configure<IConfiguration>(configuration);
-
-        ConfigureCors(services);
-        ConfigureFanex(configuration);
-        ConfigureAutoMapper(services);
-        ConfigInternalServices(services);
-        ConfigRedisCache(services, configuration, env);
-        ConfigureMassTransit(services, configuration);
         StartUmSetting(configuration);
+        ConfigureFanex(configuration);
+        services.Configure<IConfiguration>(configuration);
+        services.ConfigureCors();
+        services.ConfigureAutoMapper();
+        services.ConfigInternalServices();
+        services.ConfigRedisCache(configuration);
+        services.ConfigureMassTransit(configuration);
         services.AddControllers();
-
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
     }
 
-    private static void ConfigureCors(IServiceCollection services)
+    private static void ConfigureCors(this IServiceCollection services)
     {
         services.AddCors(options =>
         {
@@ -80,7 +78,7 @@ public static class DependencyInjection
         AppSettings.AppMailAddress = configuration.GetSection("MailServer:Address").Value;
     }
 
-    private static void ConfigureAutoMapper(IServiceCollection services)
+    private static void ConfigureAutoMapper(this IServiceCollection services)
     {
         var mapperConfig = new MapperConfiguration(mc =>
         {
@@ -92,7 +90,7 @@ public static class DependencyInjection
         services.AddSingleton(mapper);
     }
 
-    private static void ConfigInternalServices(IServiceCollection services)
+    private static void ConfigInternalServices(this IServiceCollection services)
     {
         services.AddTransient<ILogger, Logger>();
         services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
@@ -117,11 +115,11 @@ public static class DependencyInjection
         services.AddSingleton<IMaintenanceService, MaintenanceServiceImp>();
     }
 
-    private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration, IHostEnvironment env)
+    private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration)
     {
         var redisConfig = configuration.GetSection("AuthSettings:RedisConfig").Value;
         var applicationName = configuration.GetSection("AuthSettings:ChannelPrefix").Value;
-        service.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect($"{redisConfig},ssl={!env.IsDevelopment()},ChannelPrefix={applicationName}"));
+        service.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{redisConfig},ChannelPrefix={applicationName}"));
         service.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
         {
             ConnectionString = redisConfig,
