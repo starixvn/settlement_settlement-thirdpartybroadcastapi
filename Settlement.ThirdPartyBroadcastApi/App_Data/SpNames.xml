@@ -100,14 +100,6 @@
 			</Function>
 		</Function>
 
-		<Function Name="Bet Builder">
-			<Function Name="NAP_Admin_Settlement_BetBuilder_Push">
-				<Setting Key="NAP_Admin_Settlement_BetBuilder_Push_DBTXN" SpName="NAP_Admin_Settlement_BetBuilder_Push" DbName="DBTXN.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_BetBuilder_Push_DBSID01" SpName="NAP_Admin_Settlement_BetBuilder_Push" DbName="DBSID01.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_BetBuilder_Push_DBSID02" SpName="NAP_Admin_Settlement_BetBuilder_Push" DbName="DBSID02.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_BetBuilder_Push_DBSID03" SpName="NAP_Admin_Settlement_BetBuilder_Push" DbName="DBSID03.bodb02.bodbAdminNet" />
-			</Function>
-		</Function>
 		<Function Name="Move Ticket">
 			<Function Name="NAP_Admin_Settlement_50_MoveTicket">
 				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBTXN" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBTXN.bodb02.bodbAdminNet" />

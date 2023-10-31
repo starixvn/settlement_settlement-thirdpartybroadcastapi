@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoBetBuilderRequest : IRequest<Result>
+public class AutoBetBuilderRequest
 {
     public int MatchId { get; set; }
 

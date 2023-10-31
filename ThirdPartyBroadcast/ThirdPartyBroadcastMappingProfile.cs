@@ -14,10 +14,6 @@ public class ThirdPartyBroadcastMappingProfile : Profile
         CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
         CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
         CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>();
-        CreateMap<AutoBetBuilderRequest, UpdateMarketCriteria>();
-        CreateMap<AutoBetBuilderRequest, BetBuilderCriteria>();
         CreateMap<AutoVirtualSoccerRequest, UpdateMatchInfo3RdRequest>().ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.AdminId));
-        CreateMap<LeapGamingRequest, UpdateMatchInfoRequest>();
-        CreateMap<LeapGamingRequest, UpdateMatchCriteria>();
     }
 }
