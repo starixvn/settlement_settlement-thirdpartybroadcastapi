@@ -36,10 +36,6 @@ public class ThirdPartyBroadcastController : ControllerBase
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> FastMarketSettle(AutoFastMarketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 
-    [Route("bet-builder"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> BetBuilderSettle(AutoBetBuilderRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
@@ -86,6 +82,15 @@ public class ThirdPartyBroadcastController : ControllerBase
     {
         var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.BitCoin, data);
+        return Ok(result);
+    }
+
+    [Route("bet-builder"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> BetBuilderSettle(AutoBetBuilderRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.BetBuilder, data);
         return Ok(result);
     }
 
