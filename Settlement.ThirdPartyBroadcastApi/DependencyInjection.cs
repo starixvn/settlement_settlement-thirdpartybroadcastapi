@@ -12,7 +12,12 @@ using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using MassTransit;
+using ONEbook.UM;
+using ONEbook.UM.AspNetCore;
+using ONEbook.UM.Configurations;
+using ONEbook.UM.Transport;
 using SharpRaven;
+using StackExchange.Redis;
 using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -25,22 +30,21 @@ public static class DependencyInjection
 {
     public const string AllowOrigin = "AllowOrigin";
 
-    public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration)
+    public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
-        services.Configure<IConfiguration>(configuration);
-
-        ConfigureCors(services);
+        StartUmSetting(configuration);
         ConfigureFanex(configuration);
-        ConfigureAutoMapper(services);
-        ConfigInternalServices(services);
-        ConfigRedisCache(services, configuration);
-        ConfigureMassTransit(services, configuration);
+        services.Configure<IConfiguration>(configuration);
+        services.ConfigureCors();
+        services.ConfigureAutoMapper();
+        services.ConfigInternalServices();
+        services.ConfigRedisCache(configuration);
+        services.ConfigureMassTransit(configuration);
         services.AddControllers();
-
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ThirdPartyBroadcastController).Assembly));
     }
 
-    private static void ConfigureCors(IServiceCollection services)
+    private static void ConfigureCors(this IServiceCollection services)
     {
         services.AddCors(options =>
         {
@@ -74,7 +78,7 @@ public static class DependencyInjection
         AppSettings.AppMailAddress = configuration.GetSection("MailServer:Address").Value;
     }
 
-    private static void ConfigureAutoMapper(IServiceCollection services)
+    private static void ConfigureAutoMapper(this IServiceCollection services)
     {
         var mapperConfig = new MapperConfiguration(mc =>
         {
@@ -86,7 +90,7 @@ public static class DependencyInjection
         services.AddSingleton(mapper);
     }
 
-    private static void ConfigInternalServices(IServiceCollection services)
+    private static void ConfigInternalServices(this IServiceCollection services)
     {
         services.AddTransient<ILogger, Logger>();
         services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
@@ -107,12 +111,15 @@ public static class DependencyInjection
         services.AddTransient<FlagService, FlagServiceImp>();
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();
         services.AddScoped<LogRequestAttribute>();
+        services.AddSingleton<WriteLogService, WriteLogServiceImp>();
+        services.AddSingleton<IMaintenanceService, MaintenanceServiceImp>();
     }
 
     private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration)
     {
         var redisConfig = configuration.GetSection("AuthSettings:RedisConfig").Value;
         var applicationName = configuration.GetSection("AuthSettings:ChannelPrefix").Value;
+        service.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{redisConfig},ChannelPrefix={applicationName}"));
         service.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
         {
             ConnectionString = redisConfig,
@@ -139,5 +146,15 @@ public static class DependencyInjection
                 });
             });
         });
+    }
+
+    private static void StartUmSetting(IConfiguration configuration)
+    {
+        var umConfig = new UMClientConfiguration().Initialize(configuration);
+
+        UMClientManager
+            .UseConfig(umConfig)
+            .UseCacheService(new UMCacheService(new CacheService()))
+            .UseRestClient(new UMRestClient(umConfig));
     }
 }

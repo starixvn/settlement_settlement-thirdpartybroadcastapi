@@ -1,8 +1,5 @@
-﻿using Fanex.Logging;
-using Fanex.Logging.Extensions;
-using Fanex.Logging.Extensions.Database;
-using MassTransit;
-using Microsoft.Extensions.Options;
+﻿using MassTransit;
+using StackExchange.Redis;
 
 namespace ThirdPartyBroadcast.Services;
 
@@ -11,25 +8,41 @@ public interface ManageQueueService
     Task<Result> PublishToWaiting(string productType, string data, int index);
 
     Task<Result> PublishToProcessing(string productType, string data, int index);
+
+    Task ProcessWaitingQueue(string key);
+
+    bool IsExistedItemInWaitingQueue(string key);
 }
 
 public class ManageQueueServiceImp : ManageQueueService
 {
-    private readonly AppSettingsKey appSettingsKey;
-
     private readonly IPublishEndpoint publishEndpoint;
+
+    private readonly IConnectionMultiplexer connectionMultiplexer;
+
+    private readonly WriteLogService writeLogService;
 
     private const int ErrorCode = 1000;
 
     private const string ErrorMessage = "Error from broad cast api: Match info";
 
+    private const string ErrorProcessWaitingQueue = "Failed: Process waiting queue";
+
+    private const string SpecifiedWord = ":space:";
+
+    private static readonly SemaphoreSlim SpecialRequestSemaphore = new(1, 1);
+
     public ManageQueueServiceImp(
-        IOptions<AppSettingsKey> appSettingsKey,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        IConnectionMultiplexer connectionMultiplexer,
+        WriteLogService writeLogService)
     {
-        this.appSettingsKey = appSettingsKey.Value;
         this.publishEndpoint = publishEndpoint;
+        this.connectionMultiplexer = connectionMultiplexer;
+        this.writeLogService = writeLogService;
     }
+
+    private IDatabase Database => connectionMultiplexer.GetDatabase();
 
     public async Task<Result> PublishToWaiting(string productType, string data, int index)
     {
@@ -37,18 +50,15 @@ public class ManageQueueServiceImp : ManageQueueService
 
         try
         {
-            await publishEndpoint.Publish<IBroadcastApiWaiting>(new
-            {
-                productType,
-                data
-            });
+            await Database.ListRightPushAsync(CacheKeys.BroadcastApiProductWaitingCacheKey, $"{productType}{SpecifiedWord}{data}");
         }
         catch (Exception exception)
         {
             result.ErrorCode = ErrorCode;
             result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
 
-            await WriteLog(exception, result.ErrorMessage, index);
+            writeLogService.WriteToFile(data);
+            await writeLogService.WriteLog(exception, result.ErrorMessage, index, false);
 
             return result;
         }
@@ -72,7 +82,7 @@ public class ManageQueueServiceImp : ManageQueueService
         {
             result.ErrorCode = ErrorCode;
             result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
-            await WriteLog(exception, result.ErrorMessage, index);
+            await writeLogService.WriteLog(exception, result.ErrorMessage, index, false);
 
             return result;
         }
@@ -80,16 +90,46 @@ public class ManageQueueServiceImp : ManageQueueService
         return result;
     }
 
-    private async Task WriteLog(Exception exception, string errorMessage, int index)
+    public async Task ProcessWaitingQueue(string key)
     {
-        if (index == appSettingsKey.RetryCount)
+        await SpecialRequestSemaphore.WaitAsync();
+
+        try
         {
-            var logMessage = new LogMessage(errorMessage)
-                .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(exception))
-                .AddSection("Server Info", CommonInfoGetters.GetServerInfo())
-                .AddSection("Exception Info", CommonInfoGetters.GetExceptionInfo(exception))
-                .ToString();
-            await LogService.ErrorAsync(logMessage);
+            while (IsExistedItemInWaitingQueue(key))
+            {
+                await PushWaitingItemBackToQueue(key);
+            }
         }
+        catch (Exception e)
+        {
+            await writeLogService.WriteLog(e, ErrorProcessWaitingQueue, 0, true);
+        }
+
+        SpecialRequestSemaphore.Release();
+    }
+
+    private async Task PushWaitingItemBackToQueue(string key)
+    {
+        var item = (await Database.ListRangeAsync(key))[0];
+        var value = ((string)item)?.Split(SpecifiedWord);
+        if (value is { Length: 2 })
+        {
+            var productType = value[0];
+            var data = value[1];
+
+            await publishEndpoint.Publish<IBroadcastApiProcessing>(new
+            {
+                productType,
+                data
+            });
+        }
+
+        await Database.ListLeftPopAsync(key);
+    }
+
+    public bool IsExistedItemInWaitingQueue(string key)
+    {
+        return Database.ListLengthAsync(key).Result > 0;
     }
 }

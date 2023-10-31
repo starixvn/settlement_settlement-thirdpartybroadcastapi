@@ -35,6 +35,9 @@
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Text.Encodings.Web" Version="7.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+    <PackageReference Include="ONEbook.UM.AspNetCore" Version="3.1.1.1" />
+    <PackageReference Include="ONEbook.UM.Transport" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +46,12 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App_Data\RequestPushRedisFailed.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
