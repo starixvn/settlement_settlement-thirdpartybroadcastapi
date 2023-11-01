@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoHappyFiveRequest : IRequest<Result>
+public class AutoHappyFiveRequest
 {
     public int MatchId { get; set; }
 
