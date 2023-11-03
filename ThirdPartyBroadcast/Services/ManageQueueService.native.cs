@@ -28,8 +28,6 @@ public class ManageQueueServiceImp : ManageQueueService
 
     private const string ErrorMessage = "Error from broad cast api: Match info";
 
-    private const string ErrorProcessWaitingQueue = "Failed: Process waiting queue";
-
     private const string SpecifiedWord = ":space:";
 
     private static readonly SemaphoreSlim SpecialRequestSemaphore = new(1, 1);
@@ -58,9 +56,7 @@ public class ManageQueueServiceImp : ManageQueueService
         {
             result.ErrorCode = ErrorCode;
             result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
-
-            writeLogService.WriteToFile(data);
-            await writeLogService.WriteLog(exception, result.ErrorMessage, index, false);
+            await writeLogService.WriteLog(exception, result.ErrorMessage, index);
 
             return result;
         }
@@ -84,7 +80,7 @@ public class ManageQueueServiceImp : ManageQueueService
         {
             result.ErrorCode = ErrorCode;
             result.ErrorMessage = $"{ErrorMessage} {data}\n {exception.Message}";
-            await writeLogService.WriteLog(exception, result.ErrorMessage, index, false);
+            await writeLogService.WriteLog(exception, result.ErrorMessage, index);
 
             return result;
         }
@@ -96,17 +92,10 @@ public class ManageQueueServiceImp : ManageQueueService
     {
         await SpecialRequestSemaphore.WaitAsync();
 
-        try
+        while (IsExistedItemInWaitingQueue(key))
         {
-            while (IsExistedItemInWaitingQueue(key))
-            {
-                await PushWaitingItemBackToQueue(key);
-                await Task.Delay(DelayTime);
-            }
-        }
-        catch (Exception e)
-        {
-            await writeLogService.WriteLog(e, ErrorProcessWaitingQueue, 0, true);
+            await PushWaitingItemBackToQueue(key);
+            await Task.Delay(DelayTime);
         }
 
         SpecialRequestSemaphore.Release();

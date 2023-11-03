@@ -7,25 +7,21 @@ namespace ThirdPartyBroadcast.Services;
 
 public interface WriteLogService
 {
-    Task WriteLog(Exception exception, string errorMessage, int index, bool logDirectly);
-
-    void WriteToFile(string data);
+    Task WriteLog(Exception exception, string errorMessage, int index);
 }
 
 public class WriteLogServiceImp : WriteLogService
 {
     private readonly AppSettingsKey appSettingsKey;
 
-    private const string FileName = "App_Data/RequestPushRedisFailed.txt";
-
     public WriteLogServiceImp(IOptions<AppSettingsKey> options)
     {
         appSettingsKey = options.Value;
     }
 
-    public async Task WriteLog(Exception exception, string errorMessage, int index, bool logDirectly)
+    public async Task WriteLog(Exception exception, string errorMessage, int index)
     {
-        if (logDirectly || index == appSettingsKey.RetryCount)
+        if (index == appSettingsKey.RetryCount)
         {
             var logMessage = new LogMessage(errorMessage)
                 .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(exception))
@@ -34,13 +30,5 @@ public class WriteLogServiceImp : WriteLogService
                 .ToString();
             await LogService.ErrorAsync(logMessage);
         }
-    }
-
-    public void WriteToFile(string data)
-    {
-        var contentToAppend = $"Request: {data} - Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
-
-        using var writer = new StreamWriter(FileName, true);
-        writer.WriteLine(contentToAppend);
     }
 }
