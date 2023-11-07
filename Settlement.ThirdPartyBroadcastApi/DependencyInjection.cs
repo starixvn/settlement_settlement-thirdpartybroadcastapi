@@ -97,7 +97,6 @@ public static class DependencyInjection
         services.AddTransient<IDynamicRepository, DynamicRepository>();
         services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<HappyFiveService, HappyFiveServiceImp>();
         services.AddTransient<NumberGameService, NumberGameServiceImp>();
         services.AddTransient<FastMarketService, FastMarketServiceImp>();
         services.AddTransient<PinGoalService, PinGoalServiceImp>();

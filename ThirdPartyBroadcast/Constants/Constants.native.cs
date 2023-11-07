@@ -13,8 +13,6 @@ public static class CacheKeys
 
 public static class SpName
 {
-    public const string HappyFive = "NAP_Admin_Settlement_s164";
-
     public const string NumberGame = "NAP_Admin_Settlement_s161";
 
     public const string MoveTicket = "NAP_Admin_Settlement_50_MoveTicket";
@@ -28,8 +26,6 @@ public static class EventStatus
 public static class ActionType
 {
     public const string Calculate = "cal";
-
-    public const string Refund = "refund";
 }
 
 public static class ActionName

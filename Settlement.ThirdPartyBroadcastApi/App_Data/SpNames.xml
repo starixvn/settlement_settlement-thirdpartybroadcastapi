@@ -38,21 +38,6 @@
 			<Setting Key="NAP_Set_SPDeploymentInfo_DBSID03" SpName="NAP_Set_SPDeploymentInfo" DbName="DBSID03.bodb02.bodbAdminNet" />
 		</Function>
 
-		<Function Name="Happy 5">
-			<Function Name="NAP_Admin_Settlement_s164">
-				<Setting Key="NAP_Admin_Settlement_s164_DBTXN" SpName="NAP_Admin_Settlement_s164" DbName="DBTXN.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_DBSID01" SpName="NAP_Admin_Settlement_s164" DbName="DBSID01.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_DBSID02" SpName="NAP_Admin_Settlement_s164" DbName="DBSID02.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_DBSID03" SpName="NAP_Admin_Settlement_s164" DbName="DBSID03.bodb02.bodbAdminNet" />
-			</Function>
-			<Function Name="NAP_Admin_Settlement_s164_Validation">
-				<Setting Key="NAP_Admin_Settlement_s164_Validation_DBTXN" SpName="NAP_Admin_Settlement_s164_Validation" DbName="DBTXN.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_Validation_DBSID01" SpName="NAP_Admin_Settlement_s164_Validation" DbName="DBSID01.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_Validation_DBSID02" SpName="NAP_Admin_Settlement_s164_Validation" DbName="DBSID02.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_s164_Validation_DBSID03" SpName="NAP_Admin_Settlement_s164_Validation" DbName="DBSID03.bodb02.bodbAdminNet" />
-			</Function>
-		</Function>
-
 		<Function Name="Number Game">
 			<Function Name="NAP_Admin_Settlement_s161">
 				<Setting Key="NAP_Admin_Settlement_s161_DBTXN" SpName="NAP_Admin_Settlement_s161" DbName="DBTXN.bodb02.bodbAdminNet" />

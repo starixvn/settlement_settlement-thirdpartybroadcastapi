@@ -20,10 +20,6 @@ public class ThirdPartyBroadcastController : ControllerBase
         this.publishMessageService = publishMessageService;
     }
 
-    [Route("happy-five"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> HappyFiveSettle(AutoHappyFiveRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
     [Route("number-game"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> NumberGameSettle(AutoNumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
@@ -91,6 +87,15 @@ public class ThirdPartyBroadcastController : ControllerBase
     {
         var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.BetBuilder, data);
+        return Ok(result);
+    }
+
+    [Route("happy-five"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> HappyFiveSettle(AutoHappyFiveRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.HappyFive, data);
         return Ok(result);
     }
 

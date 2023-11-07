@@ -2,15 +2,12 @@
 
 namespace ThirdPartyBroadcast;
 
-using Criteria.HappyFive;
-
 public class ThirdPartyBroadcastMappingProfile : Profile
 {
     public ThirdPartyBroadcastMappingProfile()
     {
         CreateMap<AutoNumberGameRequest, NumberGameCriteria>();
         CreateMap<AutoFastMarketRequest, FastMarketCriteria>();
-        CreateMap<AutoHappyFiveRequest, HappyFiveCriteria>();
         CreateMap<AutoPinGoalRequest, UpdateMatchInfoRequest>();
         CreateMap<AutoPinGoalRequest, PinGoalCriteria>();
         CreateMap<FastMarketCriteria, EventTicketFastMarketRequest>();
