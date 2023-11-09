@@ -99,7 +99,6 @@ public static class DependencyInjection
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<NumberGameService, NumberGameServiceImp>();
         services.AddTransient<FastMarketService, FastMarketServiceImp>();
-        services.AddTransient<PinGoalService, PinGoalServiceImp>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();

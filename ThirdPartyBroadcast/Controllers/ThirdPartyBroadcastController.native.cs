@@ -24,10 +24,6 @@ public class ThirdPartyBroadcastController : ControllerBase
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> NumberGameSettle(AutoNumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
 
-    [Route("pin-goal"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> PinGoalSettle(AutoPinGoalRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
     [Route("fast-market"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> FastMarketSettle(AutoFastMarketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
@@ -35,6 +31,15 @@ public class ThirdPartyBroadcastController : ControllerBase
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("pin-goal"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> PinGoalSettle(AutoPinGoalRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.PinGoal, data);
+        return Ok(result);
+    }
 
     [Route("virtual-bet-radar"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]

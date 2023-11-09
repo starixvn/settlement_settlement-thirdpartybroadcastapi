@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoPinGoalRequest : IRequest<Result>
+public class AutoPinGoalRequest
 {
     public int MatchId { get; set; }
 
