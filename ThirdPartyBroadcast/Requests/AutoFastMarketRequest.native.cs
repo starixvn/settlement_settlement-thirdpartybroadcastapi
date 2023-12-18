@@ -1,6 +1,6 @@
 ﻿namespace ThirdPartyBroadcast.Requests;
 
-public class AutoFastMarketRequest : IRequest<Result>
+public class AutoFastMarketRequest
 {
     public int MatchId { get; set; }
 
