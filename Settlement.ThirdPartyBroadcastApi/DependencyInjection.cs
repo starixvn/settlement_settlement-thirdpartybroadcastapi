@@ -98,7 +98,6 @@ public static class DependencyInjection
         services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<NumberGameService, NumberGameServiceImp>();
-        services.AddTransient<FastMarketService, FastMarketServiceImp>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();

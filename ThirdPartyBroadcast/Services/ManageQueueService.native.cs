@@ -24,8 +24,6 @@ public class ManageQueueServiceImp : ManageQueueService
 
     private const int ErrorCode = 1000;
 
-    private const int DelayTime = 200;
-
     private const string ErrorMessage = "Error from broad cast api: Match info";
 
     private const string SpecifiedWord = ":space:";
@@ -95,7 +93,6 @@ public class ManageQueueServiceImp : ManageQueueService
         while (IsExistedItemInWaitingQueue(key))
         {
             await PushWaitingItemBackToQueue(key);
-            await Task.Delay(DelayTime);
         }
 
         SpecialRequestSemaphore.Release();
