@@ -49,6 +49,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="appsettings.KLDR.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="App_Data\RequestPushRedisFailed.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
