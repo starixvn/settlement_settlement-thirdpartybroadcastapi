@@ -18,7 +18,6 @@ using ONEbook.UM.Configurations;
 using ONEbook.UM.Transport;
 using SharpRaven;
 using StackExchange.Redis;
-using ThirdPartyBroadcast;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
 using ThirdPartyBroadcast.Services;
@@ -83,7 +82,6 @@ public static class DependencyInjection
         var mapperConfig = new MapperConfiguration(mc =>
         {
             mc.AddProfile(typeof(ScaleOutMappingProfile));
-            mc.AddProfile(typeof(ThirdPartyBroadcastMappingProfile));
         });
 
         var mapper = mapperConfig.CreateMapper();
@@ -97,9 +95,7 @@ public static class DependencyInjection
         services.AddTransient<IDynamicRepository, DynamicRepository>();
         services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<NumberGameService, NumberGameServiceImp>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
-        services.AddTransient<CalculateService, CalculateServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
         services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
         services.AddTransient<MoveTicketService, MoveTicketServiceImp>();

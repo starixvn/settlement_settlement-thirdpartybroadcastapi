@@ -13,14 +13,7 @@ public static class CacheKeys
 
 public static class SpName
 {
-    public const string NumberGame = "NAP_Admin_Settlement_s161";
-
     public const string MoveTicket = "NAP_Admin_Settlement_50_MoveTicket";
-}
-
-public static class EventStatus
-{
-    public const string Completed = "completed";
 }
 
 public static class ActionType

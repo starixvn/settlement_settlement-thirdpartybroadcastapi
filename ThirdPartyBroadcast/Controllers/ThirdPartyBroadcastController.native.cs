@@ -20,13 +20,18 @@ public class ThirdPartyBroadcastController : ControllerBase
         this.publishMessageService = publishMessageService;
     }
 
-    [Route("number-game"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> NumberGameSettle(AutoNumberGameRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
-
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+
+    [Route("number-game"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> NumberGameSettle(AutoNumberGameRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.NumberGame, data);
+        return Ok(result);
+    }
 
     [Route("fast-market"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
@@ -107,13 +112,5 @@ public class ThirdPartyBroadcastController : ControllerBase
         var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.HappyFive, data);
         return Ok(result);
-    }
-
-    [Route("test-push-to-queue"), HttpGet]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> PushToProcessingQueue()
-    {
-        await publishMessageService.ProcessWaitingQueue();
-        return Ok("Ok");
     }
 }

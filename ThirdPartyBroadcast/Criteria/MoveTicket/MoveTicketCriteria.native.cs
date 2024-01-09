@@ -1,6 +1,8 @@
-﻿namespace ThirdPartyBroadcast.Criteria.MoveTicket;
+﻿using Fanex.Data;
 
-public class MoveTicketCriteria : BaseCriteria
+namespace ThirdPartyBroadcast.Criteria.MoveTicket;
+
+public class MoveTicketCriteria : NonQueryCommand
 {
     public int MatchId { get; set; }
 
@@ -15,6 +17,13 @@ public class MoveTicketCriteria : BaseCriteria
     public string Resources { get; set; }
 
     public int TicketCount { get; set; }
+
+    [SpParam(Ignored = true)]
+    public string DbServer { get; set; }
+
+    public int ErrCode { get; set; }
+
+    public string ErrMsg { get; set; }
 
     public override string GetSettingKey() => $"NAP_Admin_Settlement_50_MoveTicket_{DbServer}";
 
