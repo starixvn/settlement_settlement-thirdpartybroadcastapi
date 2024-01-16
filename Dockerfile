@@ -1,4 +1,4 @@
-FROM hub.nexdev.net/base/dotnet/core/sdk:7.0-alpine AS builder
+FROM hub.nexdev.net/base/dotnet/core/sdk:8.0-alpine AS builder
 
 COPY ./Settlement.ThirdPartyBroadcastApi/Settlement.ThirdPartyBroadcastApi.csproj ./Settlement.ThirdPartyBroadcastApi/Settlement.ThirdPartyBroadcastApi.csproj
 COPY ./ThirdPartyBroadcast ./ThirdPartyBroadcast
@@ -9,9 +9,9 @@ RUN dotnet restore -v n
 
 COPY ./Settlement.ThirdPartyBroadcastApi .
 
-RUN dotnet publish -r linux-x64 --self-contained false -c release -o /app 
+RUN dotnet publish -r linux-x64 --self-contained false -c Release -o /app
 
-FROM hub.nexdev.net/base/dotnet/core/aspnet:7.0-alpine AS base
+FROM hub.nexdev.net/base/dotnet/core/aspnet:8.0-alpine AS base
 
 ENV COMPlus_EnableDiagnostics=0
 WORKDIR /app

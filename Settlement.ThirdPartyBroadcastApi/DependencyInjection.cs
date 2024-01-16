@@ -7,8 +7,6 @@ using Fanex.Logging.Extensions;
 using Fanex.Logging.Extensions.AspNetCore;
 using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry.RavenClient;
-using Fanex.MailDeliver.MailClient;
-using Fanex.Settlement.Converter.Services;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using MassTransit;
@@ -72,9 +70,6 @@ public static class DependencyInjection
         ExceptionHandler
             .UseConfig(new LoggingConfiguration())
             .UseGetDbExceptionInfo(DatabaseInfoGetters.GetDbExceptionInfo);
-
-        AppSettings.AppMailId = configuration.GetSection("MailServer:Id").Value;
-        AppSettings.AppMailAddress = configuration.GetSection("MailServer:Address").Value;
     }
 
     private static void ConfigureAutoMapper(this IServiceCollection services)
@@ -93,7 +88,6 @@ public static class DependencyInjection
         services.AddTransient<ILogger, Logger>();
         services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
         services.AddTransient<IDynamicRepository, DynamicRepository>();
-        services.AddTransient<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
