@@ -87,6 +87,15 @@ public class ThirdPartyBroadcastController : ControllerBase
         return Ok(result);
     }
 
+    [Route("cock-fighting"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> CockFighting(LeapGamingRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.LeapGaming, data);
+        return Ok(result);
+    }
+
     [Route("bit-coin"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> BitCoinSettle(BitcoinRequest request)
