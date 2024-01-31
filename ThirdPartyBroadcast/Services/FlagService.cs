@@ -9,15 +9,8 @@ public interface FlagService
     Task<string> GetProductTypeFromCache(string key);
 }
 
-public class FlagServiceImp : FlagService
+public class FlagServiceImp(ICache cache) : FlagService
 {
-    private readonly ICache cache;
-
-    public FlagServiceImp(ICache cache)
-    {
-        this.cache = cache;
-    }
-
     public async Task<bool> IsDeployedFromCache(string key)
     {
         try

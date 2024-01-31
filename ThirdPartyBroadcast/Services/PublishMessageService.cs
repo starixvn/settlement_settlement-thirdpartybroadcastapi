@@ -7,29 +7,14 @@ public interface PublishMessageService
     Task<Result> Publisher(string productType, string data);
 }
 
-public class PublishMessageServiceImp : PublishMessageService
+public class PublishMessageServiceImp(
+    FlagService flagService,
+    ManageQueueService manageQueueService,
+    IOptions<AppSettingsKey> appSettingsKey,
+    IMaintenanceService maintenanceService)
+    : PublishMessageService
 {
-    private readonly AppSettingsKey appSettingsKey;
-
-    private readonly FlagService flagService;
-
-    private readonly ManageQueueService manageQueueService;
-
-    private readonly IMaintenanceService maintenanceService;
-
     private const int DelayTime = 2000;
-
-    public PublishMessageServiceImp(
-        FlagService flagService,
-        ManageQueueService manageQueueService,
-        IOptions<AppSettingsKey> appSettingsKey,
-        IMaintenanceService maintenanceService)
-    {
-        this.flagService = flagService;
-        this.manageQueueService = manageQueueService;
-        this.appSettingsKey = appSettingsKey.Value;
-        this.maintenanceService = maintenanceService;
-    }
 
     public async Task<Result> Publisher(string productType, string data)
     {
@@ -66,7 +51,7 @@ public class PublishMessageServiceImp : PublishMessageService
     private async Task<Result> RetryAndPublishToWaiting(string productType, string data)
     {
         var result = new Result();
-        for (var i = 1; i <= appSettingsKey.RetryCount; i++)
+        for (var i = 1; i <= appSettingsKey.Value.RetryCount; i++)
         {
             result = await manageQueueService.PublishToWaiting(productType, data, i);
             if (result.IsSuccessful)
@@ -84,7 +69,7 @@ public class PublishMessageServiceImp : PublishMessageService
     {
         var result = new Result();
 
-        for (var i = 1; i <= appSettingsKey.RetryCount; i++)
+        for (var i = 1; i <= appSettingsKey.Value.RetryCount; i++)
         {
             result = await manageQueueService.PublishToProcessing(productType, data, i);
             if (result.IsSuccessful)

@@ -7,15 +7,8 @@ public interface LogDirectlyService
     Task WriteLog(int matchId, string message = null);
 }
 
-public class LogDirectlyServiceImp : LogDirectlyService
+public class LogDirectlyServiceImp(IDynamicRepository dynamicRepository) : LogDirectlyService
 {
-    private readonly IDynamicRepository dynamicRepository;
-
-    public LogDirectlyServiceImp(IDynamicRepository dynamicRepository)
-    {
-        this.dynamicRepository = dynamicRepository;
-    }
-
     public async Task WriteLog(int matchId, string message = null)
     {
         try

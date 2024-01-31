@@ -6,7 +6,7 @@ public class AutoHappyFiveRequest
 
     public int AdminId { get; set; }
 
-    public string Action { get; set; } = "CAL";
+    public string Action { get; set; } = ActionName.Calculate;
 
     public string Ip { get; set; } = string.Empty;
 

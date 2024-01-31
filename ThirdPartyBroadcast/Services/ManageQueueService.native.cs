@@ -14,14 +14,12 @@ public interface ManageQueueService
     bool IsExistedItemInWaitingQueue(string key);
 }
 
-public class ManageQueueServiceImp : ManageQueueService
+public class ManageQueueServiceImp(
+    IPublishEndpoint publishEndpoint,
+    IConnectionMultiplexer connectionMultiplexer,
+    WriteLogService writeLogService)
+    : ManageQueueService
 {
-    private readonly IPublishEndpoint publishEndpoint;
-
-    private readonly IConnectionMultiplexer connectionMultiplexer;
-
-    private readonly WriteLogService writeLogService;
-
     private const int ErrorCode = 1000;
 
     private const string ErrorMessage = "Error from broad cast api: Match info";
@@ -29,16 +27,6 @@ public class ManageQueueServiceImp : ManageQueueService
     private const string SpecifiedWord = ":space:";
 
     private static readonly SemaphoreSlim SpecialRequestSemaphore = new(1, 1);
-
-    public ManageQueueServiceImp(
-        IPublishEndpoint publishEndpoint,
-        IConnectionMultiplexer connectionMultiplexer,
-        WriteLogService writeLogService)
-    {
-        this.publishEndpoint = publishEndpoint;
-        this.connectionMultiplexer = connectionMultiplexer;
-        this.writeLogService = writeLogService;
-    }
 
     private IDatabase Database => connectionMultiplexer.GetDatabase();
 
