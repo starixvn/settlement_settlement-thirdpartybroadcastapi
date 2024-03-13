@@ -10,26 +10,16 @@ public interface MoveTicketService
     Task<Result> MoveTicket(MoveTicketRequest request);
 }
 
-public class MoveTicketServiceImp : MoveTicketService
+public class MoveTicketServiceImp(
+    IDynamicRepository repository,
+    LogDirectlyService logDirectlyService,
+    IOptions<AppSettingsKey> appSettingsKey)
+    : MoveTicketService
 {
-    private readonly IDynamicRepository repository;
-    private readonly LogDirectlyService logDirectlyService;
-    private readonly AppSettingsKey appSettingsKey;
-
     private const string NotExistValidTicketToMove =
         "WARNING! Cannot continue due to current has no valid ticket to move.";
 
     private const int NotExistValidTicketToMoveCode = 1_001_049;
-
-    public MoveTicketServiceImp(
-        IDynamicRepository repository,
-        LogDirectlyService logDirectlyService,
-        IOptions<AppSettingsKey> options)
-    {
-        this.repository = repository;
-        this.logDirectlyService = logDirectlyService;
-        appSettingsKey = options.Value;
-    }
 
     public async Task<Result> MoveTicket(MoveTicketRequest request)
     {
@@ -104,7 +94,7 @@ public class MoveTicketServiceImp : MoveTicketService
             Resources = getTickets.Resources
         };
 
-        var tasks = appSettingsKey.SiteDbServer.Select(s => MoveTicket(s, criteria)).ToList();
+        var tasks = appSettingsKey.Value.SiteDbServer.Select(s => MoveTicket(s, criteria)).ToList();
         var watch = new System.Diagnostics.Stopwatch();
         watch.Start();
         var results = await Task.WhenAll(tasks.ToArray());

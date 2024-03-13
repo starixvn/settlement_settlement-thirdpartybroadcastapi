@@ -6,20 +6,11 @@ namespace ThirdPartyBroadcast.Controllers;
 
 [ApiController]
 [Route("api/third-party-broadcast")]
-public class ThirdPartyBroadcastController : ControllerBase
+public class ThirdPartyBroadcastController(
+    IMediator mediator,
+    PublishMessageService publishMessageService)
+    : ControllerBase
 {
-    private readonly IMediator mediator;
-
-    private readonly PublishMessageService publishMessageService;
-
-    public ThirdPartyBroadcastController(
-        IMediator mediator,
-        PublishMessageService publishMessageService)
-    {
-        this.mediator = mediator;
-        this.publishMessageService = publishMessageService;
-    }
-
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
@@ -84,6 +75,15 @@ public class ThirdPartyBroadcastController : ControllerBase
     {
         var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.LeapGaming, data);
+        return Ok(result);
+    }
+
+    [Route("cock-fighting"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> CockFighting(CockFightingRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.CockFighting, data);
         return Ok(result);
     }
 

@@ -10,18 +10,11 @@ public interface WriteLogService
     Task WriteLog(Exception exception, string errorMessage, int index);
 }
 
-public class WriteLogServiceImp : WriteLogService
+public class WriteLogServiceImp(IOptions<AppSettingsKey> appSettingsKey) : WriteLogService
 {
-    private readonly AppSettingsKey appSettingsKey;
-
-    public WriteLogServiceImp(IOptions<AppSettingsKey> options)
-    {
-        appSettingsKey = options.Value;
-    }
-
     public async Task WriteLog(Exception exception, string errorMessage, int index)
     {
-        if (index == appSettingsKey.RetryCount)
+        if (index == appSettingsKey.Value.RetryCount)
         {
             var logMessage = new LogMessage(errorMessage)
                 .AddSection("Database Info", DatabaseInfoGetters.GetDbExceptionInfo(exception))

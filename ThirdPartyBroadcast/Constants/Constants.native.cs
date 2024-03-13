@@ -24,6 +24,8 @@ public static class ActionType
 public static class ActionName
 {
     public const string MoveTicket = "MoveTicket";
+
+    public const string Calculate = "CAL";
 }
 
 public static class ActionId

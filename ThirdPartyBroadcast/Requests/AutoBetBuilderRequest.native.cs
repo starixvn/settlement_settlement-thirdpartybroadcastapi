@@ -6,7 +6,7 @@ public class AutoBetBuilderRequest
 
     public int AdminId { get; set; } = 148;
 
-    public string Action { get; set; } = "CAL";
+    public string Action { get; set; } = ActionName.Calculate;
 
     public string Ip { get; set; } = string.Empty;
 
