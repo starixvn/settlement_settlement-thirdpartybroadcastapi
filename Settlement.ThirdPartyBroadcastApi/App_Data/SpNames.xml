@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Functions>
 	<Function Name="ThirdParty Broadcast">
-		<Setting Key="NAP_Admin_Match_Update" SpName="NAP_Admin_Match_Update" DbName="DBPRO.bodb02.bodbAdminNet" />
-		<Setting Key="NAP_UpdateMatch_Remark" SpName="NAP_UpdateMatch_Remark" DbName="DBPRO.bodb02.bodbAdminNet" />
-		<Setting Key="WriteLog_UserLog_Settle" SpName="WriteLog_UserLog_Settle" DbName="DBLOG.bodb_CustomerLog.bodbAdminNet" />
-		<Setting Key="NAP_Admin_Settlement_50_MoveTicketInfo" SpName="NAP_Admin_Settlement_50_MoveTicketInfo" DbName="DBPRO.bodb02.bodbAdminNet" />
-		<Setting Key="NAP_UserLog_WriteLogPreSettlement" SpName="NAP_UserLog_WriteLogPreSettlement" DbName="DBUserLog.LogTDB.bodbAdminNet" />
+		<Setting Key="NAP_Admin_Match_Update" SpName="NAP_Admin_Match_Update" DbName="DBPRO.bodb02.wsv_nap" />
+		<Setting Key="NAP_UpdateMatch_Remark" SpName="NAP_UpdateMatch_Remark" DbName="DBPRO.bodb02.wsv_nap" />
+		<Setting Key="WriteLog_UserLog_Settle" SpName="WriteLog_UserLog_Settle" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
+		<Setting Key="NAP_Admin_Settlement_50_MoveTicketInfo" SpName="NAP_Admin_Settlement_50_MoveTicketInfo" DbName="DBPRO.bodb02.wsv_nap" />
+		<Setting Key="NAP_UserLog_WriteLogPreSettlement" SpName="NAP_UserLog_WriteLogPreSettlement" DbName="DBUserLog.LogTDB.wsv_nap" />
 	</Function>
 
 	<Function Name="Scale Out DB">
 		<Function Name="Move Ticket">
 			<Function Name="NAP_Admin_Settlement_50_MoveTicket">
-				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBTXN" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBTXN.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID01" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID01.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID02" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID02.bodb02.bodbAdminNet" />
-				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID03" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID03.bodb02.bodbAdminNet" />
+				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBTXN" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBTXN.bodb02.wsv_nap" />
+				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID01" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID01.bodb02.wsv_nap" />
+				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID02" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID02.bodb02.wsv_nap" />
+				<Setting Key="NAP_Admin_Settlement_50_MoveTicket_DBSID03" SpName="NAP_Admin_Settlement_50_MoveTicket" DbName="DBSID03.bodb02.wsv_nap" />
 			</Function>
 		</Function>
 	</Function>
