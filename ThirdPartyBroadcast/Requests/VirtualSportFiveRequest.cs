@@ -11,6 +11,7 @@ public class VirtualSportFiveRequest
     public int MatchId { get; set; }
 
     public int AdminId { get; set; }
+    public bool IsReSettledTickets { get; set; }
 
     public string SelectedResources { get; set; }
 

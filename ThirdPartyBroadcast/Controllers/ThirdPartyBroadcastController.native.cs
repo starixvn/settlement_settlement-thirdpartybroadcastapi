@@ -119,7 +119,7 @@ public class ThirdPartyBroadcastController(
     public async Task<IActionResult> VirtualSportFiveSettle(VirtualSportFiveRequest request)
     {
         var data = JsonConvert.SerializeObject(request);
-        var result = await publishMessageService.Publisher(ProductType.HappyFive, data);
+        var result = await publishMessageService.Publisher(ProductType.VirtualSports5, data);
         return Ok(result);
     }
 
