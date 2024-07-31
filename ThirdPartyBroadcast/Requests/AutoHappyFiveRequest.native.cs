@@ -9,6 +9,4 @@ public class AutoHappyFiveRequest
     public string Action { get; set; } = ActionName.Calculate;
 
     public string Ip { get; set; } = string.Empty;
-
-    public bool IsAuto { get; set; } = true;
 }
