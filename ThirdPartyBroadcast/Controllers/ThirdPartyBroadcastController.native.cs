@@ -113,4 +113,13 @@ public class ThirdPartyBroadcastController(
         var result = await publishMessageService.Publisher(ProductType.HappyFive, data);
         return Ok(result);
     }
+
+    [Route("virtual-racing"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> VirtualRacing(VirtualRacingRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.VirtualRacing, data);
+        return Ok(result);
+    }
 }
