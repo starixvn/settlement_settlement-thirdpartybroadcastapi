@@ -9,15 +9,15 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 	<ItemGroup>
-    <PackageReference Include="Fanex.Data" Version="4.2.6" />
-    <PackageReference Include="Fanex.Data.Repository" Version="4.2.6" />
+    <PackageReference Include="Fanex.Data" Version="4.3.0.2" />
+    <PackageReference Include="Fanex.Data.Repository" Version="4.3.0.2" />
     <!-- ReSharper disable once VulnerablePackage -->
-    <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.6" />
+    <PackageReference Include="Fanex.Data.SqlServer" Version="4.3.0.2" />
     <PackageReference Include="Fanex.Logging" Version="2.0.1.1" />
     <!-- ReSharper disable once VulnerablePackage -->
     <PackageReference Include="Fanex.Logging.Extensions.AspNetCore" Version="1.0.1" />
     <PackageReference Include="Fanex.Logging.Extensions.Database" Version="1.0.8" />
-    <PackageReference Include="Fanex.Settlement.ScaleOut" Version="1.4.6-beta1" />
+    <PackageReference Include="Fanex.Settlement.ScaleOut" Version="1.4.6.1" />
     <PackageReference Include="MassTransit" Version="8.2.5" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.5" />
     <PackageReference Include="MediatR" Version="12.4.1" />
