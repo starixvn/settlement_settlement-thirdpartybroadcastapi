@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SonarQubeExclude>True</SonarQubeExclude>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="App_Data\SpNames.xml" />
   </ItemGroup>
@@ -41,10 +40,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ThirdPartyBroadcast\ThirdPartyBroadcast.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
