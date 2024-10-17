@@ -114,7 +114,7 @@ public class ThirdPartyBroadcastController(
         return Ok(result);
     }
 
-     [Route("virtual-sport-five"), HttpPost]
+    [Route("virtual-sport-five"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> VirtualSportFiveSettle(VirtualSportFiveRequest request)
     {
@@ -133,12 +133,6 @@ public class ThirdPartyBroadcastController(
     }
 
     [Route("virtual-betby"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> VirtualBetby(VirtualBetbyRequest request)
-    {
-        var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.VirtualSports6, data);
-        return Ok(result);
-    }
-
 }
