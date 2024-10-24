@@ -11,7 +11,7 @@ public interface ManageQueueService
 
     Task ProcessWaitingQueue(string key);
 
-    bool IsExistedItemInWaitingQueue(string key);
+    Task<bool> IsExistedItemInWaitingQueue(string key);
 }
 
 public class ManageQueueServiceImp(
@@ -78,7 +78,7 @@ public class ManageQueueServiceImp(
     {
         await SpecialRequestSemaphore.WaitAsync();
 
-        while (IsExistedItemInWaitingQueue(key))
+        while (await IsExistedItemInWaitingQueue(key))
         {
             await PushWaitingItemBackToQueue(key);
         }
@@ -105,8 +105,8 @@ public class ManageQueueServiceImp(
         await Database.ListLeftPopAsync(key);
     }
 
-    public bool IsExistedItemInWaitingQueue(string key)
+    public async Task<bool> IsExistedItemInWaitingQueue(string key)
     {
-        return Database.ListLengthAsync(key).Result > 0;
+        return await Database.ListLengthAsync(key) > 0;
     }
 }

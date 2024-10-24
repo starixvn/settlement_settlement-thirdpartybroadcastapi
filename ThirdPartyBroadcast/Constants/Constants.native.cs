@@ -16,11 +16,6 @@ public static class SpName
     public const string MoveTicket = "NAP_Admin_Settlement_50_MoveTicket";
 }
 
-public static class ActionType
-{
-    public const string Calculate = "cal";
-}
-
 public static class ActionName
 {
     public const string MoveTicket = "MoveTicket";
