@@ -134,5 +134,9 @@ public class ThirdPartyBroadcastController(
 
     [Route("virtual-betby"), HttpPost]
     public async Task<IActionResult> VirtualBetby(VirtualBetbyRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.VirtualSports6, data);
+        return Ok(result);
+    }
 }
