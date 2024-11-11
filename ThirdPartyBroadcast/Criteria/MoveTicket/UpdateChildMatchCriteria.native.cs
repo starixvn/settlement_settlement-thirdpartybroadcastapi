@@ -14,7 +14,7 @@ public class UpdateChildMatchCriteria : NonQueryCommand
 
     public int HtAway { get; set; }
 
-    public string Action => ActionType.Calculate.ToUpper();
+    public string Action => ActionName.Calculate;
 
     public bool IsMovedMatch => true;
 

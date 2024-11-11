@@ -37,12 +37,14 @@ public class PublishMessageServiceImp(
 
     private async Task ProcessWaitingQueue()
     {
-        if (manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastServiceProductWaitingCacheKey))
+        var productWaitingOnService = await manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastServiceProductWaitingCacheKey);
+        if (productWaitingOnService)
         {
             await manageQueueService.ProcessWaitingQueue(CacheKeys.BroadcastServiceProductWaitingCacheKey);
         }
 
-        if (manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastApiProductWaitingCacheKey))
+        var productWaitingOnApi = await manageQueueService.IsExistedItemInWaitingQueue(CacheKeys.BroadcastApiProductWaitingCacheKey);
+        if (productWaitingOnApi)
         {
             await manageQueueService.ProcessWaitingQueue(CacheKeys.BroadcastApiProductWaitingCacheKey);
         }
