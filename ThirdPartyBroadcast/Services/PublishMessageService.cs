@@ -20,7 +20,7 @@ public class PublishMessageServiceImp(
     {
         var isDeployed = await flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey);
         var productTypeOnCache = await flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey);
-        var productTypeList = productTypeOnCache.Split(",");
+        var productTypeList = productTypeOnCache?.Split(",");
 
         if (maintenanceService.IsMaintenance || (isDeployed && productTypeList.Contains(productType)))
         {
