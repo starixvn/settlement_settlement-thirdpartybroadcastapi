@@ -30,7 +30,8 @@ public static class DependencyInjection
     public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
         StartUmSetting(configuration);
-        ConfigureFanex(configuration);
+        AddExceptionHandler();
+        services.AddFanexLogSentry(configuration);
         services.Configure<IConfiguration>(configuration);
         services.ConfigureCors();
         services.ConfigureAutoMapper();
@@ -55,18 +56,8 @@ public static class DependencyInjection
         });
     }
 
-    private static void ConfigureFanex(IConfiguration configuration)
+    private static void AddExceptionHandler()
     {
-        LogManager
-            .SetDefaultLogCategory(configuration.GetSection("LogCategory").Value)
-            .Use(new List<ILogEngine>
-            {
-                new SentryLogging(new SentryEngineOptions
-                {
-                    Dsn = new Dsn(configuration.GetSection("SentryToken").Value)
-                })
-            });
-
         ExceptionHandler
             .UseConfig(new LoggingConfiguration())
             .UseGetDbExceptionInfo(DatabaseInfoGetters.GetDbExceptionInfo);
