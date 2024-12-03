@@ -94,8 +94,8 @@ public static class DependencyInjection
 
     private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration)
     {
-        var redisConfig = configuration.GetSection("AuthSettings:RedisConfig").Value;
-        var applicationName = configuration.GetSection("AuthSettings:ChannelPrefix").Value;
+        var redisConfig = configuration.GetSection("Fanex.Caching.Redis:RedisConfig").Value;
+        var applicationName = configuration.GetSection("Fanex.Caching.Redis:ChannelPrefix").Value;
         service.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{redisConfig},ChannelPrefix={applicationName}"));
         service.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
         {
