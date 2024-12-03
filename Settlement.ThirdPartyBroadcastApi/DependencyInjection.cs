@@ -14,7 +14,6 @@ using ONEbook.UM;
 using ONEbook.UM.AspNetCore;
 using ONEbook.UM.Configurations;
 using ONEbook.UM.Transport;
-using SharpRaven;
 using StackExchange.Redis;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -102,7 +101,6 @@ public static class DependencyInjection
             ConnectionString = redisConfig,
             ApplicationName = applicationName,
         }));
-        service.AddSingleton<ICacheService>(new CacheService());
     }
 
     private static void ConfigureMassTransit(this IServiceCollection service, IConfiguration configuration)

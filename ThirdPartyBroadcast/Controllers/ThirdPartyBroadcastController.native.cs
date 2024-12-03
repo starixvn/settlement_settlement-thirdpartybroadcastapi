@@ -4,6 +4,8 @@ using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Controllers;
 
+using Fanex.Logging;
+
 [ApiController]
 [Route("api/third-party-broadcast")]
 public class ThirdPartyBroadcastController(
@@ -11,9 +13,20 @@ public class ThirdPartyBroadcastController(
     PublishMessageService publishMessageService)
     : ControllerBase
 {
+    [Route("test"), HttpGet]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> Test()
+    {
+        await LogService.ErrorAsync("Jacob is here");
+        return Ok("OK-Test");
+    }
+
     [Route("move-tickets"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> MoveTickets(MoveTicketRequest request) => Ok(await mediator.Send(request).ConfigureAwait(false));
+    public async Task<IActionResult> MoveTickets(MoveTicketRequest request)
+    {
+        return Ok(await mediator.Send(request).ConfigureAwait(false));
+    }
 
     [Route("number-game"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
