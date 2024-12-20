@@ -8,28 +8,20 @@ using ILogger = Fanex.Logging.ILogger;
 namespace ThirdPartyBroadcast.ActionFilters;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class LogRequestAttribute : ActionFilterAttribute
+public class LogRequestAttribute(IOptions<AppSettingsKey> appSettingsKey) : ActionFilterAttribute
 {
-    private readonly ILogger logger;
+    private readonly ILogger logger = new Logger();
 
-    private readonly AppSettingsKey appSettingsKey;
-
-    public LogRequestAttribute(IOptions<AppSettingsKey> appSettingsKey)
-    {
-        this.logger = new Logger();
-        this.appSettingsKey = appSettingsKey.Value;
-    }
 
     public override async void OnActionExecuting(ActionExecutingContext context)
     {
-        if (appSettingsKey.EnableLogRequest)
+        if (appSettingsKey.Value.EnableLogRequest)
         {
             var model = context.ActionArguments;
             var serialString = JsonConvert.SerializeObject(model);
             var url = context.HttpContext.Request.GetDisplayUrl();
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Url: {url}");
-            stringBuilder.AppendLine($"Params: {serialString}");
+            stringBuilder.AppendLine($"{url} - Params: {serialString}");
 
             await logger.InfoAsync(stringBuilder.ToString());
         }

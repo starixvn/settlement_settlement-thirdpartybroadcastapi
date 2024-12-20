@@ -4,18 +4,9 @@ using ILogger = Fanex.Logging.ILogger;
 
 namespace Settlement.ThirdPartyBroadcastApi.Middleware;
 
-public class ErrorHandler
+public class ErrorHandler(RequestDelegate next, ILogger logger, IConfiguration configuration)
 {
-    private readonly RequestDelegate next;
-    private readonly ILogger logger;
-    private IConfiguration Configuration { get; }
-
-    public ErrorHandler(RequestDelegate next, ILogger logger, IConfiguration configuration)
-    {
-        this.next = next;
-        this.logger = logger;
-        Configuration = configuration;
-    }
+    private IConfiguration Configuration { get; } = configuration;
 
     public async Task InvokeAsync(HttpContext context)
     {

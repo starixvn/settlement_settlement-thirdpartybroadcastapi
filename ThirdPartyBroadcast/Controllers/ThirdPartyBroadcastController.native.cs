@@ -146,6 +146,7 @@ public class ThirdPartyBroadcastController(
     }
 
     [Route("virtual-betby"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> VirtualBetby(VirtualBetbyRequest request)
     {
         var data = JsonConvert.SerializeObject(request);

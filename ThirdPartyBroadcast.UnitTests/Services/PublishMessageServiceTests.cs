@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using ONEbook.UM.Services;
 
 namespace ThirdPartyBroadcast.UnitTests.Services;
 
@@ -27,7 +28,7 @@ public class PublishMessageServiceTests
             }
         };
         accessor.HttpContext = context;
-        var appSettingsKey = new AppSettingsKey { SiteDbServer = new List<string> { "01", "02" }, RetryCount = 1 };
+        var appSettingsKey = new AppSettingsKey { SiteDbServer = ["01", "02"], RetryCount = 1 };
         var options = Options.Create(appSettingsKey);
         service = new PublishMessageServiceImp(flagService, manageQueueService, options, maintenanceService);
     }
@@ -35,7 +36,7 @@ public class PublishMessageServiceTests
     [Fact]
     public async Task Publisher_IsMaintenance_CallPublishToWaiting()
     {
-        maintenanceService.IsMaintenance.Returns(true);
+        maintenanceService.IsUnderMaintenanceAsync().Returns(true);
         flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
         flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
         manageQueueService.PublishToWaiting(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
@@ -52,7 +53,7 @@ public class PublishMessageServiceTests
     public async Task Publisher_ProductAndIsDeployed_CallPublishToWaiting()
     {
         const string product = "1,3,4,5";
-        maintenanceService.IsMaintenance.Returns(false);
+        maintenanceService.IsUnderMaintenanceAsync().Returns(false);
         flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
         flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
         manageQueueService.PublishToWaiting(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
@@ -68,7 +69,7 @@ public class PublishMessageServiceTests
     [Fact]
     public async Task Publisher_IsNotDeployed_CallProcessWaitingQueue()
     {
-        maintenanceService.IsMaintenance.Returns(false);
+        maintenanceService.IsUnderMaintenanceAsync().Returns(false);
         flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
         flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
         manageQueueService.IsExistedItemInWaitingQueue(Arg.Any<string>()).Returns(true);
@@ -86,7 +87,7 @@ public class PublishMessageServiceTests
     public async Task Publisher_IsDeployedAndNotInListProduct_CallPublishToProcessing()
     {
         const string product = "1,3,4,5";
-        maintenanceService.IsMaintenance.Returns(false);
+        maintenanceService.IsUnderMaintenanceAsync().Returns(false);
         flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
         flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
         manageQueueService.IsExistedItemInWaitingQueue(Arg.Any<string>()).Returns(true);

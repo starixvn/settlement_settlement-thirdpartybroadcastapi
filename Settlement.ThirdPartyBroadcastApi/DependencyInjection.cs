@@ -3,17 +3,11 @@ using Fanex.Caching;
 using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.Logging;
-using Fanex.Logging.Extensions;
-using Fanex.Logging.Extensions.AspNetCore;
-using Fanex.Logging.Extensions.Database;
 using Fanex.Logging.Sentry.RavenClient;
 using Fanex.Settlement.ScaleOut;
 using Fanex.Settlement.ScaleOut.Services;
 using MassTransit;
-using ONEbook.UM;
-using ONEbook.UM.AspNetCore;
-using ONEbook.UM.Configurations;
-using ONEbook.UM.Transport;
+using ONEbook.UM.DependencyInjection;
 using StackExchange.Redis;
 using ThirdPartyBroadcast.ActionFilters;
 using ThirdPartyBroadcast.Controllers;
@@ -28,10 +22,8 @@ public static class DependencyInjection
 
     public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
-        StartUmSetting(configuration);
-        AddExceptionHandler();
+        services.AddOneBookUm(configuration);
         services.AddFanexLogSentry(configuration);
-        services.Configure<IConfiguration>(configuration);
         services.ConfigureCors();
         services.ConfigureAutoMapper();
         services.ConfigInternalServices();
@@ -53,13 +45,6 @@ public static class DependencyInjection
                         .AllowAnyHeader();
                 });
         });
-    }
-
-    private static void AddExceptionHandler()
-    {
-        ExceptionHandler
-            .UseConfig(new LoggingConfiguration())
-            .UseGetDbExceptionInfo(DatabaseInfoGetters.GetDbExceptionInfo);
     }
 
     private static void ConfigureAutoMapper(this IServiceCollection services)
@@ -88,7 +73,6 @@ public static class DependencyInjection
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();
         services.AddScoped<LogRequestAttribute>();
         services.AddSingleton<WriteLogService, WriteLogServiceImp>();
-        services.AddSingleton<IMaintenanceService, MaintenanceServiceImp>();
     }
 
     private static void ConfigRedisCache(this IServiceCollection service, IConfiguration configuration)
@@ -121,15 +105,5 @@ public static class DependencyInjection
                 });
             });
         });
-    }
-
-    private static void StartUmSetting(IConfiguration configuration)
-    {
-        var umConfig = new UMClientConfiguration().Initialize(configuration);
-
-        UMClientManager
-            .UseConfig(umConfig)
-            .UseCacheService(new UMCacheService(new CacheService()))
-            .UseRestClient(new UMRestClient(umConfig));
     }
 }

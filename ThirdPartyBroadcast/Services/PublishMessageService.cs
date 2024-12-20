@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using ONEbook.UM.Services;
 
 namespace ThirdPartyBroadcast.Services;
 
@@ -21,8 +22,8 @@ public class PublishMessageServiceImp(
         var isDeployed = await flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey);
         var productTypeOnCache = await flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey);
         var productTypeList = productTypeOnCache?.Split(",");
-
-        if (maintenanceService.IsMaintenance || (isDeployed && productTypeList.Contains(productType)))
+        var isMaintenance = await maintenanceService.IsUnderMaintenanceAsync();
+        if (isMaintenance || (isDeployed && productTypeList.Contains(productType)))
         {
             return await RetryAndPublishToWaiting(productType, data);
         }
