@@ -4,12 +4,11 @@ using Settlement.ThirdPartyBroadcastApi.Middleware;
 using ThirdPartyBroadcast.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddFanexSql(builder.Configuration);
-
-builder.Services.Configure<AppSettingsKey>(builder.Configuration);
-
-builder.Services.AddBroadcastServices(builder.Configuration, builder.Environment);
+var services = builder.Services;
+services.AddFanexSql(builder.Configuration);
+services.Configure<AppSettingsKey>(builder.Configuration);
+services.AddBroadcastServices(builder.Configuration, builder.Environment);
+services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -20,6 +19,7 @@ app.UseMiddleware<ErrorHandler>();
 app.UseRouting();
 
 app.UseCors(DependencyInjection.AllowOrigin);
+app.MapHealthChecks("/healthz");
 
 app.MapControllerRoute(
     "default",

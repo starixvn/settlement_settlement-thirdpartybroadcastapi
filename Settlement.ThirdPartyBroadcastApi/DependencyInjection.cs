@@ -22,7 +22,7 @@ public static class DependencyInjection
 
     public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
-        services.AddOneBookUmForService(configuration);
+        services.AddOneBookUm(configuration);
         services.AddFanexLogSentry(configuration);
         services.ConfigureCors();
         services.ConfigureAutoMapper();
@@ -49,13 +49,7 @@ public static class DependencyInjection
 
     private static void ConfigureAutoMapper(this IServiceCollection services)
     {
-        var mapperConfig = new MapperConfiguration(mc =>
-        {
-            mc.AddProfile(typeof(ScaleOutMappingProfile));
-        });
-
-        var mapper = mapperConfig.CreateMapper();
-        services.AddSingleton(mapper);
+        services.AddAutoMapper(cfg => cfg.AddProfile<ScaleOutMappingProfile>());
     }
 
     private static void ConfigInternalServices(this IServiceCollection services)
