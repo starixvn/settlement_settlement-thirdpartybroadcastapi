@@ -11,7 +11,7 @@
     <PackageReference Include="ONEbook.UM" Version="3.2.6" />
     <PackageReference Include="System.Text.Encodings.Web" Version="9.0.7" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1">
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

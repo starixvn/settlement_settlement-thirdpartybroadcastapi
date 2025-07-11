@@ -19,7 +19,7 @@ public class FlagServiceTests
         cache.ContainAsync(key).Returns(false);
         var service = new FlagServiceImp(cache);
 
-        var result = await service.IsDeployedFromCache(key);
+        var result = await service.GetStatusOnCache(key);
 
         Assert.False(result);
     }
@@ -33,7 +33,7 @@ public class FlagServiceTests
 
         var service = new FlagServiceImp(cache);
 
-        var result = await service.IsDeployedFromCache(key);
+        var result = await service.GetStatusOnCache(key);
 
         Assert.True(result);
     }
@@ -45,7 +45,7 @@ public class FlagServiceTests
 
         var service = new FlagServiceImp(cache);
 
-        var result = await service.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey);
+        var result = await service.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey);
 
         Assert.False(result);
     }
@@ -57,7 +57,7 @@ public class FlagServiceTests
         cache.ContainAsync(key).Returns(false);
         var service = new FlagServiceImp(cache);
 
-        var result = await service.GetProductTypeFromCache(key);
+        var result = await service.GetProductTypeOnCache(key);
 
         Assert.Empty(result);
     }
@@ -71,7 +71,7 @@ public class FlagServiceTests
 
         var service = new FlagServiceImp(cache);
 
-        var result = await service.GetProductTypeFromCache(key);
+        var result = await service.GetProductTypeOnCache(key);
         const string expectedProductType = "1,2,3";
 
         Assert.Equal(expectedProductType, result);
@@ -84,7 +84,7 @@ public class FlagServiceTests
 
         var service = new FlagServiceImp(cache);
 
-        var result = await service.GetProductTypeFromCache(CacheKeys.BroadcastFlagCacheKey);
+        var result = await service.GetProductTypeOnCache(CacheKeys.BroadcastFlagCacheKey);
 
         Assert.Empty(result);
     }
