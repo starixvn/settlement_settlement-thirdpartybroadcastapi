@@ -141,4 +141,13 @@ public class ThirdPartyBroadcastController(PublishMessageService publishMessageS
         var result = await publishMessageService.Publisher(ProductType.VirtualSports6, data);
         return Ok(result);
     }
+
+    [Route("virtual-kiron"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> VirtualKiron(VirtualKironRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.VirtualKiron, data);
+        return Ok(result);
+    }
 }

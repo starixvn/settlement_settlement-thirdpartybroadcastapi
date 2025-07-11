@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Fanex.Caching;
+﻿using Fanex.Caching;
 using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.Logging;
@@ -22,7 +21,7 @@ public static class DependencyInjection
 
     public static void AddBroadcastServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
-        services.AddOneBookUm(configuration);
+        services.AddOneBookUmForService(configuration);
         services.AddFanexLogSentry(configuration);
         services.ConfigureCors();
         services.ConfigureAutoMapper();
