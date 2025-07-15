@@ -4,14 +4,14 @@ namespace ThirdPartyBroadcast.Services;
 
 public interface FlagService
 {
-    Task<bool> IsDeployedFromCache(string key);
+    Task<bool> GetStatusOnCache(string key);
 
-    Task<string> GetProductTypeFromCache(string key);
+    Task<string> GetProductTypeOnCache(string key);
 }
 
 public class FlagServiceImp(ICache cache) : FlagService
 {
-    public async Task<bool> IsDeployedFromCache(string key)
+    public async Task<bool> GetStatusOnCache(string key)
     {
         try
         {
@@ -30,7 +30,7 @@ public class FlagServiceImp(ICache cache) : FlagService
         }
     }
 
-    public async Task<string> GetProductTypeFromCache(string key)
+    public async Task<string> GetProductTypeOnCache(string key)
     {
         try
         {

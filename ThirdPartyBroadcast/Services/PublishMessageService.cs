@@ -19,11 +19,13 @@ public class PublishMessageServiceImp(
 
     public async Task<Result> Publisher(string productType, string data)
     {
-        var isDeployed = await flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey);
-        var productTypeOnCache = await flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey);
+        var isDeployed = await flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey);
+        var isFlagUnderMaintenance = await flagService.GetStatusOnCache(CacheKeys.BroadcastSettleUnderMaintenanceCacheKey);
+        var productTypeOnCache = await flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey);
         var productTypeList = productTypeOnCache?.Split(",");
         var isMaintenance = await maintenanceService.IsUnderMaintenanceAsync();
-        if (isMaintenance || (isDeployed && productTypeList.Contains(productType)))
+
+        if ((isMaintenance && !isFlagUnderMaintenance) || (isDeployed && productTypeList.Contains(productType)))
         {
             return await RetryAndPublishToWaiting(productType, data);
         }

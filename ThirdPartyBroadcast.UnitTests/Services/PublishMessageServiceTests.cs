@@ -37,8 +37,8 @@ public class PublishMessageServiceTests
     public async Task Publisher_IsMaintenance_CallPublishToWaiting()
     {
         maintenanceService.IsUnderMaintenanceAsync().Returns(true);
-        flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
-        flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
+        flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
+        flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
         manageQueueService.PublishToWaiting(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
 
         var result = await service.Publisher(string.Empty, string.Empty);
@@ -54,8 +54,8 @@ public class PublishMessageServiceTests
     {
         const string product = "1,3,4,5";
         maintenanceService.IsUnderMaintenanceAsync().Returns(false);
-        flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
-        flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
+        flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
+        flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
         manageQueueService.PublishToWaiting(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
 
         var result = await service.Publisher("3", string.Empty);
@@ -70,8 +70,8 @@ public class PublishMessageServiceTests
     public async Task Publisher_IsNotDeployed_CallProcessWaitingQueue()
     {
         maintenanceService.IsUnderMaintenanceAsync().Returns(false);
-        flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
-        flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
+        flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
+        flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey).Returns(string.Empty);
         manageQueueService.IsExistedItemInWaitingQueue(Arg.Any<string>()).Returns(true);
         manageQueueService.PublishToProcessing(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
 
@@ -88,8 +88,8 @@ public class PublishMessageServiceTests
     {
         const string product = "1,3,4,5";
         maintenanceService.IsUnderMaintenanceAsync().Returns(false);
-        flagService.IsDeployedFromCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
-        flagService.GetProductTypeFromCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
+        flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
+        flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey).Returns(product);
         manageQueueService.IsExistedItemInWaitingQueue(Arg.Any<string>()).Returns(true);
         manageQueueService.PublishToProcessing(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()).Returns(new Result());
 

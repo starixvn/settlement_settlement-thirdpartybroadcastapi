@@ -4,28 +4,16 @@ using ThirdPartyBroadcast.Services;
 
 namespace ThirdPartyBroadcast.Controllers;
 
-using Fanex.Logging;
-
 [ApiController]
 [Route("api/third-party-broadcast")]
-public class ThirdPartyBroadcastController(
-    IMediator mediator,
-    PublishMessageService publishMessageService)
+public class ThirdPartyBroadcastController(PublishMessageService publishMessageService)
     : ControllerBase
 {
     [Route("test"), HttpGet]
     [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> Test()
+    public Task<IActionResult> Test()
     {
-        await LogService.ErrorAsync("Jacob is here");
-        return Ok("OK-Test");
-    }
-
-    [Route("move-tickets"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> MoveTickets(MoveTicketRequest request)
-    {
-        return Ok(await mediator.Send(request).ConfigureAwait(false));
+        return Task.FromResult<IActionResult>(Ok("OK-Test"));
     }
 
     [Route("number-game"), HttpPost]
@@ -151,6 +139,15 @@ public class ThirdPartyBroadcastController(
     {
         var data = JsonConvert.SerializeObject(request);
         var result = await publishMessageService.Publisher(ProductType.VirtualSports6, data);
+        return Ok(result);
+    }
+
+    [Route("virtual-kiron"), HttpPost]
+    [ServiceFilter(typeof(LogRequestAttribute))]
+    public async Task<IActionResult> VirtualKiron(VirtualKironRequest request)
+    {
+        var data = JsonConvert.SerializeObject(request);
+        var result = await publishMessageService.Publisher(ProductType.VirtualKiron, data);
         return Ok(result);
     }
 }
