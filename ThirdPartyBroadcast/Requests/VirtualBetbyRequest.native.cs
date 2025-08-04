@@ -6,6 +6,8 @@ public class VirtualBetbyRequest
 
     public int AdminId { get; set; }
 
+    public int GameSession { get; set; }
+
     public string SelectedResources { get; set; }
 
     public string Ip { get; set; } = string.Empty;
