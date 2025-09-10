@@ -60,7 +60,6 @@ public static class DependencyInjection
         services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
         services.AddTransient<GeneralService, GeneralServiceImp>();
         services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
-        services.AddTransient<MoveTicketService, MoveTicketServiceImp>();
         services.AddTransient<PublishMessageService, PublishMessageServiceImp>();
         services.AddTransient<FlagService, FlagServiceImp>();
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();

@@ -61,15 +61,6 @@ public class ThirdPartyBroadcastController(PublishMessageService publishMessageS
         return Ok(result);
     }
 
-    [Route("outright"), HttpPost]
-    [ServiceFilter(typeof(LogRequestAttribute))]
-    public async Task<IActionResult> OutrightSettle(OutrightRequest request)
-    {
-        var data = JsonConvert.SerializeObject(request);
-        var result = await publishMessageService.Publisher(ProductType.Outright, data);
-        return Ok(result);
-    }
-
     [Route("leap-gaming"), HttpPost]
     [ServiceFilter(typeof(LogRequestAttribute))]
     public async Task<IActionResult> LeapGaming(LeapGamingRequest request)
