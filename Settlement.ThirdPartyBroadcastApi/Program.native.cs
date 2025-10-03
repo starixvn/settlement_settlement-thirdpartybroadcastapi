@@ -5,7 +5,6 @@ using ThirdPartyBroadcast.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-services.AddFanexSql(builder.Configuration);
 services.Configure<AppSettingsKey>(builder.Configuration);
 services.AddBroadcastServices(builder.Configuration, builder.Environment);
 services.AddHealthChecks();

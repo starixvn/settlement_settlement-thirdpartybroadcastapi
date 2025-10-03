@@ -13,21 +13,9 @@ public static class CacheKeys
     public const string BroadcastSettleUnderMaintenanceCacheKey = "Settlement-Broadcast-Settle-UnderMaintenance";
 }
 
-public static class SpName
-{
-    public const string MoveTicket = "NAP_Admin_Settlement_50_MoveTicket";
-}
-
 public static class ActionName
 {
     public const string MoveTicket = "MoveTicket";
 
     public const string Calculate = "CAL";
-}
-
-public static class ActionId
-{
-    public const int MoveTicketFailed = 81026;
-
-    public const int MoveTicket = 81025;
 }

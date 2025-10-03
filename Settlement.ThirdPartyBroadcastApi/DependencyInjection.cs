@@ -3,8 +3,6 @@ using Fanex.Caching.Redis;
 using Fanex.Data.Repository;
 using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
-using Fanex.Settlement.ScaleOut;
-using Fanex.Settlement.ScaleOut.Services;
 using MassTransit;
 using ONEbook.UM.DependencyInjection;
 using StackExchange.Redis;
@@ -24,7 +22,6 @@ public static class DependencyInjection
         services.AddOneBookUmForService(configuration);
         services.AddFanexLogSentry(configuration);
         services.ConfigureCors();
-        services.ConfigureAutoMapper();
         services.ConfigInternalServices();
         services.ConfigRedisCache(configuration);
         services.ConfigureMassTransit(configuration);
@@ -46,20 +43,11 @@ public static class DependencyInjection
         });
     }
 
-    private static void ConfigureAutoMapper(this IServiceCollection services)
-    {
-        services.AddAutoMapper(cfg => cfg.AddProfile<ScaleOutMappingProfile>());
-    }
-
     private static void ConfigInternalServices(this IServiceCollection services)
     {
         services.AddTransient<ILogger, Logger>();
-        services.AddTransient<ScaleOutSettleThirdPartyService, ScaleOutSettleThirdPartyServiceImp>();
         services.AddTransient<IDynamicRepository, DynamicRepository>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<ScaleOutSettleService, ScaleOutSettleServiceImp>();
-        services.AddTransient<GeneralService, GeneralServiceImp>();
-        services.AddTransient<LogDirectlyService, LogDirectlyServiceImp>();
         services.AddTransient<PublishMessageService, PublishMessageServiceImp>();
         services.AddTransient<FlagService, FlagServiceImp>();
         services.AddTransient<ManageQueueService, ManageQueueServiceImp>();

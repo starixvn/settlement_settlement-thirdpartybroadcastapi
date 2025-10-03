@@ -6,29 +6,20 @@
     <SonarQubeExclude>True</SonarQubeExclude>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="App_Data\SpNames.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Data\SpNames.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="15.0.1" />
-    <PackageReference Include="Fanex.Data" Version="4.3.4.3" />
-    <PackageReference Include="Fanex.Data.Repository" Version="4.3.4.3" />
-    <PackageReference Include="Fanex.Data.SqlServer" Version="4.3.4.3" />
+    <PackageReference Include="Fanex.Data" Version="4.3.4.5" />
+    <PackageReference Include="Fanex.Data.Repository" Version="4.3.4.5" />
+    <PackageReference Include="Fanex.Data.SqlServer" Version="4.3.4.5" />
     <!-- ReSharper disable once VulnerablePackage -->
     <PackageReference Include="Fanex.Logging.Extensions.Database" Version="2.0.2.1" />
     <PackageReference Include="Fanex.Logging.Sentry.RavenClient" Version="2.0.2" />
     <PackageReference Include="Fanex.Settlement.ScaleOut" Version="1.4.6.4" />
-    <PackageReference Include="MassTransit" Version="8.5.1" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.1" />
+    <PackageReference Include="MassTransit" Version="8.5.3" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.3" />
     <PackageReference Include="MediatR" Version="13.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="ONEbook.UM" Version="3.2.6" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.7" />
-    <PackageReference Include="StackExchange.Redis" Version="2.8.41" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.9" />
+    <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdPartyBroadcast\ThirdPartyBroadcast.csproj" />

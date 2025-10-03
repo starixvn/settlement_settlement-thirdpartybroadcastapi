@@ -28,7 +28,7 @@ public class PublishMessageServiceTests
             }
         };
         accessor.HttpContext = context;
-        var appSettingsKey = new AppSettingsKey { SiteDbServer = ["01", "02"], RetryCount = 1 };
+        var appSettingsKey = new AppSettingsKey { RetryCount = 1 };
         var options = Options.Create(appSettingsKey);
         service = new PublishMessageServiceImp(flagService, manageQueueService, options, maintenanceService);
     }
@@ -232,10 +232,10 @@ public class PublishMessageServiceTests
     [Fact]
     public async Task Publisher_RetryAndPublishToWaiting_SuccessOnSecondAttempt()
     {
-        var appSettingsKey = new AppSettingsKey { SiteDbServer = ["01", "02"], RetryCount = 2 };
+        var appSettingsKey = new AppSettingsKey { RetryCount = 2 };
         var options = Options.Create(appSettingsKey);
         var retryService = new PublishMessageServiceImp(flagService, manageQueueService, options, maintenanceService);
-        
+
         maintenanceService.IsUnderMaintenanceAsync().Returns(true);
         flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(false);
         flagService.GetStatusOnCache(CacheKeys.BroadcastSettleUnderMaintenanceCacheKey).Returns(false);
@@ -285,10 +285,10 @@ public class PublishMessageServiceTests
     [Fact]
     public async Task Publisher_RetryAndPublishToProcessing_SuccessOnSecondAttempt()
     {
-        var appSettingsKey = new AppSettingsKey { SiteDbServer = ["01", "02"], RetryCount = 2 };
+        var appSettingsKey = new AppSettingsKey { RetryCount = 2 };
         var options = Options.Create(appSettingsKey);
         var retryService = new PublishMessageServiceImp(flagService, manageQueueService, options, maintenanceService);
-        
+
         maintenanceService.IsUnderMaintenanceAsync().Returns(false);
         flagService.GetStatusOnCache(CacheKeys.BroadcastFlagCacheKey).Returns(true);
         flagService.GetProductTypeOnCache(CacheKeys.BroadcastProductCacheKey).Returns("1,2,3");
